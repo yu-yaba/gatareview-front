@@ -1,0 +1,26 @@
+import Link from "next/link";
+
+export default function Header() {
+  return (
+    <footer className="mt-20 border-t border-[#eaedf0] w-[80%] m-auto py-4">
+      <div className="flex flex-wrap justify-center items-center">
+        <a href="https://forms.gle/2EU6Yud7f5YXeJX18" target="_blank" rel="noreferrer" className="m-2 text-base">
+          削除依頼
+        </a>
+        <a href="https://forms.gle/kawPCGBi6NB5pfQz8" target="_blank" rel="noreferrer" className="m-2 text-base">
+          お問い合わせ
+        </a>
+        <Link href="/lectures/terms" className="m-2 text-base">
+          利用規約
+        </Link>
+        <Link href="/lectures/policy" className="m-2 text-base">
+          プライバシーポリシー
+        </Link>
+      </div>
+      <div className="flex justify-center items-center text-center py-2">
+        <img src="/green-title.png" alt="footer-title" className="w-[120px] h-[40px]" />
+        <p className="text-[#808080] text-[0.7rem] mx-2">© 2023 ガタレビュ！</p>
+      </div>
+    </footer>
+  )
+}
