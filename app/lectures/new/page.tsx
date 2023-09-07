@@ -1,19 +1,23 @@
 'use client'
 import Link from "next/link";
-import { LectureData } from "../../types/lecture";
+import { LectureData } from "../../types/LectureData";
 import { validateLecture, isEmptyObject } from "../../helpers/helpers";
 import { useState } from "react";
+import { success } from "@/app/helpers/notifications";
+import { handleAjaxError } from "../../helpers/helpers";
+import { useRouter } from "next/navigation";
 
 
-const LectureForm = (onSave: LectureData) => {
+const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => {
   const [lecture, setLecture] = useState({
     title: '',
     lecturer: '',
     faculty: ''
   });
-  const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const router = useRouter()
 
-  const updateLecture = (name, value) => {
+  const updateLecture = (name: string, value: string) => {
     setLecture((prevLecture) => ({ ...prevLecture, [name]: value }));
   };
 
@@ -26,7 +30,7 @@ const LectureForm = (onSave: LectureData) => {
   };
 
   const renderErrors = () => {
-    if (isEmptyObject(formErrors)) { // formErrorsが空の場合はnullを返す
+    if (isEmptyObject(formErrors)) {
       return null;
     }
 
@@ -34,24 +38,49 @@ const LectureForm = (onSave: LectureData) => {
       <div className="errors">
         <h3>空欄があります</h3>
         <ul>
-          {Object.values(formErrors).map((formError) => (
-            <li key={formError}>{formError}</li>
+          {Object.values(formErrors).map((formError: string, index: number) => (
+            <li key={index}>{formError}</li>
           ))}
         </ul>
       </div>
     );
   };
 
+  const addLecture = async (newLecture: LectureData) => {
+    try { // tryはエラーが起きる可能性のある処理を囲む
+      const response = await fetch('http://localhost:3000/api/v2/lectures', {
+        method: 'POST', // リクエストのHTTPメソッドをPOSTに指定
+        body: JSON.stringify(newLecture), //  送信するデータをJSON形式に変換、bodyは送信する情報
+        headers: { // headersは送信する情報の形式などの詳細
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw Error(response.statusText);
+
+      const savedLecture = await response.json();
+      success('授業を登録しました');
+      router.push(`/lectures/${savedLecture.id}`);
+    } catch (error) {
+      handleAjaxError("授業の登録に失敗しました");
+    }
+  };
+
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errors = validateLecture(lecture); // errorsにエラーメッセージを格納
+    console.log(formErrors);
+    console.log(errors);
+
 
     if (!isEmptyObject(errors)) { // errorsが空でない場合はエラーメッセージを表示
       setFormErrors(errors);
     } else {
-      onSave(lecture);
+      addLecture(lecture)
+      console.log(lecture)
     }
   };
+
 
 
   return (

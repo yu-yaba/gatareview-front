@@ -1,9 +1,16 @@
 import { error } from "./notifications";
-import { LectureData } from "../types/lecture";
-import { ReviewData } from "../types/review";
-import { ReviewErrors } from "../types/reviewErrors";
+import { LectureData } from "../types/LectureData";
+import { ReviewData } from "../types/ReviewData";
+import { ReviewErrors } from "../types/ReviewError";
 
-export const isEmptyObject = (obj: object) => Object.keys(obj).length === 0;
+export const isEmptyObject = (obj: object) => {
+  for (let key in obj) {
+    if (obj[key] !== "") {
+      return false;
+    }
+  }
+  return true;
+}
 
 export const validateLecture = (lecture: LectureData) => {
   const LectureErrors: LectureData = {
