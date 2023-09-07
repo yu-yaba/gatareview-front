@@ -21,7 +21,7 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
     setLecture((prevLecture) => ({ ...prevLecture, [name]: value }));
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { target } = e;
     const { name } = target;
     const { value } = target;
@@ -50,7 +50,7 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
     try { // tryはエラーが起きる可能性のある処理を囲む
       const response = await fetch('http://localhost:3000/api/v2/lectures', {
         method: 'POST', // リクエストのHTTPメソッドをPOSTに指定
-        body: JSON.stringify(newLecture), //  送信するデータをJSON形式に変換、bodyは送信する情報
+        body: JSON.stringify({ lecture: newLecture }), //  送信するデータをJSON形式に変換、bodyは送信する情報
         headers: { // headersは送信する情報の形式などの詳細
           'Content-Type': 'application/json',
         },
@@ -66,12 +66,9 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
   };
 
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement | HTMLSelectElement>) => {
     e.preventDefault();
     const errors = validateLecture(lecture); // errorsにエラーメッセージを格納
-    console.log(formErrors);
-    console.log(errors);
-
 
     if (!isEmptyObject(errors)) { // errorsが空でない場合はエラーメッセージを表示
       setFormErrors(errors);
