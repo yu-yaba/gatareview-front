@@ -48,16 +48,16 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
 
   const addLecture = async (newLecture: LectureData) => {
     try { // tryはエラーが起きる可能性のある処理を囲む
-      const response = await fetch('http://localhost:3000/api/v2/lectures', {
+      const res = await fetch('http://localhost:3000/api/v2/lectures', {
         method: 'POST', // リクエストのHTTPメソッドをPOSTに指定
         body: JSON.stringify({ lecture: newLecture }), //  送信するデータをJSON形式に変換、bodyは送信する情報
         headers: { // headersは送信する情報の形式などの詳細
           'Content-Type': 'application/json',
         },
       });
-      if (!response.ok) throw Error(response.statusText);
+      if (!res.ok) throw Error(res.statusText);
 
-      const savedLecture = await response.json();
+      const savedLecture = await res.json();
       success('授業を登録しました');
       router.push(`/lectures/${savedLecture.id}`);
     } catch (error) {
