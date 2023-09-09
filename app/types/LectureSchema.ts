@@ -1,6 +1,6 @@
 export type LectureSchema = {
   avg_rating: any;
-  id: string;
+  id: number;
   title: string;
   lecturer: string;
   faculty: string;
