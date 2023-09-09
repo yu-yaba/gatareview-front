@@ -10,10 +10,10 @@ export default function Header() {
         <a href="https://forms.gle/kawPCGBi6NB5pfQz8" target="_blank" rel="noreferrer" className="m-2 text-base">
           お問い合わせ
         </a>
-        <Link href="/lectures/terms" className="m-2 text-base">
+        <Link href="/terms" className="m-2 text-base">
           利用規約
         </Link>
-        <Link href="/lectures/policy" className="m-2 text-base">
+        <Link href="/privacy" className="m-2 text-base">
           プライバシーポリシー
         </Link>
       </div>
