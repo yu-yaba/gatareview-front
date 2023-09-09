@@ -183,7 +183,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           ))}
         </div>
         <div className='addButtonCon flex justify-center ...'>
-          <Link href="newReview" className='addReview'><button type='button' className='bg-green-500 text-white text-lg font-bold' >レビューする</button></Link>
+          <Link href={`/lectures/${params.id}/new`} className='addReview'><button type='button' className='bg-green-500 text-white text-lg font-bold' >レビューする</button></Link>
         </div>
       </div>
     </Suspense>

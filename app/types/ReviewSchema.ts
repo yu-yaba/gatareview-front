@@ -2,7 +2,7 @@ export type ReviewSchema = {
   id: number
   rating: number;
   content: string;
-  lecture_id: string;
+  lecture_id: number;
   textbook: string;
   attendance: string;
   grading_type: string;
