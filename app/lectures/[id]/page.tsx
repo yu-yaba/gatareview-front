@@ -1,7 +1,7 @@
 'use client'
 import PropTypes from 'prop-types';
 import ReactStarsRating from 'react-awesome-stars-rating';
-// import Modal from 'react-modal';
+import Modal from 'react-modal';
 import { pdfjs, Document, Page } from 'react-pdf';
 import { handleAjaxError } from '../../helpers/helpers';
 import "react-pdf/dist/esm/Page/AnnotationLayer.css"
@@ -12,28 +12,28 @@ import { ReviewSchema } from '@/app/types/ReviewSchema';
 import Link from 'next/link';
 import { LectureData } from '@/app/types/LectureData';
 import { LectureSchema } from '@/app/types/LectureSchema';
+import { ImageData } from '@/app/types/ImageData';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-// Modal.setAppElement('#__next')
 
-// const customStyles = {
-//   content: {
-//     top: '50%',
-//     left: '50%',
-//     right: 'auto',
-//     bottom: 'auto',
-//     marginRight: '-50%',
-//     marginTop: '7%',
-//     transform: 'translate(-50%, -50%)'
-//   }
-// };
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    marginTop: '7%',
+    transform: 'translate(-50%, -50%)'
+  }
+};
 
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
   const [isOpen, setIsOpen] = useState(false);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<ImageData[]>([]);
   const [imageCount, setImageCount] = useState(0);
   const [lecture, setLecture] = useState<LectureSchema | null>(null)
 
@@ -105,6 +105,8 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
   };
 
 
+
+
   if (!params.id) notFound();
 
   return (
@@ -131,35 +133,35 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
         </div>
         <div className='modalCon'>
           <button type='button' onClick={openModal} style={{ color: imageCount === 0 ? 'red' : '#1DBE67' }}>過去問 ({imageCount})</button>
-          {/* <Modal
-          isOpen={isOpen}
-          onRequestClose={closeModal}
-          style={customStyles}
-          contentLabel="Example Modal"
-        >
-          <button type='button' className='closeButton' onClick={closeModal}>×</button>
-          <div className='imageContainer'>
-            {images.map(image => {
-              console.log(image);
-              if (image.type && image.type.startsWith('image/')) {
-                return <a key={image.url} href={image.url} target='_blank' rel="noopener noreferrer">
-                  <img src={image.url} alt="過去問" />
-                </a>;
-              } if (image.type && image.type === 'application/pdf') {
-                return <a key={image.url} href={image.url} target='_blank' rel="noopener noreferrer">
-                  <div className="pdfContainer">
-                    <Document file={image.url} key={image.url}>
-                      <Page pageNumber={1} scale={0.3} renderTextLayer={false} />
-                    </Document>
-                  </div>
-                </a>
-                  ;
-              }
-              return null;
-            })}
-          </div>
-        </Modal> */}
-          <Link href="upload" className='addReview'><button type='button'>過去問を投稿</button></Link>
+          <Modal
+            isOpen={isOpen}
+            onRequestClose={closeModal}
+            style={customStyles}
+            contentLabel="Example Modal"
+          >
+            <button type='button' className='closeButton' onClick={closeModal}>×</button>
+            <div className='imageContainer'>
+              {images.map(image => {
+                console.log(image);
+                if (image.type && image.type.startsWith('image/')) {
+                  return <a key={image.url} href={image.url} target='_blank' rel="noopener noreferrer">
+                    <img src={image.url} alt="過去問" />
+                  </a>;
+                } if (image.type && image.type === 'application/pdf') {
+                  return <a key={image.url} href={image.url} target='_blank' rel="noopener noreferrer">
+                    <div className="pdfContainer">
+                      <Document file={image.url} key={image.url}>
+                        <Page pageNumber={1} scale={0.3} renderTextLayer={false} />
+                      </Document>
+                    </div>
+                  </a>
+                    ;
+                }
+                return null;
+              })}
+            </div>
+          </Modal>
+          <Link href={`/lectures/${params.id}/upload`} className='addReview'><button type='button'>過去問を投稿</button></Link>
         </div>
 
         <div className='lectureReview flex flex-wrap ...'>
