@@ -1,8 +1,8 @@
-import { toast, Flip } from 'react-toastify';
+import { toast, ToastOptions, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// デフォルト設定を定義することで、定型文を削減できる
-const defaults = {
+// こちらは position を直接 'top-right' として設定しています。
+const defaults: ToastOptions = {
   position: 'top-right',
   autoClose: 5000,
   hideProgressBar: true,
@@ -13,19 +13,18 @@ const defaults = {
   transition: Flip,
 };
 
-// optionsのデフォルトは空であり、関数を呼び出す時にObject.assignでdefaultsとoptionsをマージする
-export const success = (message, options = {}) => {
-  toast.success(message, Object.assign(defaults, options));
+export const success = (message: string, options: ToastOptions = {}) => {
+  toast.success(message, { ...defaults, ...options });
 };
 
-export const info = (message, options = {}) => {
-  toast.info(message, Object.assign(defaults, options));
+export const info = (message: string, options: ToastOptions = {}) => {
+  toast.info(message, { ...defaults, ...options });
 };
 
-export const warn = (message, options = {}) => {
-  toast.warn(message, Object.assign(defaults, options));
+export const warn = (message: string, options: ToastOptions = {}) => {
+  toast.warn(message, { ...defaults, ...options });
 };
 
-export const error = (message, options = {}) => {
-  toast.error(message, Object.assign(defaults, options));
+export const error = (message: string, options: ToastOptions = {}) => {
+  toast.error(message, { ...defaults, ...options });
 };

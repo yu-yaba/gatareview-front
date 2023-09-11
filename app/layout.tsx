@@ -4,7 +4,8 @@ import { Inter } from 'next/font/google'
 import Link from 'next/link'
 import Image from 'next/image'
 import Header from './Header'
-import Footer from './Footer'
+import Footer from './footer'
+import { ToastContainer } from 'react-toastify';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       <head />
       <body>
         <Header />
+        <ToastContainer />
         {children}
         <Footer />
       </body>
