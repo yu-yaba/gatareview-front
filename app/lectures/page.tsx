@@ -2,7 +2,7 @@
 import Head from 'next/head'
 import { useEffect, useRef, useState } from 'react';
 import { LectureData } from '../types/LectureData';
-import ReactStarsRating from 'react-awesome-stars-rating';
+import ReactStars from 'react-stars'
 import { LectureSchema } from '../types/LectureSchema';
 import Pagination from '../components/Pagination';
 import Link from "next/link";
@@ -11,12 +11,11 @@ import { handleAjaxError } from '../helpers/helpers';
 
 const LectureList = ({ lectures }: { lectures: Array<LectureSchema> }) => {
   const [searchWord, setSearchWord] = useState('');
+  const [selectedFaculty, setSelectedFaculty] = useState('');
+  const [sortType, setSortType] = useState('mostReviewed')
   const searchInput = useRef<HTMLInputElement>(null);
   const [fetchedLectures, setFetchedLectures] = useState<Array<LectureSchema>>([]);
 
-
-  // 1ページあたりのレクチャー数
-  const lecturesPerPage = 10;
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,41 +31,51 @@ const LectureList = ({ lectures }: { lectures: Array<LectureSchema> }) => {
   }, []);
 
   const updateSearchWord = () => {
-    // useRef.currentで参照した値に更新
     setSearchWord(searchInput.current?.value || '');
   };
 
+  const handleSelectChange = (setStateFunc: React.Dispatch<React.SetStateAction<string>>) =>
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setStateFunc(e.target.value);
+    };
+
   const matchSearchWord = (obj: LectureSchema) => {
-    // eslint-disable-next-line camelcase
+    const isFacultyMatch = selectedFaculty ? obj.faculty === selectedFaculty : true; // 追加
     const { id, created_at, updated_at, ...rest } = obj;
-    return Object.values(rest).some((value) =>
-      value
-        .toString()
-        .toLowerCase()
-        .indexOf(searchWord.toLowerCase()) > -1
+    return isFacultyMatch && Object.values(rest).some((value) => // 編集
+      value.toString().toLowerCase().indexOf(searchWord.toLowerCase()) > -1
     );
+  };
+  const sortLectures = (lectures: Array<LectureSchema>) => {
+    if (sortType === 'newest') {
+      return lectures.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+    }
+    if (sortType === 'highestRating') {
+      return lectures.sort((a, b) => b.avg_rating - a.avg_rating);
+    }
+    if (sortType === 'mostReviewed') {
+      return lectures.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+    }
+    return lectures;
   };
 
   const renderLectures = () => {
     const filteredLectures = fetchedLectures.filter((el) => matchSearchWord(el));
+    const sortedLectures = sortLectures(filteredLectures);
 
-
-
-    return filteredLectures
-      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-      .map((lecture) => (
-
-        <Link href={`/lectures/${lecture.id}`} key={lecture.id} className='m-5 p-4 rounded-full bg-opacity-100 bg-white shadow-lg inline-block w-8/12 hover:bg-green-100 hover:text-black transform hover:scale-105 transition ease-in-out duration-150'>
-          <li key={lecture.id}>
-            <h2 className="inline-block mx-2 my-1 text-center">{lecture.title}</h2>
-            <div className="flex flex-row justify-center">
-              <p className="mx-2 my-3">{lecture.lecturer}</p>
-              <p className="mx-2 my-3">{lecture.faculty}</p>
-            </div>
-            <ReactStarsRating value={lecture.avg_rating} isEdit={false} isHalf className=" flex justify-center" />
-          </li>
-        </Link>
-      ));
+    return sortedLectures.map((lecture) => (
+      <Link href={`/lectures/${lecture.id}`} key={lecture.id} className='m-5 p-4 rounded-full bg-opacity-100 bg-white shadow-lg inline-block w-8/12 hover:bg-green-100 hover:text-black transform hover:scale-105 transition ease-in-out duration-150'>
+        <li key={lecture.id}>
+          <h2 className="inline-block mx-2 my-1 text-center">{lecture.title}</h2>
+          <div className="flex flex-row justify-center">
+            <p className="mx-2 my-3">{lecture.lecturer}</p>
+            <p className="mx-2 my-3">{lecture.faculty}</p>
+            <p>{lecture.avg_rating}</p>
+          </div>
+          <ReactStars value={lecture.avg_rating} size={30} edit={false} half={true} className="flex justify-center" />
+        </li>
+      </Link>
+    ));
   };
 
 
@@ -74,13 +83,41 @@ const LectureList = ({ lectures }: { lectures: Array<LectureSchema> }) => {
     <section className="text-center">
       <div className="flex justify-center">
         <div className="flex justify-center w-full mx-10">
-          <input
-            className="p-2 border border-opacity-10 rounded focus:outline-green-600 focus:ring focus:ring-green-200 mx-5 w-1/3 shadow-lg"
-            placeholder="授業・教授・学部"
-            type="text"
-            ref={searchInput}
-            onKeyUp={updateSearchWord}
-          />
+          <label className='border-4 border-green-400 rounded-lg inline-block py-3 hover:bg-green-50 font-bold text-gray-600'>
+            キーワード
+            <input
+              className="ml-2 w-1/2 mr-0 outline-none hover:bg-green-50"
+              placeholder="授業・教授・学部"
+              type="text"
+              ref={searchInput}
+              onKeyUp={updateSearchWord}
+            />
+          </label>
+          <select id="faculty" name="faculty" onChange={handleSelectChange(setSelectedFaculty)} value={selectedFaculty} className=" font-bold p-3 px-5 ml-7 w-1/7 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50">
+            <option value="">学部で検索</option>
+            <option value="G: 教養科目">G: 教養科目</option>
+            <option value="H: 人文学部">H: 人文学部</option>
+            <option value="K: 教育学部">K: 教育学部</option>
+            <option value="L: 法学部">L: 法学部</option>
+            <option value="E: 経済科学部">E: 経済科学部</option>
+            <option value="S: 理学部">S: 理学部</option>
+            <option value="M: 医学部">M: 医学部</option>
+            <option value="D: 歯学部">D: 歯学部</option>
+            <option value="T: 工学部">T: 工学部</option>
+            <option value="A: 農学部">A: 農学部</option>
+            <option value="X: 創生学部">X: 創生学部</option>
+          </select>
+          <select
+            id="sortType"
+            name="sortType"
+            onChange={handleSelectChange(setSortType)}
+            value={sortType}
+            className="font-bold p-3 px-5 ml-7 w-1/7 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50"
+          >
+            <option value="newest">新しい順</option>
+            <option value="highestRating">評価が高い順</option>
+            <option value="mostReviewed">レビュー件数順</option>
+          </select>
         </div>
       </div>
       <div>

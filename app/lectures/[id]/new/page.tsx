@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import ReactStarsRating from 'react-awesome-stars-rating';
+import ReactStars from 'react-stars'
 import { isEmptyObject, validateReview } from '../../../helpers/helpers';
 import Link from 'next/link';
 import { success } from '@/app/helpers/notifications';
@@ -101,11 +101,10 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
         <div className='eachForm'>
           <label htmlFor="rating"> {/* inputのidと紐付け */}
             <p>評価</p>
-            <ReactStarsRating
+            <ReactStars
               onChange={starOnChange}
               value={review.rating}
-              isEdit
-              isHalf
+              edit={true}
             />
           </label>
         </div>

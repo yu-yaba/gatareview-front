@@ -1,6 +1,6 @@
 'use client'
 import PropTypes from 'prop-types';
-import ReactStarsRating from 'react-awesome-stars-rating';
+import ReactStars from 'react-stars'
 import Modal from 'react-modal';
 import { pdfjs, Document, Page } from 'react-pdf';
 import { handleAjaxError } from '../../helpers/helpers';
@@ -62,7 +62,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
         const res = await fetch(`http://localhost:3000/api/v2/lectures/${params.id}/reviews`);
         if (!res.ok) throw Error(res.statusText);
         const data = await res.json();
-        let avgRating = "";
+        let avgRating = "0.0";
         if (data.length > 0) {
           avgRating = (data.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / data.length).toFixed(1);
         }
@@ -119,7 +119,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           <div className='rating'>
             <h2 className='lectureAvg'>{reviews.avgRating}</h2>
             <div className='titleStar'>
-              <ReactStarsRating value={reviews.avgRating} isEdit={false} isHalf className="star" />
+              <ReactStars value={reviews.avgRating} edit={false} size={30} className="star" />
             </div>
           </div>
           <ul className='lectureInfo flex flex-col ...'>
@@ -168,10 +168,9 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           {reviews.reviews && reviews.reviews.map((review: ReviewSchema) => (
             <div key={review.id} className='reviewContainer flex flex-col ...'>
               <li className='eachReview'>
-                <ReactStarsRating
+                <ReactStars
                   value={(review.rating)}
-                  isEdit={false}
-                  isHalf
+                  edit={false}
                 />
                 <p><strong>受講時期</strong> {review.period_year}, {review.period_term} </p>
                 <p><strong>教科書</strong> {review.textbook}</p>
