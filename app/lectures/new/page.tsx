@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LectureData } from "../../types/LectureData";
 import { validateLecture, isEmptyObject } from "../../helpers/helpers";
 import { useState } from "react";
-import { success } from "@/app/helpers/notifications";
+import { error, success } from "@/app/helpers/notifications";
 import { handleAjaxError } from "../../helpers/helpers";
 import { useRouter } from "next/navigation";
 
@@ -47,30 +47,39 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
   };
 
   const addLecture = async (newLecture: LectureData) => {
-    try { // tryはエラーが起きる可能性のある処理を囲む
+    try {
       const res = await fetch('http://localhost:3000/api/v2/lectures', {
-        method: 'POST', // リクエストのHTTPメソッドをPOSTに指定
-        body: JSON.stringify({ lecture: newLecture }), //  送信するデータをJSON形式に変換、bodyは送信する情報
-        headers: { // headersは送信する情報の形式などの詳細
+        method: 'POST',
+        body: JSON.stringify({ lecture: newLecture }),
+        headers: {
           'Content-Type': 'application/json',
         },
       });
-      if (!res.ok) throw Error(res.statusText);
+      const data = await res.json(); // 常にJSONを解析
+      if (!res.ok) {
+        const errorMessage = data.error || res.statusText;
 
-      const savedLecture = await res.json();
+        if (errorMessage === 'A similar lecture already exists') {
+          error('同じ授業がすでに登録されています'); // ここでreact-toastifyのerror関数を呼び出す
+          return; // 以降のエラーハンドリングをスキップ
+        }
+
+        throw Error(errorMessage);
+      }
+
       success('授業を登録しました');
-      router.push(`/lectures/${savedLecture.id}`);
+      router.push(`/lectures/${data.id}`);
     } catch (error) {
-      handleAjaxError("授業の登録に失敗しました");
+      handleAjaxError('授業の登録に失敗しました'); // 共通のエラーハンドリング
     }
   };
 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement | HTMLSelectElement>) => {
     e.preventDefault();
-    const errors = validateLecture(lecture); // errorsにエラーメッセージを格納
+    const errors = validateLecture(lecture);
 
-    if (!isEmptyObject(errors)) { // errorsが空でない場合はエラーメッセージを表示
+    if (!isEmptyObject(errors)) {
       setFormErrors(errors);
     } else {
       addLecture(lecture)
