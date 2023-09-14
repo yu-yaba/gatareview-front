@@ -30,6 +30,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "react-loading": "2.0.3",
     "react-stars": "^2.2.5"
   }
 }
