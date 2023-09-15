@@ -8,7 +8,7 @@ import { handleAjaxError } from "../../helpers/helpers";
 import { useRouter } from "next/navigation";
 
 
-const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => {
+const LectureForm = () => {
   const [lecture, setLecture] = useState({
     title: '',
     lecturer: '',
@@ -35,13 +35,15 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
     }
 
     return (
-      <div className="errors">
-        <h3>空欄があります</h3>
-        <ul>
-          {Object.values(formErrors).map((formError: string, index: number) => (
-            <li key={index}>{formError}</li>
-          ))}
-        </ul>
+      <div className="flex justify-center">
+        <div className=" text-red-500 ">
+          <h3>空欄があります</h3>
+          <ul className=" list-disc">
+            {Object.values(formErrors).map((formError: string, index: number) => (
+              <li key={index}>{formError}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   };
@@ -55,13 +57,13 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
           'Content-Type': 'application/json',
         },
       });
-      const data = await res.json(); // 常にJSONを解析
+      const data = await res.json();
       if (!res.ok) {
         const errorMessage = data.error || res.statusText;
 
         if (errorMessage === 'A similar lecture already exists') {
-          error('同じ授業がすでに登録されています'); // ここでreact-toastifyのerror関数を呼び出す
-          return; // 以降のエラーハンドリングをスキップ
+          error('同じ授業がすでに登録されています');
+          return;
         }
 
         throw Error(errorMessage);
@@ -70,7 +72,7 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
       success('授業を登録しました');
       router.push(`/lectures/${data.id}`);
     } catch (error) {
-      handleAjaxError('授業の登録に失敗しました'); // 共通のエラーハンドリング
+      handleAjaxError('授業の登録に失敗しました');
     }
   };
 
@@ -90,26 +92,38 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
 
 
   return (
-    <section>
-      <h2 className="text-2xl font-bold mb-4">新しく講義を登録</h2>
+    <section className="flex flex-col items-center p-8">
+      <h2 className="text-2xl font-bold mb-4 2xl:text-4xl">授業を登録</h2>
       {renderErrors()}
-      <form onSubmit={handleSubmit} className="flex flex-col p-4">
-        <div className="mb-4">
-          <label htmlFor="title" className="block text-bold">
-            <p className="font-bold">授業名</p>
-            <input type='text' id="title" name="title" placeholder='入力してください' onChange={handleInputChange} value={lecture.title} className="mt-2 p-2 w-3/4 border rounded shadow-sm focus:border-green-500" />
+      <form onSubmit={handleSubmit} className="flex flex-col w-10/12  md:w-8/12 2xl:w-5/12">
+        <div className="mb-8 flex flex-col">
+          <label htmlFor="rating" className="block text-bold">
+            <div className="flex justify-start">
+              <p className="font-bold mb-2">授業名</p>
+            </div>
+            <input type='text' id="title" name="title" placeholder='入力してください'
+              onChange={handleInputChange} value={lecture.title}
+              className="w-full p-3 border rounded-md shadow focus:border-green-500" />
           </label>
         </div>
-        <div className="mb-4">
-          <label htmlFor="lecturer" className="block text-bold">
-            <p className="font-bold">教授/講師名</p>
-            <input type="text" id="lecturer" name="lecturer" placeholder='入力してください' onChange={handleInputChange} value={lecture.lecturer} className="mt-2 p-2 w-3/4 border rounded shadow-sm focus:border-green-500" />
+        <div className="mb-12 2xl:mb-14">
+          <label htmlFor="rating" className="block text-bold">
+            <div className="flex justify-start">
+              <p className="font-bold mb-2">教授名</p>
+            </div>
+            <input type="text" id="lecturer" name="lecturer" placeholder='入力してください'
+              onChange={handleInputChange} value={lecture.lecturer}
+              className="w-full p-3 border rounded-md shadow focus:border-green-500" />
           </label>
         </div>
-        <div className="mb-4">
-          <label htmlFor="faculty" className="block text-bold">
-            <p className="font-bold">開講番号:学部</p>
-            <select id="faculty" name="faculty" onChange={handleInputChange} value={lecture.faculty} className="mt-2 p-2 w-3/5 border rounded shadow-sm focus:border-green-500">
+        <div className="mb-12 2xl:mb-14">
+          <label htmlFor="rating" className="block text-bold">
+            <div className="flex">
+              <p className="font-bold mb-2">開講番号:学部</p>
+            </div>
+            <select id="faculty" name="faculty"
+              onChange={handleInputChange} value={lecture.faculty}
+              className="w-full p-3 border rounded-md shadow focus:border-green-500">
               <option value="">選択してください</option>
               <option value="G: 教養科目">G: 教養科目</option>
               <option value="H: 人文学部">H: 人文学部</option>
@@ -125,20 +139,24 @@ const LectureForm = ({ onSave }: { onSave: (lecture: LectureData) => void }) => 
             </select>
           </label>
         </div>
-        <div className="flex mb-4">
-          <button type="submit" className="p-2 rounded text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
-            登録
-          </button>
-          <Link href="/lectures">
-            <button type='button' className='ml-2 p-2 rounded bg-white text-green-500'>
-              キャンセル
+        <div className="flex my-6">
+          <div className="flex justify-center w-full">
+            <button type="submit" className="p-2 rounded-lg font-bold text-white w-3/12 mr-8 bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+              登録
             </button>
-          </Link>
+            <Link href="/lectures">
+              <button type='button' className='p-2 rounded-lg shadow border-2 bg-white text-green-500'>
+                キャンセル
+              </button>
+            </Link>
+          </div>
         </div>
       </form>
-    </section>
+    </section >
   );
 };
 
 export default LectureForm;
+
+
 
