@@ -124,7 +124,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           <div className='flex flex-row justify-center w-full md:w-4/12 items-center mt-4 md:mt-0'>
             <h2 className='mr-2 font-bold text-2xl text-yellow-400'>{reviews.avgRating}</h2>
             <div className='titleStar'>
-              <ReactStars value={reviews.avgRating} edit={false} size={30} className="star" />
+              <ReactStars value={parseFloat(reviews.avgRating)} edit={false} size={30} className="star" />
             </div>
           </div>
         </div>
