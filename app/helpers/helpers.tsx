@@ -3,14 +3,14 @@ import { LectureData } from "../types/LectureData";
 import { ReviewData } from "../types/ReviewData";
 import { ReviewErrors } from "../types/ReviewError";
 
-export const isEmptyObject = (obj: object) => {
+export const isEmptyObject = (obj: Record<string, any>): boolean => {
   for (let key in obj) {
     if (obj[key] !== "") {
       return false;
     }
   }
   return true;
-}
+};
 
 export const validateLecture = (lecture: LectureData) => {
   const LectureErrors: LectureData = {
@@ -86,7 +86,7 @@ export const validateReview = (review: ReviewData) => {
   return ReviewErrors;
 };
 
-export const handleAjaxError = (err) => {
+export const handleAjaxError = (err: string) => {
   error(err);
   console.error(err);
 };
