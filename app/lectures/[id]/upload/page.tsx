@@ -67,7 +67,7 @@ const ImageUpload = ({ params }: { params: { id: number } }) => {
 
   return (
     <div className='flex flex-col items-center space-y-4'>
-      <div {...getRootProps()} className="border-2 border-dotted rounded p-4 text-center font-bold text-green-600 hover:bg-green-100 cursor-pointer">
+      <div {...getRootProps()} className="flex justify-center items-center w-10/12 md:w-8/12 2xl:w-6/12 h-64  border-2 border-dotted rounded p-4 text-center font-bold text-green-600 hover:bg-green-100 cursor-pointer">
         <input {...getInputProps()} />
         <p>ここにファイルをドラッグ&ドロップ、またはクリックしてファイルを選択してください。</p>
       </div>

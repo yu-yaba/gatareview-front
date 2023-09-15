@@ -7,7 +7,6 @@ import { success } from '@/app/helpers/notifications';
 import { handleAjaxError } from '../../../helpers/helpers';
 import { ReviewData } from '@/app/types/ReviewData';
 import { useRouter } from 'next/navigation';
-import { ReviewSchema } from '@/app/types/ReviewSchema';
 
 const ReviewForm = ({ params }: { params: { id: number } }) => {
   const [review, setReview] = useState<ReviewData>({
@@ -39,18 +38,20 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
   const [formErrors, setFormErrors] = useState({});
 
   const renderErrors = () => {
-    if (isEmptyObject(formErrors)) { // formErrorsが空の場合はnullを返す
+    if (isEmptyObject(formErrors)) {
       return null;
     }
 
     return (
-      <div className="errors">
-        <h3>空欄があります</h3>
-        <ul>
-          {((Object.values(formErrors) as unknown) as string[]).map((formError, index) => (
-            <li key={index}>{formError}</li>
-          ))}
-        </ul>
+      <div className="flex justify-center">
+        <div className=" text-red-500 ">
+          <h3>空欄があります</h3>
+          <ul className=" list-disc">
+            {((Object.values(formErrors) as unknown) as string[]).map((formError, index) => (
+              <li key={index}>{formError}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   };
@@ -94,25 +95,23 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
 
 
   return (
-    <section>
-      <h2 className='formTitle'>授業レビューを投稿する</h2>
+    <section className="flex flex-col items-center p-8">
+      <h2 className="text-2xl font-bold mb-4 2xl:text-4xl">授業レビューを投稿する</h2>
       {renderErrors()}
-      <form className="lectureForm" onSubmit={handleSubmit}>
-        <div className='eachForm'>
-          <label htmlFor="rating"> {/* inputのidと紐付け */}
-            <p>評価</p>
-            <ReactStars
-              onChange={starOnChange}
-              value={review.rating}
-              edit={true}
-            />
+      <form onSubmit={handleSubmit} className="flex flex-col w-10/12  md:w-8/12 2xl:w-5/12">
+        <div className="mb-8 flex flex-col">
+          <label htmlFor="rating" className="block text-bold">
+            <p className="font-bold mb-2">評価</p>
+            <div className="p-2 pl-5 w-full border rounded-md shadow">
+              <ReactStars onChange={starOnChange} size={25} value={review.rating} edit={true} />
+            </div>
           </label>
         </div>
-        <div className='eachForm'>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label>
-            <p>授業を受けた年</p>
-            <select id="period_year" name="period_year" onChange={handleInputChange} value={review.period_year}>
+        <div className="mb-8 flex flex-col">
+          <label className="block text-bold">
+            <p className="font-bold mb-2">授業を受けた年</p>
+            <select className='w-full border rounded-md shadow p-3'
+              id="period_year" name="period_year" onChange={handleInputChange} value={review.period_year}>
               <option>選択してください</option>
               <option>2023</option>
               <option>2022</option>
@@ -120,8 +119,9 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
               <option>2020</option>
               <option>その他・不明</option>
             </select>
-            <p>ターム</p>
-            <select id="period_term" name="period_term" onChange={handleInputChange} value={review.period_term}>
+            <p className="font-bold mb-2 mt-8">ターム</p>
+            <select className='w-full border rounded-md shadow p-3'
+              id="period_term" name="period_term" onChange={handleInputChange} value={review.period_term}>
               <option>選択してください</option>
               <option>1ターム</option>
               <option>2ターム</option>
@@ -130,13 +130,13 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
               <option>4ターム</option>
               <option>3, 4ターム</option>
               <option>その他・不明</option>
-            </select>
-          </label>
+            </select>      </label>
         </div>
-        <div className='eachForm'>
-          <label htmlFor="textbook">
-            <p>教科書</p>
-            <select id="textbook" name="textbook" onChange={handleInputChange} value={review.textbook}>
+        <div className="mb-8 flex flex-col">
+          <label className="block text-bold">
+            <p className="font-bold mb-2">教科書</p>
+            <select className='w-full border rounded-md shadow p-3'
+              id="textbook" name="textbook" onChange={handleInputChange} value={review.textbook}>
               <option>選択してください</option>
               <option>必要</option>
               <option>不要</option>
@@ -144,10 +144,11 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
             </select>
           </label>
         </div>
-        <div className='eachForm'>
-          <label htmlFor="attendance">
-            <p>出席確認</p>
-            <select id="attendance" name="attendance" onChange={handleInputChange} value={review.attendance}>
+        <div className="mb-8 flex flex-col">
+          <label className="block text-bold">
+            <p className="font-bold mb-2">出席確認</p>
+            <select className='w-full border rounded-md shadow p-3'
+              id="attendance" name="attendance" onChange={handleInputChange} value={review.attendance}>
               <option>選択してください</option>
               <option>毎回確認</option>
               <option>たまに確認</option>
@@ -156,10 +157,11 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
             </select>
           </label>
         </div>
-        <div className='eachForm'>
-          <label htmlFor="grading_type">
-            <p>採点方法</p>
-            <select id="grading_type" name="grading_type" onChange={handleInputChange} value={review.grading_type}>
+        <div className="mb-8 flex flex-col">
+          <label className="block text-bold">
+            <p className="font-bold mb-2">採点方法</p>
+            <select className='w-full border rounded-md shadow p-3'
+              id="grading_type" name="grading_type" onChange={handleInputChange} value={review.grading_type}>
               <option>選択してください</option>
               <option>テストのみ</option>
               <option>レポートのみ</option>
@@ -168,10 +170,11 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
             </select>
           </label>
         </div>
-        <div className='eachForm'>
-          <label htmlFor="content_difficulty">
-            <p>単位取得難易度</p>
-            <select id='content_difficulty' name='content_difficulty' onChange={handleInputChange} value={review.content_difficulty}>
+        <div className="mb-8 flex flex-col">
+          <label className="block text-bold">
+            <p className="font-bold mb-2">単位取得難易度</p>
+            <select className='w-full border rounded-md shadow p-3'
+              id='content_difficulty' name='content_difficulty' onChange={handleInputChange} value={review.content_difficulty}>
               <option>選択してください</option>
               <option>とても楽</option>
               <option>楽</option>
@@ -181,28 +184,22 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
             </select>
           </label>
         </div>
-        <div className='eachForm'>
-          <label htmlFor="content_quality">
-            <p>内容充実度</p>
-            <select id='content_quality' name='content_quality' onChange={handleInputChange} value={review.content_quality}>
-              <option>選択してください</option>
-              <option>とても良い</option>
-              <option>良い</option>
-              <option>普通</option>
-              <option>悪い</option>
-              <option>とても悪い</option>
-            </select>
+        <div className="mb-8 flex flex-col">
+          <label htmlFor="content" className="block text-bold">
+            <p className="font-bold mb-2">コメント</p>
+            <textarea cols={30} rows={5} id="content" name="content" className="mt-2 p-2 w-full border rounded-md shadow focus:border-green-500" onChange={handleInputChange} value={review.content} />
           </label>
         </div>
-        <div className='eachForm'>
-          <label htmlFor="content">
-            <p>コメント</p>
-            <textarea cols={30} rows={5} id="content" name="content" onChange={handleInputChange} value={review.content} />
-          </label>
-        </div>
-        <div className="buttonContainer">
-          <button type="submit">投稿</button>
-          <Link href={cancelURL}><button type='button' className='cancelButton'>キャンセル</button></Link>
+        <div className="flex justify-center mt-6">
+          <button type="submit"
+            className="p-2 rounded-lg font-bold text-white w-3/12 mr-8 bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+            投稿
+          </button>
+          <Link href={cancelURL}>
+            <button type='button' className='p-2 rounded-lg shadow border-2 bg-white text-green-500'>
+              キャンセル
+            </button>
+          </Link>
         </div>
       </form>
     </section>
