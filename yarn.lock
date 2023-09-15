@@ -179,6 +179,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-stars@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.npmjs.org/@types/react-stars/-/react-stars-2.2.1.tgz"
+  integrity sha512-x0Z7+OsImFfBbHpLm/o3Z/q9qbapQbaSbKkozSIJXs6OAkFW5keA4Qw4MOjocdmhPPUYI6DDVSB0NOm0QmY+Xg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@18.2.21":
   version "18.2.21"
   resolved "https://registry.npmjs.org/@types/react/-/react-18.2.21.tgz"
