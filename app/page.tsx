@@ -1,18 +1,29 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Loading from 'react-loading';
+
 
 export default function Page() {
   const [totalReviews, setTotalReviews] = useState(null);
   const [searchWord, setSearchWord] = useState('');
   const [selectedFaculty, setSelectedFaculty] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
+    setIsLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/reviews/total`)
       .then(response => response.json())
-      .then(data => setTotalReviews(data.count))
-      .catch(err => console.error('Failed to fetch review count:', err));
+      .then(data => {
+        setTotalReviews(data.count);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch review count:', err);
+        setIsLoading(false);
+      });
   }, []);
 
   const handleSearch = () => {
@@ -28,29 +39,42 @@ export default function Page() {
   };
 
   return (
-    <>
-      <div>
-        <h1>ガタレビュ!は新大生のための授業レビュー・過去問共有サイトです。</h1>
-        {totalReviews !== null ? (
-          <p>現在の総レビュー数  {totalReviews}件</p>
-        ) : (
-          <p>Loading...</p>
-        )}
-      </div>
-      <section className="text-center">
-        <div className="flex justify-center">
-          <div className="flex justify-center w-full mx-10">
-            <label className='border-4 border-green-400 rounded-lg inline-block py-3 hover:bg-green-50 font-bold text-gray-600'>
+    <div className='flex justify-center'>
+      <div className='w-10/12'>
+        <div className='text-center font-extrabold text-3xl text-slate-700 mt-10'>
+
+          <h1 className='text-lg md:text-3xl mt-20'>ガタレビュ!は新大生のための<br></br>
+            授業レビュー・過去問共有サイトです。</h1>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-screen">
+              <Loading type={"bubbles"} color={"#1DBE67"} />
+            </div>
+          ) : (
+            <p className='mt-20 text-2xl md:text-3xl'>現在の総レビュー数  <span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
+          )}
+        </div>
+        <div className="flex flex-wrap justify-center items-center 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-inner bg-green-500 text-sm md:text-lg font-bold mt-20">
+          <div className='flex justify-center w-full md:w-7/12 items-center mb-4 md:mb-0'>
+            <label className='border-4 w-11/12 text-start pl-4  rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600'>
               キーワード
               <input
-                className="ml-2 w-1/2 mr-0 outline-none hover:bg-green-50"
+                className="ml-2 w-1/2 mr-0 outline-none  hover:bg-green-50"
                 placeholder="授業・教授・学部"
                 type="text"
+                value={searchWord}
                 onChange={(e) => setSearchWord(e.target.value)}
                 onKeyUp={handleKeyUp}
               />
             </label>
-            <select id="faculty" name="faculty" onKeyUp={handleKeyUp} onChange={(e) => setSelectedFaculty(e.target.value)} className=" font-bold p-3 px-5 ml-7 w-1/7 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50">
+          </div>
+          <div className='w-full md:w-5/12 flex justify-center'>
+            <select
+              id="faculty"
+              name="faculty"
+              value={selectedFaculty}
+              onChange={(e) => setSelectedFaculty(e.target.value)}
+              onKeyUp={handleKeyUp}
+              className="p-3 px-2 md:ml-4 w-7/12 md:w-7/12 border-4 rounded-lg text-gray-600  outline-none hover:bg-green-50">
               <option value="">学部で検索</option>
               <option value="G: 教養科目">G: 教養科目</option>
               <option value="H: 人文学部">H: 人文学部</option>
@@ -64,12 +88,12 @@ export default function Page() {
               <option value="A: 農学部">A: 農学部</option>
               <option value="X: 創生学部">X: 創生学部</option>
             </select>
-            <button onClick={handleSearch} className="ml-5 bg-green-400 text-white p-3 rounded-lg">
-              検索
-            </button>
+            <button onClick={handleSearch}
+              className=' bg-green-500 text-white w-3/12 md:w-4/12 text-sm md:text-lg rounded-md py-3 ml-6 bg-red-600'
+            >検索</button>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 }
