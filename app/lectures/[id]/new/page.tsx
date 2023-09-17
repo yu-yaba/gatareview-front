@@ -190,11 +190,11 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
             <select className='w-full border rounded-md shadow p-3'
               id='content_quality' name='content_quality' onChange={handleInputChange} value={review.content_quality}>
               <option>選択してください</option>
-              <option>とても楽</option>
-              <option>楽</option>
+              <option>とても良い</option>
+              <option>良い</option>
               <option>普通</option>
-              <option>難</option>
-              <option>とても難しい</option>
+              <option>悪い</option>
+              <option>とても悪い</option>
             </select>
           </label>
         </div>
