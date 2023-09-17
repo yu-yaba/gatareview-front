@@ -9,7 +9,7 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/v2/reviews/total')
+    fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/reviews/total`)
       .then(response => response.json())
       .then(data => setTotalReviews(data.count))
       .catch(err => console.error('Failed to fetch review count:', err));
