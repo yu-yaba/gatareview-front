@@ -27,7 +27,7 @@ const LectureList = () => {
             selectedFaculty && `faculty=${selectedFaculty}`,
             sortType && `sortType=${sortType}`,
           ].filter(Boolean).join('&');
-          const response = await fetch(`http://localhost:3000/api/v2/lectures?${query}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures?${query}`);
           if (!response.ok) throw Error(response.statusText);
           const data = await response.json();
 
@@ -58,7 +58,7 @@ const LectureList = () => {
             initialSelectedFaculty && `faculty=${initialSelectedFaculty}`,
             initialSortType && `sortType=${initialSortType}`
           ].filter(Boolean).join('&');
-          const response = await fetch(`http://localhost:3000/api/v2/lectures?${query}`);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures?${query}`);
           if (!response.ok) throw Error(response.statusText);
           const data = await response.json();
           setFetchedLectures(data);

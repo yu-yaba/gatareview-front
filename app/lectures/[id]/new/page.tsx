@@ -57,7 +57,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
   };
   const addReview = async (newReview: ReviewData) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/v2/lectures/${params.id}/reviews`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}/reviews`, {
         method: 'POST',
         body: JSON.stringify({ review: newReview }),
         headers: {
@@ -175,6 +175,20 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
             <p className="font-bold mb-2">単位取得難易度</p>
             <select className='w-full border rounded-md shadow p-3'
               id='content_difficulty' name='content_difficulty' onChange={handleInputChange} value={review.content_difficulty}>
+              <option>選択してください</option>
+              <option>とても楽</option>
+              <option>楽</option>
+              <option>普通</option>
+              <option>難</option>
+              <option>とても難しい</option>
+            </select>
+          </label>
+        </div>
+        <div className="mb-8 flex flex-col">
+          <label className="block text-bold">
+            <p className="font-bold mb-2">内容充実度</p>
+            <select className='w-full border rounded-md shadow p-3'
+              id='content_quality' name='content_quality' onChange={handleInputChange} value={review.content_quality}>
               <option>選択してください</option>
               <option>とても楽</option>
               <option>楽</option>

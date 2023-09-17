@@ -39,7 +39,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     const fetchLectureDetail = async () => {
       try {
         // eslint-disable-next-line no-undef
-        const res = await fetch(`http://localhost:3000/api/v2/lectures/${params.id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}`);
         if (!res.ok) throw Error(res.statusText);
         const data = await res.json();
         console.log(data)
@@ -56,7 +56,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     const fetchReviews = async () => {
       try {
         // eslint-disable-next-line no-undef
-        const res = await fetch(`http://localhost:3000/api/v2/lectures/${params.id}/reviews`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}/reviews`);
         if (!res.ok) throw Error(res.statusText);
         const data = await res.json();
         let avgRating = "0.0";
@@ -74,7 +74,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
   useEffect(() => {
     async function fetchImages() {
       try {
-        const res = await fetch(`http://localhost:3000/api/v2/lectures/${params.id}/images`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}/images`);
         if (!res.ok) {
           console.error('レスポンスオブジェクト:', res);
           throw new Error('Not Found');
@@ -132,7 +132,6 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
       <div className='flex justify-center mt-8'>
         <div className='flex flex-wrap justify-center items-center w-8/12 md:w-7/12 2xl:w-5/12 text-lg text-center font-bold border border-1 py-4 rounded-2xl shadow-inner bg-slate-50 p-6'>
           <button type='button'
-            onClick={openModal}
             style={{ color: imageCount === 0 ? 'red' : '#1DBE67' }}
             className='border border-2 px-4 py-3 rounded-lg bg-white w-full md:w-5/12 md:mr-4 transform hover:scale-105 transition  duration-150'>
             過去問 ({imageCount})
@@ -165,9 +164,9 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
               })}
             </div>
           </Modal>
-          <Link href={`/lectures/${params.id}/upload`} className='md:ml-4 mt-4 md:mt-0 w-full md:w-5/12 border border-2 px-4 py-3 rounded-lg bg-white transform hover:scale-105 transition  duration-150'>
-            <button type='button'>過去問を投稿</button>
-          </Link>
+          {/* <Link href={`/lectures/${params.id}/upload`} className='md:ml-4 mt-4 md:mt-0 w-full md:w-5/12 border border-2 px-4 py-3 rounded-lg bg-white transform hover:scale-105 transition  duration-150'> */}
+          <button type='button' className='md:ml-4 mt-4 md:mt-0 w-full md:w-5/12 border border-2 px-4 py-3 rounded-lg bg-white transform hover:scale-105 transition  duration-150'>過去問を投稿</button>
+          {/* </Link> */}
         </div>
       </div>
       <div className=' flex justify-center items-center flex-col mt-6'>

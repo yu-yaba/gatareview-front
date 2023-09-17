@@ -39,7 +39,7 @@ const ImageUpload = ({ params }: { params: { id: number } }) => {
         const formData = new FormData();
         if (file instanceof File) {
           formData.append('lecture[image]', file);
-          fetch(`http://localhost:3000/api/v2/lectures/${params.id}/images`, {
+          fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}/images`, {
             method: 'POST',
             body: formData,
           })
