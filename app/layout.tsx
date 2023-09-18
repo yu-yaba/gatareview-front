@@ -1,12 +1,10 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import Link from 'next/link'
-import Image from 'next/image'
 import Header from './header'
 import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
-import Favicon from '../public/icon.png'
+import ScriptGa from './components/ScriptGa'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -44,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head />
+      <ScriptGa />
       <body>
         <Header />
         <ToastContainer />
