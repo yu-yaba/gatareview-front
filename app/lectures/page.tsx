@@ -189,7 +189,7 @@ const LectureList = () => {
                 </button>
               </div>
               <div className='flex flex-wrap justify-center w-full md:w-5/12'>
-                <div className="flex justify-center ml-2 md:ml-4 relative w-5/12 md:w-5/12 text-gray-600">
+                <div className="flex justify-center md:ml-4 relative w-5/12 md:w-5/12 text-gray-600">
                   <select
                     id="faculty"
                     name="faculty"
