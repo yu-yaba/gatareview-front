@@ -177,36 +177,37 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                 value={(review.rating)}
                 edit={false}
                 size={20}
+                className=' mb-2'
               />
-              <table className="table-fixed text-left items-center">
+              <table className="table-fixed text-left border-collapse">
                 <tbody>
-                  <tr className=''>
-                    <td className=' pr-11'><strong>受講時期</strong></td>
-                    <td>{review.period_year}, {review.period_term}</td>
+                  <tr>
+                    <td className='w-24 pb-2'><strong>受講時期</strong></td>
+                    <td className=' pb-2'>{review.period_year}, {review.period_term}</td>
                   </tr>
                   <tr>
-                    <td><strong>教科書</strong></td>
-                    <td>{review.textbook}</td>
+                    <td className='w-24 pb-2'><strong>教科書</strong></td>
+                    <td className=' pb-2'>{review.textbook}</td>
                   </tr>
                   <tr>
-                    <td><strong>出席確認</strong></td>
-                    <td>{review.attendance}</td>
+                    <td className='w-24 pb-2'><strong>出席確認</strong></td>
+                    <td className=' pb-2'>{review.attendance}</td>
                   </tr>
                   <tr>
-                    <td><strong>採点方法</strong></td>
-                    <td>{review.grading_type}</td>
+                    <td className='w-24 pb-2'><strong>採点方法</strong></td>
+                    <td className=' pb-2'>{review.grading_type}</td>
                   </tr>
                   <tr>
-                    <td><strong>難易度</strong></td>
-                    <td>{review.content_difficulty}</td>
+                    <td className='w-24 pb-2'><strong>難易度</strong></td>
+                    <td className=' pb-2'>{review.content_difficulty}</td>
                   </tr>
                   <tr>
-                    <td><strong>内容</strong></td>
-                    <td>{review.content_quality}</td>
+                    <td className='w-24 pb-2'><strong>内容</strong></td>
+                    <td className=' pb-2'>{review.content_quality}</td>
                   </tr>
                   <tr>
-                    <td><strong>コメント</strong></td>
-                    <td>{review.content}</td>
+                    <td className='w-24 pt-4'><strong>コメント</strong></td>
+                    <td className=' pt-4'>{review.content}</td>
                   </tr>
                 </tbody>
               </table>
