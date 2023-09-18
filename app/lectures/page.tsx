@@ -162,7 +162,7 @@ const LectureList = () => {
           <div className="flex justify-center ">
             <div className="flex flex-wrap justify-center items-center w-10/12 2xl:w-7/12 border border-1 py-6 px-3 rounded-2xl shadow-inner bg-slate-50 text-sm md:text-lg font-bold">
               <div className='flex justify-center w-full md:w-7/12 items-center mb-4 md:mb-0'>
-                <label className='border-4 w-9/12 text-start pl-4 border-green-400 rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600'>
+                <label className='border-4 w-9/12 text-start pl-4 border-green-400 rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600 '>
                   キーワード
                   <input
                     className="ml-2 w-1/2 mr-0 outline-none  hover:bg-green-50"
@@ -188,35 +188,50 @@ const LectureList = () => {
                   検索
                 </button>
               </div>
-              <div className=' w-full md:w-5/12'>
-                <select id="faculty" name="faculty"
-                  onChange={handleSelectChange(setSelectedFaculty)} value={selectedFaculty}
-                  className=" p-3 px-2 md:ml-4 w-6/12 md:w-5/12 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50">
-                  <option value="">学部で検索</option>
-                  <option value="G: 教養科目">G: 教養科目</option>
-                  <option value="H: 人文学部">H: 人文学部</option>
-                  <option value="K: 教育学部">K: 教育学部</option>
-                  <option value="L: 法学部">L: 法学部</option>
-                  <option value="E: 経済科学部">E: 経済科学部</option>
-                  <option value="S: 理学部">S: 理学部</option>
-                  <option value="M: 医学部">M: 医学部</option>
-                  <option value="D: 歯学部">D: 歯学部</option>
-                  <option value="T: 工学部">T: 工学部</option>
-                  <option value="A: 農学部">A: 農学部</option>
-                  <option value="X: 創生学部">X: 創生学部</option>
-                </select>
-                <select
-                  id="sortType"
-                  name="sortType"
-                  onChange={handleSelectChange(setSortType)}
-                  value={sortType}
-                  className="py-3 px-2 w-5/12 ml-2 md:ml-4 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50"
-                >
-                  <option value="newest">新しい順</option>
-                  <option value="highestRating">評価が高い順</option>
-                  <option value="mostReviewed">レビュー件数順</option>
-                </select>
-
+              <div className='flex flex-wrap justify-center w-full md:w-5/12'>
+                <div className="flex justify-center ml-2 md:ml-4 relative w-5/12 md:w-5/12 text-gray-600">
+                  <select
+                    id="faculty"
+                    name="faculty"
+                    value={selectedFaculty}
+                    onChange={handleSelectChange(setSelectedFaculty)}
+                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50  cursor-pointer">
+                    <option value="">学部で検索</option>
+                    <option value="G: 教養科目">G: 教養科目</option>
+                    <option value="H: 人文学部">H: 人文学部</option>
+                    <option value="K: 教育学部">K: 教育学部</option>
+                    <option value="L: 法学部">L: 法学部</option>
+                    <option value="E: 経済科学部">E: 経済科学部</option>
+                    <option value="S: 理学部">S: 理学部</option>
+                    <option value="M: 医学部">M: 医学部</option>
+                    <option value="D: 歯学部">D: 歯学部</option>
+                    <option value="T: 工学部">T: 工学部</option>
+                    <option value="A: 農学部">A: 農学部</option>
+                    <option value="X: 創生学部">X: 創生学部</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex justify-center ml-2 md:ml-4 relative w-5/12 md:w-5/12 text-gray-600">
+                  <select
+                    id="sortType"
+                    name="sortType"
+                    onChange={handleSelectChange(setSortType)}
+                    value={sortType}
+                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50 cursor-pointer">
+                    <option value="newest">新しい順</option>
+                    <option value="highestRating">評価が高い順</option>
+                    <option value="mostReviewed">レビュー件数順</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

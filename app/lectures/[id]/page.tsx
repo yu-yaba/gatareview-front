@@ -171,17 +171,17 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
       </div>
       <div className=' flex justify-center items-center flex-col mt-6'>
         {reviews.reviews && reviews.reviews.map((review: ReviewSchema) => (
-          <div key={review.id} className='m-3 p-6 rounded-3xl bg-white border border-1 shadow-md inline-block w-8/12 2xl:w-6/12'>
+          <div key={review.id} className='m-3 p-6 rounded-3xl bg-white border border-1 shadow-md inline-block w-11/12 2xl:w-6/12'>
             <li className=' list-none'>
               <ReactStars
                 value={(review.rating)}
                 edit={false}
                 size={20}
               />
-              <table className="table-fixed text-left">
+              <table className="table-fixed text-left items-center">
                 <tbody>
-                  <tr>
-                    <td className=' pr-6'><strong>受講時期</strong></td>
+                  <tr className=''>
+                    <td className=' pr-11'><strong>受講時期</strong></td>
                     <td>{review.period_year}, {review.period_term}</td>
                   </tr>
                   <tr>

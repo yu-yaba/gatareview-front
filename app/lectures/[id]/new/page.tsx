@@ -45,7 +45,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
     return (
       <div className="flex justify-center">
         <div className=" text-red-500 ">
-          <h3>空欄があります</h3>
+          <h3 className=' font-bold text-lg'>空欄があります</h3>
           <ul className=" list-disc">
             {((Object.values(formErrors) as unknown) as string[]).map((formError, index) => (
               <li key={index}>{formError}</li>
@@ -110,92 +110,170 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
         <div className="mb-8 flex flex-col">
           <label className="block text-bold">
             <p className="font-bold mb-2">授業を受けた年</p>
-            <select className='w-full border rounded-md shadow p-3'
-              id="period_year" name="period_year" onChange={handleInputChange} value={review.period_year}>
-              <option>選択してください</option>
-              <option>2023</option>
-              <option>2022</option>
-              <option>2021</option>
-              <option>2020</option>
-              <option>その他・不明</option>
-            </select>
+            <div className="flex relative w-full text-gray-600">
+              <select
+                id="period_year"
+                name="period_year"
+                value={review.period_year}
+                onChange={handleInputChange}
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500">
+                <option>選択してください</option>
+                <option>2023</option>
+                <option>2022</option>
+                <option>2021</option>
+                <option>2020</option>
+                <option>その他・不明</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+              </div>
+            </div>
             <p className="font-bold mb-2 mt-8">ターム</p>
-            <select className='w-full border rounded-md shadow p-3'
-              id="period_term" name="period_term" onChange={handleInputChange} value={review.period_term}>
-              <option>選択してください</option>
-              <option>1ターム</option>
-              <option>2ターム</option>
-              <option>1, 2ターム</option>
-              <option>3ターム</option>
-              <option>4ターム</option>
-              <option>3, 4ターム</option>
-              <option>その他・不明</option>
-            </select>      </label>
+            <div className="flex relative w-full text-gray-600">
+              <select
+                id="period_term"
+                name="period_term"
+                onChange={handleInputChange}
+                value={review.period_term}
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                <option>選択してください</option>
+                <option>1ターム</option>
+                <option>2ターム</option>
+                <option>1, 2ターム</option>
+                <option>3ターム</option>
+                <option>4ターム</option>
+                <option>3, 4ターム</option>
+                <option>その他・不明</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+              </div>
+            </div>
+          </label>
         </div>
         <div className="mb-8 flex flex-col">
           <label className="block text-bold">
             <p className="font-bold mb-2">教科書</p>
-            <select className='w-full border rounded-md shadow p-3'
-              id="textbook" name="textbook" onChange={handleInputChange} value={review.textbook}>
-              <option>選択してください</option>
-              <option>必要</option>
-              <option>不要</option>
-              <option>その他・不明</option>
-            </select>
+            <div className="flex relative w-full text-gray-600">
+              <select
+                id="textbook"
+                name="textbook"
+                value={review.textbook}
+                onChange={handleInputChange}
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                <option>選択してください</option>
+                <option>必要</option>
+                <option>不要</option>
+                <option>その他・不明</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+              </div>
+            </div>
           </label>
         </div>
         <div className="mb-8 flex flex-col">
           <label className="block text-bold">
             <p className="font-bold mb-2">出席確認</p>
-            <select className='w-full border rounded-md shadow p-3'
-              id="attendance" name="attendance" onChange={handleInputChange} value={review.attendance}>
-              <option>選択してください</option>
-              <option>毎回確認</option>
-              <option>たまに確認</option>
-              <option>なし</option>
-              <option>その他・不明</option>
-            </select>
+            <div className="flex relative w-full text-gray-600">
+              <select
+                id="attendance"
+                name="attendance"
+                value={review.attendance}
+                onChange={handleInputChange}
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                <option>選択してください</option>
+                <option>毎回確認</option>
+                <option>たまに確認</option>
+                <option>なし</option>
+                <option>その他・不明</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+              </div>
+            </div>
           </label>
         </div>
         <div className="mb-8 flex flex-col">
           <label className="block text-bold">
             <p className="font-bold mb-2">採点方法</p>
-            <select className='w-full border rounded-md shadow p-3'
-              id="grading_type" name="grading_type" onChange={handleInputChange} value={review.grading_type}>
-              <option>選択してください</option>
-              <option>テストのみ</option>
-              <option>レポートのみ</option>
-              <option>テスト,レポート</option>
-              <option>その他・不明</option>
-            </select>
+            <div className="flex relative w-full text-gray-600">
+              <select
+                id="grading_type"
+                name="grading_type"
+                onChange={handleInputChange}
+                value={review.grading_type}
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                <option>選択してください</option>
+                <option>テストのみ</option>
+                <option>レポートのみ</option>
+                <option>テスト,レポート</option>
+                <option>その他・不明</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+              </div>
+            </div>
           </label>
         </div>
         <div className="mb-8 flex flex-col">
           <label className="block text-bold">
             <p className="font-bold mb-2">単位取得難易度</p>
-            <select className='w-full border rounded-md shadow p-3'
-              id='content_difficulty' name='content_difficulty' onChange={handleInputChange} value={review.content_difficulty}>
-              <option>選択してください</option>
-              <option>とても楽</option>
-              <option>楽</option>
-              <option>普通</option>
-              <option>難</option>
-              <option>とても難しい</option>
-            </select>
+            <div className="flex relative w-full text-gray-600">
+              <select
+                id="content_difficulty"
+                name="content_difficulty"
+                onChange={handleInputChange}
+                value={review.content_difficulty}
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                <option>選択してください</option>
+                <option>とても楽</option>
+                <option>楽</option>
+                <option>普通</option>
+                <option>難</option>
+                <option>とても難しい</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+              </div>
+            </div>
           </label>
         </div>
         <div className="mb-8 flex flex-col">
           <label className="block text-bold">
             <p className="font-bold mb-2">内容充実度</p>
-            <select className='w-full border rounded-md shadow p-3'
-              id='content_quality' name='content_quality' onChange={handleInputChange} value={review.content_quality}>
-              <option>選択してください</option>
-              <option>とても良い</option>
-              <option>良い</option>
-              <option>普通</option>
-              <option>悪い</option>
-              <option>とても悪い</option>
-            </select>
+            <div className="flex relative w-full text-gray-600">
+              <select
+                id="content_quality"
+                name="content_quality"
+                onChange={handleInputChange}
+                value={review.content_quality}
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                <option>選択してください</option>
+                <option>とても良い</option>
+                <option>良い</option>
+                <option>普通</option>
+                <option>悪い</option>
+                <option>とても悪い</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+              </div>
+            </div>
           </label>
         </div>
         <div className="mb-8 flex flex-col">
@@ -206,17 +284,17 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
         </div>
         <div className="flex justify-center mt-6">
           <button type="submit"
-            className="p-2 rounded-lg font-bold text-white w-3/12 mr-8 bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+            className="p-2 rounded-lg font-bold text-white w-3/12 mr-8 bg-green-500 hover:bg-green-600  focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
             投稿
           </button>
           <Link href={cancelURL}>
-            <button type='button' className='p-2 rounded-lg shadow border-2 bg-white text-green-500'>
+            <button type='button' className='p-2 px-8 rounded-lg shadow border-2 bg-white text-green-500'>
               キャンセル
             </button>
           </Link>
         </div>
       </form>
-    </section>
+    </section >
   );
 };
 

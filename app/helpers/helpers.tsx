@@ -35,7 +35,6 @@ export const validateLecture = (lecture: LectureData) => {
 
 export const validateReview = (review: ReviewData) => {
   const ReviewErrors: ReviewErrors = {
-    rating: "",
     period_year: "",
     period_term: "",
     textbook: "",
@@ -45,10 +44,6 @@ export const validateReview = (review: ReviewData) => {
     content_quality: "",
     content: ""
   }; // 空のオブジェクトを作成し、エラーがある場合にエラーメッセージを格納する
-
-  if (review.rating === 0) {
-    ReviewErrors.rating = '評価を入力してください';
-  }
 
   if (review.period_year === '') {
     ReviewErrors.period_year = '授業を受講した年を入力してください';
