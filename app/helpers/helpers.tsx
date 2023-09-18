@@ -17,19 +17,24 @@ export const validateLecture = (lecture: LectureData) => {
     title: "",
     lecturer: "",
     faculty: ""
-  }; // 空のオブジェクトを作成し、エラーがある場合にエラーメッセージを格納する
+  };
 
   if (lecture.title === '') {
     LectureErrors.title = '授業名を入力してください';
+  } else if (lecture.title.length > 25) {
+    LectureErrors.title = '授業名は25文字以内で入力してください';
   }
 
   if (lecture.lecturer === '') {
     LectureErrors.lecturer = '教授/講師名を入力してください';
+  } else if (lecture.lecturer.length > 15) {
+    LectureErrors.lecturer = '教授/講師名は15文字以内で入力してください';
   }
 
   if (lecture.faculty === '') {
     LectureErrors.faculty = '開講番号:学部を入力してください';
   }
+
   return LectureErrors;
 };
 
@@ -75,6 +80,8 @@ export const validateReview = (review: ReviewData) => {
 
   if (review.content === '') {
     ReviewErrors.content = 'コメントを入力してください';
+  } else if (review.content.length > 150) {
+    ReviewErrors.content = 'コメントは150文字以内で入力してください'
   }
 
 

@@ -189,7 +189,7 @@ const LectureList = () => {
                 </button>
               </div>
               <div className='flex flex-wrap justify-center w-full md:w-5/12'>
-                <div className="flex justify-center md:ml-4 relative w-5/12 md:w-5/12 text-gray-600">
+                <div className="flex justify-center md:ml-4 relative w-5/12 md:w-5/12 mr-6 md:mr-0 text-gray-600">
                   <select
                     id="faculty"
                     name="faculty"
@@ -221,7 +221,7 @@ const LectureList = () => {
                     name="sortType"
                     onChange={handleSelectChange(setSortType)}
                     value={sortType}
-                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50 cursor-pointer">
+                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg  text-gray-600 border-green-400 outline-none hover:bg-green-50 cursor-pointer">
                     <option value="newest">新しい順</option>
                     <option value="highestRating">評価が高い順</option>
                     <option value="mostReviewed">レビュー件数順</option>

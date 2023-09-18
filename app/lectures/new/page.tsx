@@ -38,7 +38,7 @@ const LectureForm = () => {
       <div className="flex justify-center">
         <div className=" text-red-500 ">
           <h3 className=" text-lg font-bold">空欄があります</h3>
-          <ul className=" list-disc">
+          <ul className="ml-4 list-none">
             {Object.values(formErrors).map((formError: string, index: number) => (
               <li key={index}>{formError}</li>
             ))}
@@ -157,7 +157,7 @@ const LectureForm = () => {
               登録
             </button>
             <Link href="/lectures">
-              <button type='button' className='p-2 px-6 rounded-lg shadow border-2 bg-white text-green-500'>
+              <button type='button' className='p-2 px-4 rounded-lg shadow border-2 bg-white text-green-500'>
                 キャンセル
               </button>
             </Link>

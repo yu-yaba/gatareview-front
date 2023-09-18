@@ -45,8 +45,8 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
     return (
       <div className="flex justify-center">
         <div className=" text-red-500 ">
-          <h3 className=' font-bold text-lg'>空欄があります</h3>
-          <ul className=" list-disc">
+          <h3 className=' font-bold text-lg'>※</h3>
+          <ul className=" list-none ml-4">
             {((Object.values(formErrors) as unknown) as string[]).map((formError, index) => (
               <li key={index}>{formError}</li>
             ))}
@@ -288,7 +288,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
             投稿
           </button>
           <Link href={cancelURL}>
-            <button type='button' className='p-2 px-8 rounded-lg shadow border-2 bg-white text-green-500'>
+            <button type='button' className='p-2 px-4 rounded-lg shadow border-2 bg-white text-green-500'>
               キャンセル
             </button>
           </Link>
