@@ -129,7 +129,7 @@ const LectureForm = () => {
                 name="faculty"
                 value={lecture.faculty}
                 onChange={handleInputChange}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 cursor-pointer  focus:shadow-outline">
+                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 cursor-pointer bg-white focus:shadow-outline">
                 <option value="">選択してください</option>
                 <option value="G: 教養科目">G: 教養科目</option>
                 <option value="H: 人文学部">H: 人文学部</option>

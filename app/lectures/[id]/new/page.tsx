@@ -116,7 +116,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 name="period_year"
                 value={review.period_year}
                 onChange={handleInputChange}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500">
+                className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500">
                 <option>選択してください</option>
                 <option>2023</option>
                 <option>2022</option>
@@ -137,7 +137,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 name="period_term"
                 onChange={handleInputChange}
                 value={review.period_term}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 ">
                 <option>選択してください</option>
                 <option>1ターム</option>
                 <option>2ターム</option>
@@ -164,7 +164,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 name="textbook"
                 value={review.textbook}
                 onChange={handleInputChange}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 ">
                 <option>選択してください</option>
                 <option>必要</option>
                 <option>不要</option>
@@ -187,7 +187,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 name="attendance"
                 value={review.attendance}
                 onChange={handleInputChange}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 ">
                 <option>選択してください</option>
                 <option>毎回確認</option>
                 <option>たまに確認</option>
@@ -211,7 +211,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 name="grading_type"
                 onChange={handleInputChange}
                 value={review.grading_type}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 ">
                 <option>選択してください</option>
                 <option>テストのみ</option>
                 <option>レポートのみ</option>
@@ -235,7 +235,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 name="content_difficulty"
                 onChange={handleInputChange}
                 value={review.content_difficulty}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 ">
                 <option>選択してください</option>
                 <option>とても楽</option>
                 <option>楽</option>
@@ -260,7 +260,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 name="content_quality"
                 onChange={handleInputChange}
                 value={review.content_quality}
-                className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 ">
+                className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 ">
                 <option>選択してください</option>
                 <option>とても良い</option>
                 <option>良い</option>

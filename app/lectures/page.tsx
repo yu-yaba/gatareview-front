@@ -195,7 +195,7 @@ const LectureList = () => {
                     name="faculty"
                     value={selectedFaculty}
                     onChange={handleSelectChange(setSelectedFaculty)}
-                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg text-gray-600 border-green-400 outline-none hover:bg-green-50  cursor-pointer">
+                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg text-gray-600 border-green-400 outline-none bg-white hover:bg-green-50  cursor-pointer">
                     <option value="">学部で検索</option>
                     <option value="G: 教養科目">G: 教養科目</option>
                     <option value="H: 人文学部">H: 人文学部</option>
@@ -221,7 +221,7 @@ const LectureList = () => {
                     name="sortType"
                     onChange={handleSelectChange(setSortType)}
                     value={sortType}
-                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg  text-gray-600 border-green-400 outline-none hover:bg-green-50 cursor-pointer">
+                    className="block appearance-none w-full p-3 px-2 border-4 rounded-lg  text-gray-600 border-green-400 outline-none bg-white hover:bg-green-50 cursor-pointer">
                     <option value="newest">新しい順</option>
                     <option value="highestRating">評価が高い順</option>
                     <option value="mostReviewed">レビュー件数順</option>
