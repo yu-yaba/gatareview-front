@@ -50,11 +50,11 @@ export default function Page() {
               <Loading type={"bubbles"} color={"#1DBE67"} />
             </div>
           ) : (
-            <p className='mt-20 text-2xl md:text-3xl'>現在の総レビュー数  <span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
+            <p className='mt-20 text-2xl md:text-3xl'>現在の総レビュー数  <br /><span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
           )}
         </div>
         <div className=' flex justify-center'>
-          <div className="flex flex-wrap justify-center items-center w-10/12 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-inner bg-green-500 text-sm md:text-lg font-bold mt-20">
+          <div className="flex flex-wrap justify-center items-center w-full 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-inner bg-green-500 text-sm md:text-lg font-bold mt-20">
             <div className='flex justify-center w-full md:w-7/12 items-center mb-4 md:mb-0'>
               <label className='border-4 w-11/12 text-start pl-4  rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600'>
                 キーワード
