@@ -45,13 +45,7 @@ export default function Page() {
 
           <h1 className='text-lg md:text-3xl mt-20'>ガタレビュ!は新大生のための<br></br>
             授業レビュー・過去問共有サイト</h1>
-          {isLoading ? (
-            <div className="flex justify-center items-center h-screen">
-              <Loading type={"bubbles"} color={"#1DBE67"} />
-            </div>
-          ) : (
-            <p className='mt-20 text-2xl md:text-3xl'>現在の総レビュー数  <br /><span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
-          )}
+          <p className='mt-20 text-2xl md:text-3xl'>現在の総レビュー数  <br /><span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
         </div>
         <div className=' flex justify-center'>
           <div className="flex flex-wrap justify-center items-center w-full 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-inner bg-green-500 text-sm md:text-lg font-bold mt-20">

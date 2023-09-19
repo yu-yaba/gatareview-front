@@ -155,7 +155,7 @@ const LectureList = () => {
     <section className="text-center">
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
-          <Loading type={"bubbles"} color={"#1DBE67"} />
+          <Loading type={"bubbles"} width={200} height={900} color={"#1DBE67"} />
         </div>
       ) : (
         <>
