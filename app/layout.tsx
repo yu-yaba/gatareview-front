@@ -41,8 +41,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head />
-      <ScriptGa />
+      <head>
+        <ScriptGa />
+      </head>
       <body>
         <Header />
         <ToastContainer />
