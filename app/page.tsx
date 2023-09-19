@@ -44,7 +44,7 @@ export default function Page() {
         <div className='text-center font-extrabold text-3xl text-slate-700 mt-10'>
 
           <h1 className='text-lg md:text-3xl mt-20'>ガタレビュ!は新大生のための<br></br>
-            授業レビュー・過去問共有サイトです。</h1>
+            授業レビュー・過去問共有サイト</h1>
           {isLoading ? (
             <div className="flex justify-center items-center h-screen">
               <Loading type={"bubbles"} color={"#1DBE67"} />
@@ -56,7 +56,7 @@ export default function Page() {
         <div className=' flex justify-center'>
           <div className="flex flex-wrap justify-center items-center w-full 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-inner bg-green-500 text-sm md:text-lg font-bold mt-20">
             <div className='flex justify-center w-full md:w-7/12 items-center mb-4 md:mb-0'>
-              <label className='border-4 w-11/12 text-start pl-4  rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600'>
+              <label className='border-4 w-full text-start pl-4  rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600'>
                 キーワード
                 <input
                   className="ml-2 w-1/2 mr-0 outline-none  hover:bg-green-50"
@@ -69,7 +69,7 @@ export default function Page() {
               </label>
             </div>
             <div className='w-full md:w-5/12  flex justify-center'>
-              <div className="flex justify-center ml-2 relative w-8/12 text-slate-600 cursor-pointer hover:bg-green-100">
+              <div className="flex justify-center md:ml-6 relative w-8/12 text-slate-600 cursor-pointer hover:bg-green-100">
                 <select
                   id="faculty"
                   name="faculty"

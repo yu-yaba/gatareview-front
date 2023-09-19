@@ -165,7 +165,7 @@ const LectureList = () => {
                 <label className='border-4 w-9/12 text-start pl-4 border-green-400 rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600 '>
                   キーワード
                   <input
-                    className="ml-2 w-1/2 mr-0 outline-none  hover:bg-green-50"
+                    className="ml-2 w-1/2 mr-0 outline-none text-xs md:text-lg  hover:bg-green-50"
                     placeholder="授業・教授・学部"
                     type="text"
                     ref={searchInput}
@@ -183,13 +183,13 @@ const LectureList = () => {
                     router.push(`/lectures?${query}`);
                     setSearchButtonClicked(true);
                   }}
-                  className=' bg-green-500 text-white w-2/12 md:w-2/12 text-sm md:text-lg rounded-md py-3 border border-2 ml-2 border-green-500'
+                  className=' bg-green-500 text-white w-2/12 md:w-2/12 text-sm md:text-lg rounded-md py-3 border border-2 ml-4 border-green-500'
                 >
                   検索
                 </button>
               </div>
-              <div className='flex flex-wrap justify-center w-full md:w-5/12'>
-                <div className="flex justify-center md:ml-4 relative w-5/12 md:w-5/12 mr-6 md:mr-0 text-gray-600">
+              <div className='flex flex-wrap justify-around w-full md:w-5/12'>
+                <div className="flex justify-center md:ml-4 mr-2 relative w-6/12 md:w-5/12 md:mr-0 text-gray-600">
                   <select
                     id="faculty"
                     name="faculty"
@@ -215,7 +215,7 @@ const LectureList = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="flex justify-center ml-2 md:ml-4 relative w-5/12 md:w-5/12 text-gray-600">
+                <div className="flex justify-center md:ml-4 relative w-5/12 md:w-5/12 text-gray-600">
                   <select
                     id="sortType"
                     name="sortType"
