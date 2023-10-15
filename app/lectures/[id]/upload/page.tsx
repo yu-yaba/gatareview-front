@@ -1,6 +1,5 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useDropzone } from 'react-dropzone';
 import { handleAjaxError } from '../../..//helpers/helpers';
 import { success } from '../../../helpers/notifications';

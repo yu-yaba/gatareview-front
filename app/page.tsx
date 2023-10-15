@@ -1,28 +1,23 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Loading from 'react-loading';
 
 
 export default function Page() {
   const [totalReviews, setTotalReviews] = useState(null);
   const [searchWord, setSearchWord] = useState('');
   const [selectedFaculty, setSelectedFaculty] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
-    setIsLoading(true);
     fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/reviews/total`)
       .then(response => response.json())
       .then(data => {
         setTotalReviews(data.count);
-        setIsLoading(false);
       })
       .catch(err => {
         console.error('Failed to fetch review count:', err);
-        setIsLoading(false);
       });
   }, []);
 
