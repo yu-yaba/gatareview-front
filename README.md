@@ -57,3 +57,15 @@ https://www.gatareview.com
 | Infra | Vercel Heroku  AWS S3 |
 | Development | Docker |
 
+# ER図
+<img width="563" alt="スクリーンショット 2023-10-15 20 05 30" src="https://github.com/yu-yaba/gatareview-front/assets/109569162/b3324e04-6d08-49a7-980c-9577bd62d7f3">
+
+
+rails-erdで作成
+
+
+# 今後やっていきたいこと
+- テスト期間までに画像アップロードを実装する
+- X（旧Twitter）でのSNS運用
+- 大学でのビラ配り
+- 無料で新潟大学関係の広告を募集する
