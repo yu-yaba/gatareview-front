@@ -1,4 +1,28 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+![Static Badge](https://img.shields.io/badge/https%3A%2F%2Fgithub.com%2Fyu-yaba%2Fgatareview-front)
+<img src="https://img.shields.io/badge/-TypeScript-007ACC.svg?logo=typescript&style=flat">
+<img src="https://img.shields.io/badge/-React-555.svg?logo=react&style=flat">
+<img src="https://img.shields.io/badge/-Docker-EEE.svg?logo=docker&style=flat">
+
+
+# ガタレビュ！
+<img src="https://github.com/yu-yaba/gatareview-front/assets/109569162/8702c61e-ef49-4922-8261-e97048ecb208">
+
+# URL
+https://www.gatareview.com
+
+レスポンシブ対応しています。
+
+# このサービスの理念
+## すべての新潟大学生に授業情報を、オープンに
+
+・みんなで協力して、忙しい学生、授業情報が得にくい学生の力になりたい。
+
+・シラバスではわからない情報を共有することで、履修のミスマッチを減らしたい。
+
+・大学生はサークル、バイト、就活の早期化で意外と忙しい。そんな学生の力になりたい。
+
+
+
 
 ## Getting Started
 
