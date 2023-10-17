@@ -32,8 +32,9 @@ https://www.gatareview.com
 ![ガタレビュデモ2](https://github.com/yu-yaba/gatareview-front/assets/109569162/e475a83c-60da-499b-8ca3-9725cb341a88)
 
 # 開発期間
-2023年6月 Reactで開発
-20239月 フロントエンドをNext.jsにリプレイス
+2023年6月 Reactで開発　リポジトリ： https://github.com/yu-yaba/Lecture-review-site
+
+2023年9月 フロントエンドをNext.js, TypeScriptにリプレイス
 個人開発
 
 # 機能
