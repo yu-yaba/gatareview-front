@@ -1,11 +1,11 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
 import ReactStars from 'react-stars'
-import { LectureSchema } from '../types/LectureSchema';
+import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
-import { handleAjaxError } from '../helpers/helpers';
+import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
-import { QueryParameters } from '../types/QueryParameters';
+import type { QueryParameters } from '../_types/QueryParameters';
 
 const LectureList = () => {
   const [searchWord, setSearchWord] = useState('');

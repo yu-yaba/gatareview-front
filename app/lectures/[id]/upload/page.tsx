@@ -1,9 +1,9 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { handleAjaxError } from '../../..//helpers/helpers';
-import { success } from '../../../helpers/notifications';
-import { FileType } from '@/app/types/FileType';
+import { handleAjaxError } from '../../../_helpers/helpers';
+import { success } from '../../../_helpers/notifications';
+import type { FileType } from '@/app/_types/FileType';
 import { FileWithPath } from 'react-dropzone';
 import { useRouter } from 'next/navigation';
 

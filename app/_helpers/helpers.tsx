@@ -1,7 +1,8 @@
 import { error } from "./notifications";
-import { LectureData } from "../types/LectureData";
-import { ReviewData } from "../types/ReviewData";
-import { ReviewErrors } from "../types/ReviewError";
+import { LectureData } from "../_types/LectureData";
+import { ReviewData } from "../_types/ReviewData";
+import { ReviewErrors } from "../_types/ReviewError";
+import { LectureErrors } from "../_types/LectureErrors";
 
 export const isEmptyObject = (obj: Record<string, any>): boolean => {
   for (let key in obj) {
@@ -13,7 +14,7 @@ export const isEmptyObject = (obj: Record<string, any>): boolean => {
 };
 
 export const validateLecture = (lecture: LectureData) => {
-  const LectureErrors: LectureData = {
+  const LectureErrors: LectureErrors = {
     title: "",
     lecturer: "",
     faculty: ""
