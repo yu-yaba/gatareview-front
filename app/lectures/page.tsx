@@ -5,6 +5,7 @@ import { LectureSchema } from '../types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../helpers/helpers';
 import Loading from 'react-loading';
+import { QueryParameters } from '../types/QueryParameters';
 
 const LectureList = () => {
   const [searchWord, setSearchWord] = useState('');
@@ -16,13 +17,15 @@ const LectureList = () => {
   const [isLoading, setIsLoading] = useState(false);
 
 
-  const fetchLectures = async (setIsLoading, setFetchedLectures, handleAjaxError, queryParameters) => {
+  const fetchLectures = async (queryParameters: QueryParameters) => {
     try {
       setIsLoading(true);
       const searchParams = new URLSearchParams();
-      Object.keys(queryParameters).forEach(key => {
-        if (queryParameters[key]) {
-          searchParams.append(key, queryParameters[key]);
+
+      Object.keys(queryParameters).forEach((key) => {
+        const value = queryParameters[key];
+        if (value !== undefined) {
+          searchParams.append(key, value);
         }
       });
       const queryString = searchParams.toString();
@@ -34,15 +37,15 @@ const LectureList = () => {
       setFetchedLectures(data);
     } catch (error) {
       handleAjaxError("検索条件を入力してください");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
     if (searchButtonClicked || selectedFaculty) {
-      const queryParameters = { searchWord, faculty: selectedFaculty, sortType };
-      fetchLectures(setIsLoading, setFetchedLectures, handleAjaxError, queryParameters);
-      console.log(fetchedLectures);
+      const queryParameters = { searchWord: searchWord, faculty: selectedFaculty, sortType: sortType };
+      fetchLectures(queryParameters);
     }
   }, [searchButtonClicked, selectedFaculty]);
 
@@ -54,7 +57,7 @@ const LectureList = () => {
     setSelectedFaculty(initialSelectedFaculty);
 
     const queryParameters = { searchWord: initialSearchWord, faculty: initialSelectedFaculty };
-    fetchLectures(setIsLoading, setFetchedLectures, handleAjaxError, queryParameters);
+    fetchLectures(queryParameters);
   }, []);
 
   useEffect(() => {
@@ -76,9 +79,10 @@ const LectureList = () => {
     const isFacultyMatch = selectedFaculty ? obj.faculty === selectedFaculty : true;
     const { id, created_at, updated_at, ...rest } = obj;
     return isFacultyMatch && Object.values(rest).some((value) =>
-      value.toString().toLowerCase().indexOf(searchWord.toLowerCase()) > -1
+      value.toString().toLowerCase().includes(searchWord.toLowerCase())
     );
   };
+
   const sortLectures = (lectures: Array<LectureSchema>) => {
     if (sortType === 'newest') {
       return lectures.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
