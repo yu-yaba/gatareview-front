@@ -1,11 +1,11 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
 import ReactStars from 'react-stars'
-import { LectureSchema } from '../types/LectureSchema';
+import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
-import { handleAjaxError } from '../helpers/helpers';
-import { useRouter } from 'next/navigation';
+import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
+import type { QueryParameters } from '../_types/QueryParameters';
 
 const LectureList = () => {
   const [searchWord, setSearchWord] = useState('');
@@ -14,77 +14,50 @@ const LectureList = () => {
   const searchInput = useRef<HTMLInputElement>(null);
   const [fetchedLectures, setFetchedLectures] = useState<Array<LectureSchema>>([]);
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (searchWord || selectedFaculty) {
-      const fetchData = async () => {
-        try {
-          setIsLoading(true);
-          const query = [
-            searchWord && `searchWord=${searchWord}`,
-            selectedFaculty && `faculty=${selectedFaculty}`,
-            sortType && `sortType=${sortType}`,
-          ].filter(Boolean).join('&');
-          const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures?${query}`);
-          if (!response.ok) throw Error(response.statusText);
-          const data = await response.json();
 
-          setFetchedLectures(data);
-        } catch (error) {
-          handleAjaxError("検索条件を入力してください");
+  const fetchLectures = async (queryParameters: QueryParameters) => {
+    try {
+      setIsLoading(true);
+      const searchParams = new URLSearchParams();
+
+      Object.keys(queryParameters).forEach((key) => {
+        const value = queryParameters[key];
+        if (value !== undefined) {
+          searchParams.append(key, value);
         }
-        setIsLoading(false);
-      };
+      });
+      const queryString = searchParams.toString();
 
-      fetchData();
-      console.log(fetchedLectures)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures?${queryString}`);
+      if (!response.ok) throw new Error(response.statusText);
+      const data = await response.json();
+
+      setFetchedLectures(data);
+    } catch (error) {
+      handleAjaxError("検索条件を入力してください");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (searchButtonClicked || selectedFaculty) {
+      const queryParameters = { searchWord: searchWord, faculty: selectedFaculty, sortType: sortType };
+      fetchLectures(queryParameters);
     }
   }, [searchButtonClicked, selectedFaculty]);
 
-
   useEffect(() => {
-    const initialSearchWord = localStorage.getItem('searchWord');
-    const initialSelectedFaculty = localStorage.getItem('selectedFaculty');
-    const initialSortType = localStorage.getItem('sortType');
+    const initialSearchWord = localStorage.getItem('searchWord') || '';
+    const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || '';
 
-    if (initialSearchWord || initialSelectedFaculty || initialSortType) {
-      const fetchData = async () => {
-        try {
-          setIsLoading(true);
-          const query = [
-            initialSearchWord && `searchWord=${initialSearchWord}`,
-            initialSelectedFaculty && `faculty=${initialSelectedFaculty}`,
-            initialSortType && `sortType=${initialSortType}`
-          ].filter(Boolean).join('&');
-          const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures?${query}`);
-          if (!response.ok) throw Error(response.statusText);
-          const data = await response.json();
-          setFetchedLectures(data);
-        } catch (error) {
-          handleAjaxError("検索条件を入力してください");
-        }
-        setIsLoading(false);
-      };
+    setSearchWord(initialSearchWord);
+    setSelectedFaculty(initialSelectedFaculty);
 
-      fetchData();
-    }
-
-    if (initialSearchWord) setSearchWord(initialSearchWord);
-    if (initialSelectedFaculty) setSelectedFaculty(initialSelectedFaculty);
-    if (initialSortType) setSortType(initialSortType);
-
-  }, []);
-
-  useEffect(() => {
-    const savedSearchWord = localStorage.getItem('searchWord');
-    const savedSelectedFaculty = localStorage.getItem('selectedFaculty');
-    const savedSortType = localStorage.getItem('sortType');
-
-    if (savedSearchWord) setSearchWord(savedSearchWord);
-    if (savedSelectedFaculty) setSelectedFaculty(savedSelectedFaculty);
-    if (savedSortType) setSortType(savedSortType);
+    const queryParameters = { searchWord: initialSearchWord, faculty: initialSelectedFaculty };
+    fetchLectures(queryParameters);
   }, []);
 
   useEffect(() => {
@@ -92,7 +65,6 @@ const LectureList = () => {
     localStorage.setItem('selectedFaculty', selectedFaculty);
     localStorage.setItem('sortType', sortType);
   }, [searchWord, selectedFaculty, sortType]);
-
 
   const updateSearchWord = () => {
     setSearchWord(searchInput.current?.value || '');
@@ -104,12 +76,13 @@ const LectureList = () => {
     };
 
   const matchSearchWord = (obj: LectureSchema) => {
-    const isFacultyMatch = selectedFaculty ? obj.faculty === selectedFaculty : true; // 追加
+    const isFacultyMatch = selectedFaculty ? obj.faculty === selectedFaculty : true;
     const { id, created_at, updated_at, ...rest } = obj;
-    return isFacultyMatch && Object.values(rest).some((value) => // 編集
-      value.toString().toLowerCase().indexOf(searchWord.toLowerCase()) > -1
+    return isFacultyMatch && Object.values(rest).some((value) =>
+      value.toString().toLowerCase().includes(searchWord.toLowerCase())
     );
   };
+
   const sortLectures = (lectures: Array<LectureSchema>) => {
     if (sortType === 'newest') {
       return lectures.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
@@ -126,9 +99,8 @@ const LectureList = () => {
   const renderLectures = () => {
     const filteredLectures = fetchedLectures.filter((el) => matchSearchWord(el));
     const sortedLectures = sortLectures(filteredLectures);
-    const limitedLectures = sortedLectures.slice(0, 100);
 
-    return limitedLectures.map((lecture) => (
+    return sortedLectures.map((lecture) => (
       <Link href={`/lectures/${lecture.id}`} key={lecture.id} className='m-3 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-10/12 md:w-8/12 2xl:w-7/12 hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition  duration-150'>
         <li key={lecture.id}>
           <div className=' flex items-center flex-wrap'>
@@ -175,15 +147,9 @@ const LectureList = () => {
                 </label>
                 <button
                   onClick={() => {
-                    const query = [
-                      searchWord && `searchWord=${searchWord}`,
-                      selectedFaculty && `faculty=${selectedFaculty}`,
-                      sortType && `sortType=${sortType}`
-                    ].filter(Boolean).join('&');
-                    router.push(`/lectures?${query}`);
                     setSearchButtonClicked(true);
                   }}
-                  className=' bg-green-500 text-white w-2/12 md:w-2/12 text-sm md:text-lg rounded-md py-3 border border-2 ml-4 border-green-500'
+                  className=' bg-green-500 text-white w-2/12 md:w-2/12 text-sm md:text-lg rounded-md py-3 border-2 ml-4 border-green-500'
                 >
                   検索
                 </button>

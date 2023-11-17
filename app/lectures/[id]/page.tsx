@@ -2,14 +2,14 @@
 import ReactStars from 'react-stars'
 import Modal from 'react-modal';
 import { pdfjs, Document, Page } from 'react-pdf';
-import { handleAjaxError } from '../../helpers/helpers';
+import { handleAjaxError } from '../../_helpers/helpers';
 import "react-pdf/dist/esm/Page/AnnotationLayer.css"
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { ReviewSchema } from '@/app/types/ReviewSchema';
+import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
-import { LectureSchema } from '@/app/types/LectureSchema';
-import { ImageData } from '@/app/types/ImageData';
+import type { LectureSchema } from '@/app/_types/LectureSchema';
+import type { ImageData } from '@/app/_types/ImageData';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 

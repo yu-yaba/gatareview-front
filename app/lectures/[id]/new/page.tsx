@@ -1,11 +1,11 @@
 'use client'
 import { useState } from 'react';
 import ReactStars from 'react-stars'
-import { isEmptyObject, validateReview } from '../../../helpers/helpers';
+import { isEmptyObject, validateReview } from '../../../_helpers/helpers';
 import Link from 'next/link';
-import { success } from '@/app/helpers/notifications';
-import { handleAjaxError } from '../../../helpers/helpers';
-import { ReviewData } from '@/app/types/ReviewData';
+import { success } from '@/app/_helpers/notifications';
+import { handleAjaxError } from '../../../_helpers/helpers';
+import type { ReviewData } from '@/app/_types/ReviewData';
 import { useRouter } from 'next/navigation';
 
 const ReviewForm = ({ params }: { params: { id: number } }) => {

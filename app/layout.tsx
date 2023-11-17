@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google'
 import Header from './header'
 import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
-import ScriptGa from './components/ScriptGa'
+import ScriptGa from './_components/ScriptGa'
 
 const inter = Inter({ subsets: ['latin'] })
 

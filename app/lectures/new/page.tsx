@@ -1,10 +1,10 @@
 'use client'
 import Link from "next/link";
-import { LectureData } from "../../types/LectureData";
-import { validateLecture, isEmptyObject } from "../../helpers/helpers";
+import { LectureData } from "../../_types/LectureData";
+import { validateLecture, isEmptyObject } from "../../_helpers/helpers";
 import { useState } from "react";
-import { error, success } from "@/app/helpers/notifications";
-import { handleAjaxError } from "../../helpers/helpers";
+import { error, success } from "@/app/_helpers/notifications";
+import { handleAjaxError } from "../../_helpers/helpers";
 import { useRouter } from "next/navigation";
 
 
