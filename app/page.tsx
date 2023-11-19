@@ -11,7 +11,7 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/reviews/total`)
+    fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/total`)
       .then(response => response.json())
       .then(data => {
         setTotalReviews(data.count);

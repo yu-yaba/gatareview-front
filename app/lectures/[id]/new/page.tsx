@@ -57,7 +57,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
   };
   const addReview = async (newReview: ReviewData) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}/reviews`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}/reviews`, {
         method: 'POST',
         body: JSON.stringify({ review: newReview }),
         headers: {
