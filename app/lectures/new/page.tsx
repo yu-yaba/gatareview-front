@@ -50,7 +50,7 @@ const LectureForm = () => {
 
   const addLecture = async (newLecture: LectureData) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`, {
         method: 'POST',
         body: JSON.stringify({ lecture: newLecture }),
         headers: {

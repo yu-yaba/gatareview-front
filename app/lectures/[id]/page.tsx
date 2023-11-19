@@ -39,7 +39,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     const fetchLectureDetail = async () => {
       try {
         // eslint-disable-next-line no-undef
-        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`);
         if (!res.ok) throw Error(res.statusText);
         const data = await res.json();
         console.log(data)
@@ -56,7 +56,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     const fetchReviews = async () => {
       try {
         // eslint-disable-next-line no-undef
-        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}/reviews`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}/reviews`);
         if (!res.ok) throw Error(res.statusText);
         const data = await res.json();
         let avgRating = "0.0";
@@ -74,7 +74,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
   useEffect(() => {
     async function fetchImages() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures/${params.id}/images`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}/images`);
         if (!res.ok) {
           console.error('レスポンスオブジェクト:', res);
           throw new Error('Not Found');

@@ -30,7 +30,7 @@ const LectureList = () => {
       });
       const queryString = searchParams.toString();
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v2/lectures?${queryString}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?${queryString}`);
       if (!response.ok) throw new Error(response.statusText);
       const data = await response.json();
 
