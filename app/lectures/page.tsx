@@ -6,6 +6,8 @@ import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
 import type { QueryParameters } from '../_types/QueryParameters';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const LectureList = () => {
   const [searchWord, setSearchWord] = useState('');
@@ -15,7 +17,8 @@ const LectureList = () => {
   const [fetchedLectures, setFetchedLectures] = useState<Array<LectureSchema>>([]);
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const searchParams = useSearchParams();
+  const router = useRouter()
 
   const fetchLectures = async (queryParameters: QueryParameters) => {
     try {
@@ -33,6 +36,7 @@ const LectureList = () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?${queryString}`);
       if (!response.ok) throw new Error(response.statusText);
       const data = await response.json();
+      router.push(`lectures?${queryString}`)
 
       setFetchedLectures(data);
     } catch (error) {
@@ -44,14 +48,14 @@ const LectureList = () => {
 
   useEffect(() => {
     if (searchButtonClicked || selectedFaculty) {
-      const queryParameters = { searchWord: searchWord, faculty: selectedFaculty, sortType: sortType };
+      const queryParameters = { searchWord: searchWord, faculty: selectedFaculty };
       fetchLectures(queryParameters);
     }
   }, [searchButtonClicked, selectedFaculty]);
 
   useEffect(() => {
-    const initialSearchWord = localStorage.getItem('searchWord') || '';
-    const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || '';
+    const initialSearchWord = searchParams.get('searchWord') || '';
+    const initialSelectedFaculty = searchParams.get('selectedFaculty') || '';
 
     setSearchWord(initialSearchWord);
     setSelectedFaculty(initialSelectedFaculty);
@@ -59,12 +63,6 @@ const LectureList = () => {
     const queryParameters = { searchWord: initialSearchWord, faculty: initialSelectedFaculty };
     fetchLectures(queryParameters);
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('searchWord', searchWord);
-    localStorage.setItem('selectedFaculty', selectedFaculty);
-    localStorage.setItem('sortType', sortType);
-  }, [searchWord, selectedFaculty, sortType]);
 
   const updateSearchWord = () => {
     setSearchWord(searchInput.current?.value || '');

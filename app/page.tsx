@@ -22,9 +22,11 @@ export default function Page() {
   }, []);
 
   const handleSearch = () => {
-    localStorage.setItem('searchWord', searchWord);
-    localStorage.setItem('selectedFaculty', selectedFaculty);
-    router.push('/lectures');
+    const queryParameters = new URLSearchParams();
+    if (searchWord) queryParameters.append('searchWord', searchWord);
+    if (selectedFaculty) queryParameters.append('selectedFaculty', selectedFaculty);
+
+    router.push(`/lectures?${queryParameters.toString()}`);
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => {
