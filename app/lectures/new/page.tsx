@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LectureData } from "../../_types/LectureData";
 import { validateLecture, isEmptyObject } from "../../_helpers/helpers";
 import { useState } from "react";
-import { error, success } from "@/app/_helpers/notifications";
+import { success } from "@/app/_helpers/notifications";
 import { handleAjaxError } from "../../_helpers/helpers";
 import { useRouter } from "next/navigation";
 
@@ -57,24 +57,15 @@ const LectureForm = () => {
           'Content-Type': 'application/json',
         },
       });
+      if (!res.ok) throw Error(res.statusText);
       const data = await res.json();
-      if (!res.ok) {
-        const errorMessage = data.error || res.statusText;
-
-        if (errorMessage === 'A similar lecture already exists') {
-          error('同じ授業がすでに登録されています');
-          return;
-        }
-
-        throw Error(errorMessage);
-      }
 
       success('授業を登録しました');
       console.log(data)
       router.push(`/lectures/${data.id}`);
 
     } catch (error) {
-      handleAjaxError('授業の登録に失敗しました');
+      handleAjaxError('同じ授業がすでに登録されています。');
     }
   };
 
