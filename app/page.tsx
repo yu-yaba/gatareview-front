@@ -35,17 +35,16 @@ export default function Page() {
 
   return (
     <div className='flex justify-center'>
-      <div className='w-10/12'>
+      <div className='w-full'>
         <div className='text-center font-extrabold text-3xl text-slate-700 mt-10'>
-
           <h1 className='text-lg md:text-3xl mt-20'>ガタレビュ!は新大生のための<br></br>
-            授業レビュー・過去問共有サイト</h1>
+            授業レビューサイト</h1>
           <p className='mt-20 text-2xl md:text-3xl'>現在の総レビュー数  <br /><span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
         </div>
         <div className=' flex justify-center'>
-          <div className="flex flex-wrap justify-center items-center w-full 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-inner bg-green-500 text-sm md:text-lg font-bold mt-20">
+          <div className="flex flex-wrap justify-center items-center w-11/12 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-md bg-green-500 text-sm md:text-lg font-bold mt-20">
             <div className='flex justify-center w-full md:w-7/12 items-center mb-4 md:mb-0'>
-              <label className='border-4 w-full text-start pl-4  rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600'>
+              <label className=' w-full text-start pl-4 rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600 shadow-md'>
                 キーワード
                 <input
                   className="ml-2 w-1/2 mr-0 outline-none  hover:bg-green-50"
@@ -57,7 +56,7 @@ export default function Page() {
                 />
               </label>
             </div>
-            <div className='w-full md:w-5/12  flex justify-center'>
+            <div className='w-full md:w-4/12  flex justify-center'>
               <div className="flex justify-center md:ml-6 relative w-8/12 text-slate-600 cursor-pointer hover:bg-green-100">
                 <select
                   id="faculty"
@@ -65,7 +64,7 @@ export default function Page() {
                   value={selectedFaculty}
                   onChange={(e) => setSelectedFaculty(e.target.value)}
                   onKeyUp={handleKeyUp}
-                  className="block appearance-none w-full border-4 rounded-lg bg-white p-6 py-3 pr-8  shadow ">
+                  className="block appearance-none w-full rounded-lg outline-none bg-white p-6 py-3 pr-8  shadow-md ">
                   <option value="">学部で検索</option>
                   <option value="G: 教養科目">G: 教養科目</option>
                   <option value="H: 人文学部">H: 人文学部</option>
@@ -84,7 +83,7 @@ export default function Page() {
                 </div>
               </div>
               <button onClick={handleSearch}
-                className=' bg-green-500 text-white w-3/12 md:w-4/12 text-sm md:text-lg rounded-md py-3 ml-6 bg-red-600'
+                className=' text-white w-3/12 md:w-4/12 text-sm md:text-lg rounded-md py-3 ml-6 bg-red-500 shadow-md'
               >検索</button>
             </div>
           </div>

@@ -52,11 +52,13 @@ const LectureList = () => {
   useEffect(() => {
     const initialSearchWord = localStorage.getItem('searchWord') || '';
     const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || '';
+    const initialSortType = localStorage.getItem('sortType') || '';
 
     setSearchWord(initialSearchWord);
     setSelectedFaculty(initialSelectedFaculty);
+    setSortType(initialSortType);
 
-    const queryParameters = { searchWord: initialSearchWord, faculty: initialSelectedFaculty };
+    const queryParameters = { searchWord: initialSearchWord, faculty: initialSelectedFaculty, sortType: initialSortType };
     fetchLectures(queryParameters);
   }, []);
 

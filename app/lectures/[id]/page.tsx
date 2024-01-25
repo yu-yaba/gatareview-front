@@ -1,37 +1,15 @@
 'use client'
 import ReactStars from 'react-stars'
-import Modal from 'react-modal';
-import { pdfjs, Document, Page } from 'react-pdf';
 import { handleAjaxError } from '../../_helpers/helpers';
-import "react-pdf/dist/esm/Page/AnnotationLayer.css"
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import type { ImageData } from '@/app/_types/ImageData';
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    marginTop: '7%',
-    transform: 'translate(-50%, -50%)'
-  }
-};
 
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
-  const [isOpen, setIsOpen] = useState(false);
-  const [images, setImages] = useState<ImageData[]>([]);
-  const [imageCount, setImageCount] = useState(0);
   const [lecture, setLecture] = useState<LectureSchema | null>(null)
 
 
@@ -71,37 +49,6 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     fetchReviews();
   }, []);
 
-  useEffect(() => {
-    async function fetchImages() {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}/images`);
-        if (!res.ok) {
-          console.error('レスポンスオブジェクト:', res);
-          throw new Error('Not Found');
-        }
-        const data = await res.json();
-        // データを使って何かする
-      } catch (error) {
-        console.error('フェッチに失敗:', error);
-      }
-    }
-
-    fetchImages();
-  }, []);
-
-  const openModal = () => {
-    if (imageCount === 0) {
-      handleAjaxError("過去問はありません");
-      return;
-    }
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-
 
 
   if (!params.id) notFound();
@@ -129,45 +76,8 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           </div>
         </div>
       </div>
-      <div className='flex justify-center mt-8'>
-        <div className='flex flex-wrap justify-center items-center w-8/12 md:w-7/12 2xl:w-5/12 text-lg text-center font-bold border border-1 py-4 rounded-2xl shadow-inner bg-slate-50 p-6'>
-          <button type='button'
-            style={{ color: imageCount === 0 ? 'red' : '#1DBE67' }}
-            className='border border-2 px-4 py-3 rounded-lg bg-white w-full md:w-5/12 md:mr-4 transform hover:scale-105 transition  duration-150'>
-            過去問 ({imageCount})
-          </button>
-          <Modal
-            isOpen={isOpen}
-            onRequestClose={closeModal}
-            style={customStyles}
-            contentLabel="Example Modal"
-          >
-            <button type='button' className='closeButton' onClick={closeModal}>×</button>
-            <div className='imageContainer'>
-              {images.map(image => {
-                console.log(image);
-                if (image.type && image.type.startsWith('image/')) {
-                  return <a key={image.url} href={image.url} target='_blank' rel="noopener noreferrer">
-                    <img src={image.url} alt="過去問" />
-                  </a>;
-                } if (image.type && image.type === 'application/pdf') {
-                  return <a key={image.url} href={image.url} target='_blank' rel="noopener noreferrer">
-                    <div className="pdfContainer">
-                      <Document file={image.url} key={image.url}>
-                        <Page pageNumber={1} scale={0.3} renderTextLayer={false} />
-                      </Document>
-                    </div>
-                  </a>
-                    ;
-                }
-                return null;
-              })}
-            </div>
-          </Modal>
-          {/* <Link href={`/lectures/${params.id}/upload`} className='md:ml-4 mt-4 md:mt-0 w-full md:w-5/12 border border-2 px-4 py-3 rounded-lg bg-white transform hover:scale-105 transition  duration-150'> */}
-          <button type='button' className='md:ml-4 mt-4 md:mt-0 w-full md:w-5/12 border border-2 px-4 py-3 rounded-lg bg-white transform hover:scale-105 transition  duration-150'>過去問を投稿</button>
-          {/* </Link> */}
-        </div>
+      <div className='flex mt-4 justify-center'>
+        <Link href={`/lectures/${params.id}/new`}><button type='button' className='bg-green-500 text-white text-lg font-bold py-3 px-6 rounded-lg mt-4 hover:scale-105 transition  duration-150' >レビューする</button></Link>
       </div>
       <div className=' flex justify-center items-center flex-col mt-6'>
         {reviews.reviews && reviews.reviews.map((review: ReviewSchema) => (
@@ -214,9 +124,6 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
             </li>
           </div>
         ))}
-      </div>
-      <div className='flex justify-center ...'>
-        <Link href={`/lectures/${params.id}/new`}><button type='button' className='bg-green-500 text-white text-lg font-bold py-3 px-6 rounded-lg mt-4 hover:scale-105 transition  duration-150' >レビューする</button></Link>
       </div>
     </div>
   );
