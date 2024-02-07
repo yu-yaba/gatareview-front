@@ -47,7 +47,7 @@ const LectureList = () => {
       const queryParameters = { searchWord: searchWord, faculty: selectedFaculty, sortType: sortType };
       fetchLectures(queryParameters);
     }
-  }, [searchButtonClicked, selectedFaculty]);
+  }, [searchButtonClicked]);
 
   useEffect(() => {
     const initialSearchWord = localStorage.getItem('searchWord') || '';
@@ -86,17 +86,29 @@ const LectureList = () => {
   };
 
   const sortLectures = (lectures: Array<LectureSchema>) => {
+    // 最新のレビューの日付を含む授業オブジェクトを作成
+    const lecturesWithLatestReviewDate = lectures.map(lecture => {
+      const latestReviewDate = lecture.reviews.reduce((latest, review) => {
+        const reviewUpdatedAt = new Date(review.updated_at);
+        return reviewUpdatedAt > latest ? reviewUpdatedAt : latest;
+      }, new Date(0)); // 初期値は1970-01-01
+
+      return { ...lecture, latestReviewDate };
+    });
+
     if (sortType === 'newest') {
-      return lectures.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+      return lecturesWithLatestReviewDate.sort((a, b) => b.latestReviewDate.getTime() - a.latestReviewDate.getTime());
     }
     if (sortType === 'highestRating') {
-      return lectures.sort((a, b) => b.avg_rating - a.avg_rating);
+      return lecturesWithLatestReviewDate.sort((a, b) => b.avg_rating - a.avg_rating);
     }
     if (sortType === 'mostReviewed') {
-      return lectures.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+      return lecturesWithLatestReviewDate.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
     }
-    return lectures;
+
+    return lecturesWithLatestReviewDate;
   };
+
 
   const renderLectures = () => {
     const filteredLectures = fetchedLectures.filter((el) => matchSearchWord(el));
@@ -149,7 +161,7 @@ const LectureList = () => {
                 </label>
                 <button
                   onClick={() => {
-                    setSearchButtonClicked(true);
+                    setSearchButtonClicked(!searchButtonClicked);
                   }}
                   className=' bg-green-500 text-white w-2/12 md:w-2/12 text-sm md:text-lg rounded-md py-3 border-2 ml-4 border-green-500'
                 >

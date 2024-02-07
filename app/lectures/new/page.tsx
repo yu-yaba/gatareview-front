@@ -121,18 +121,18 @@ const LectureForm = () => {
                 value={lecture.faculty}
                 onChange={handleInputChange}
                 className="block appearance-none w-full p-3 border rounded-md shadow focus:border-green-500 cursor-pointer bg-white focus:shadow-outline">
-                <option value="">選択してください</option>
-                <option value="G: 教養科目">G: 教養科目</option>
-                <option value="H: 人文学部">H: 人文学部</option>
-                <option value="K: 教育学部">K: 教育学部</option>
-                <option value="L: 法学部">L: 法学部</option>
-                <option value="E: 経済科学部">E: 経済科学部</option>
-                <option value="S: 理学部">S: 理学部</option>
-                <option value="M: 医学部">M: 医学部</option>
-                <option value="D: 歯学部">D: 歯学部</option>
-                <option value="T: 工学部">T: 工学部</option>
-                <option value="A: 農学部">A: 農学部</option>
-                <option value="X: 創生学部">X: 創生学部</option>
+                <option value="">学部で検索</option>
+                <option value="G:教養科目">G:教養科目</option>
+                <option value="H:人文学部">H:人文学部</option>
+                <option value="K:教育学部">K:教育学部</option>
+                <option value="L:法学部">L:法学部</option>
+                <option value="E:経済科学部">E:経済科学部</option>
+                <option value="S:理学部">S:理学部</option>
+                <option value="M:医学部">M:医学部</option>
+                <option value="D:歯学部">D:歯学部</option>
+                <option value="T:工学部">T:工学部</option>
+                <option value="A:農学部">A:農学部</option>
+                <option value="X:創生学部">X:創生学部</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
