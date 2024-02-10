@@ -65,7 +65,7 @@ export default function Page() {
                   onChange={(e) => setSelectedFaculty(e.target.value)}
                   onKeyUp={handleKeyUp}
                   className="block appearance-none w-full rounded-lg outline-none bg-white p-6 py-3 pr-8  shadow-md ">
-                  <option value="">学部で検索</option>
+                  <option disabled value="">学部で検索</option>
                   <option value="G:教養科目">G:教養科目</option>
                   <option value="H:人文学部">H:人文学部</option>
                   <option value="K:教育学部">K:教育学部</option>

@@ -118,7 +118,7 @@ const LectureList = () => {
       <Link href={`/lectures/${lecture.id}`} key={lecture.id} className='m-3 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-10/12 md:w-8/12 2xl:w-7/12 hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition  duration-150'>
         <li key={lecture.id}>
           <div className=' flex items-center flex-wrap'>
-            <h2 className="inline-block w-full md:w-4/12 font-bold text-2xl my-1 text-center ">{lecture.title}</h2>
+            <h2 className="inline-block w-full md:w-4/12 font-bold text-2xl my-1 text-center">{lecture.title}</h2>
             <div className='flex flex-wrap w-full md:w-8/12'>
               <div className="flex flex-row w-full md:w-7/12  justify-center">
                 <p className="mx-2 my-3">{lecture.lecturer}</p>
@@ -176,7 +176,7 @@ const LectureList = () => {
                     value={selectedFaculty}
                     onChange={handleSelectChange(setSelectedFaculty)}
                     className="block appearance-none w-full p-3 px-2 border-4 rounded-lg text-gray-600 border-green-400 outline-none bg-white hover:bg-green-50  cursor-pointer">
-                    <option value="">学部で検索</option>
+                    <option disabled value="">学部で検索</option>
                     <option value="G:教養科目">G:教養科目</option>
                     <option value="H:人文学部">H:人文学部</option>
                     <option value="K:教育学部">K:教育学部</option>
