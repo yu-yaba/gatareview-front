@@ -86,29 +86,22 @@ const LectureList = () => {
   };
 
   const sortLectures = (lectures: Array<LectureSchema>) => {
-    // 最新のレビューの日付を含む授業オブジェクトを作成
-    const lecturesWithLatestReviewDate = lectures.map(lecture => {
-      const latestReviewDate = lecture.reviews.reduce((latest, review) => {
-        const reviewUpdatedAt = new Date(review.updated_at);
-        return reviewUpdatedAt > latest ? reviewUpdatedAt : latest;
-      }, new Date(0)); // 初期値は1970-01-01
-
-      return { ...lecture, latestReviewDate };
-    });
-
     if (sortType === 'newest') {
-      return lecturesWithLatestReviewDate.sort((a, b) => b.latestReviewDate.getTime() - a.latestReviewDate.getTime());
+      // レビューの最新日に基づいてソート
+      return lectures.sort((a, b) => {
+        const aLatestReviewDate = a.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
+        const bLatestReviewDate = b.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
+        return bLatestReviewDate.getTime() - aLatestReviewDate.getTime();
+      });
     }
     if (sortType === 'highestRating') {
-      return lecturesWithLatestReviewDate.sort((a, b) => b.avg_rating - a.avg_rating);
+      return lectures.sort((a, b) => b.avg_rating - a.avg_rating);
     }
     if (sortType === 'mostReviewed') {
-      return lecturesWithLatestReviewDate.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+      return lectures.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
     }
-
-    return lecturesWithLatestReviewDate;
+    return lectures;
   };
-
 
   const renderLectures = () => {
     const filteredLectures = fetchedLectures.filter((el) => matchSearchWord(el));
