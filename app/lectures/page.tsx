@@ -5,7 +5,6 @@ import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
-import type { QueryParameters } from '../_types/QueryParameters';
 
 const LectureList = () => {
   const [searchWord, setSearchWord] = useState('');
@@ -13,24 +12,13 @@ const LectureList = () => {
   const [sortType, setSortType] = useState('')
   const searchInput = useRef<HTMLInputElement>(null);
   const [fetchedLectures, setFetchedLectures] = useState<Array<LectureSchema>>([]);
-  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-
-  const fetchLectures = async (queryParameters: QueryParameters) => {
+  const fetchLectures = async () => {
     try {
       setIsLoading(true);
-      const searchParams = new URLSearchParams();
 
-      Object.keys(queryParameters).forEach((key) => {
-        const value = queryParameters[key];
-        if (value !== undefined) {
-          searchParams.append(key, value);
-        }
-      });
-      const queryString = searchParams.toString();
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?${queryString}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`, { cache: 'force-cache' });
       if (!response.ok) throw new Error(response.statusText);
       const data = await response.json();
 
@@ -43,13 +31,6 @@ const LectureList = () => {
   };
 
   useEffect(() => {
-    if (searchButtonClicked || selectedFaculty) {
-      const queryParameters = { searchWord: searchWord, faculty: selectedFaculty, sortType: sortType };
-      fetchLectures(queryParameters);
-    }
-  }, [searchButtonClicked]);
-
-  useEffect(() => {
     const initialSearchWord = localStorage.getItem('searchWord') || '';
     const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || '';
     const initialSortType = localStorage.getItem('sortType') || '';
@@ -58,8 +39,7 @@ const LectureList = () => {
     setSelectedFaculty(initialSelectedFaculty);
     setSortType(initialSortType);
 
-    const queryParameters = { searchWord: initialSearchWord, faculty: initialSelectedFaculty, sortType: initialSortType };
-    fetchLectures(queryParameters);
+    fetchLectures();
   }, []);
 
   useEffect(() => {
@@ -87,7 +67,6 @@ const LectureList = () => {
 
   const sortLectures = (lectures: Array<LectureSchema>) => {
     if (sortType === 'newest') {
-      // レビューの最新日に基づいてソート
       return lectures.sort((a, b) => {
         const aLatestReviewDate = a.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
         const bLatestReviewDate = b.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
@@ -140,8 +119,8 @@ const LectureList = () => {
         <>
           <div className="flex justify-center ">
             <div className="flex flex-wrap justify-center items-center w-10/12 2xl:w-7/12 border border-1 py-6 px-3 rounded-2xl shadow-inner bg-slate-50 text-sm md:text-lg font-bold">
-              <div className='flex justify-center w-full md:w-7/12 items-center mb-4 md:mb-0'>
-                <label className='border-4 w-9/12 text-start pl-4 border-green-400 rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600 '>
+              <div className='flex justify-center w-full md:w-6/12 items-center mb-4 md:mb-0 px-2 md:px-4'>
+                <label className='border-4 w-full text-start pl-4 border-green-400 rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600 '>
                   キーワード
                   <input
                     className="ml-2 w-1/2 mr-0 outline-none text-xs md:text-lg  hover:bg-green-50"
@@ -152,16 +131,8 @@ const LectureList = () => {
                     onChange={updateSearchWord}
                   />
                 </label>
-                <button
-                  onClick={() => {
-                    setSearchButtonClicked(!searchButtonClicked);
-                  }}
-                  className=' bg-green-500 text-white w-2/12 md:w-2/12 text-sm md:text-lg rounded-md py-3 border-2 ml-4 border-green-500'
-                >
-                  検索
-                </button>
               </div>
-              <div className='flex flex-wrap justify-around w-full md:w-5/12'>
+              <div className='flex flex-wrap justify-around w-full md:w-6/12'>
                 <div className="flex justify-center md:ml-4 mr-2 relative w-6/12 md:w-5/12 md:mr-0 text-gray-600">
                   <select
                     id="faculty"
