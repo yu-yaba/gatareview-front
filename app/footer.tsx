@@ -19,7 +19,7 @@ export default function Header() {
       </div>
       <div className="flex justify-center items-center text-center py-2">
         <img src="/green-title.png" alt="footer-title" className="w-[120px] h-[40px] mr-6" />
-        <p className="text-[#808080] text-[0.7rem] mx-2">© 2023 ガタレビュ！</p>
+        <p className="text-[#808080] text-[0.7rem] mx-2">© 2024 ガタレビュ！</p>
       </div>
     </footer>
   )
