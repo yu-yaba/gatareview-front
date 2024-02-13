@@ -31,9 +31,9 @@ const LectureList = () => {
   };
 
   useEffect(() => {
-    const initialSearchWord = localStorage.getItem('searchWord') || '';
-    const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || 'G:教養科目';
-    const initialSortType = localStorage.getItem('sortType') || '';
+    const initialSearchWord = sessionStorage.getItem('searchWord') || '';
+    const initialSelectedFaculty = sessionStorage.getItem('selectedFaculty') || '';
+    const initialSortType = sessionStorage.getItem('sortType') || '';
 
     setSearchWord(initialSearchWord);
     setSelectedFaculty(initialSelectedFaculty);
@@ -43,9 +43,9 @@ const LectureList = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('searchWord', searchWord);
-    localStorage.setItem('selectedFaculty', selectedFaculty);
-    localStorage.setItem('sortType', sortType);
+    sessionStorage.setItem('searchWord', searchWord);
+    sessionStorage.setItem('selectedFaculty', selectedFaculty);
+    sessionStorage.setItem('sortType', sortType);
   }, [searchWord, selectedFaculty, sortType]);
 
   const updateSearchWord = () => {

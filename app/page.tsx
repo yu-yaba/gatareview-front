@@ -22,8 +22,8 @@ export default function Page() {
   }, []);
 
   const handleSearch = () => {
-    localStorage.setItem('searchWord', searchWord);
-    localStorage.setItem('selectedFaculty', selectedFaculty);
+    sessionStorage.setItem('searchWord', searchWord);
+    sessionStorage.setItem('selectedFaculty', selectedFaculty);
     router.push('/lectures');
   };
 
