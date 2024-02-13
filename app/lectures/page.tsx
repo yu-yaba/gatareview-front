@@ -31,7 +31,7 @@ const LectureList = () => {
   };
 
   useEffect(() => {
-    const initialSearchWord = sessionStorage.getItem('searchWord') || '';
+    const initialSearchWord = sessionStorage.getItem('searchWord') || 'G:教養科目';
     const initialSelectedFaculty = sessionStorage.getItem('selectedFaculty') || '';
     const initialSortType = sessionStorage.getItem('sortType') || '';
 
