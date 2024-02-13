@@ -32,7 +32,7 @@ const LectureList = () => {
 
   useEffect(() => {
     const initialSearchWord = localStorage.getItem('searchWord') || '';
-    const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || '';
+    const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || 'G:教養科目';
     const initialSortType = localStorage.getItem('sortType') || '';
 
     setSearchWord(initialSearchWord);
