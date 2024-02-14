@@ -33,7 +33,7 @@ const LectureList = () => {
   useEffect(() => {
     const initialSearchWord = sessionStorage.getItem('searchWord') || '';
     const initialSelectedFaculty = sessionStorage.getItem('selectedFaculty') || 'G:教養科目';
-    const initialSortType = sessionStorage.getItem('sortType') || '新しい順';
+    const initialSortType = sessionStorage.getItem('sortType') || 'newest';
 
     setSearchWord(initialSearchWord);
     setSelectedFaculty(initialSelectedFaculty);
