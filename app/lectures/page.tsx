@@ -16,9 +16,11 @@ const LectureList = () => {
 
   const fetchLectures = async () => {
     try {
+      // ローディングアイコンを表示
       setIsLoading(true);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`, { next: { revalidate: 60 } });
+      // process.envで開発環境、本番環境を切り替えてリクエストを送る。   revalidateは再更新するまでの期間（秒）
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`, { next: { revalidate: 0 } });
       if (!response.ok) throw new Error(response.statusText);
       const data = await response.json();
 
@@ -31,21 +33,24 @@ const LectureList = () => {
   };
 
   useEffect(() => {
-    const initialSearchWord = localStorage.getItem('searchWord') || '';
-    const initialSelectedFaculty = localStorage.getItem('selectedFaculty') || 'G:教養科目';
-    const initialSortType = localStorage.getItem('sortType') || '';
+    // localStorageに保存されている条件を取得。||は論理和演算子であり、左がfalseの場合、右を返す
+    const initialSearchWord = sessionStorage.getItem('searchWord') || '';
+    const initialSelectedFaculty = sessionStorage.getItem('selectedFaculty') || 'G:教養科目';
+    const initialSortType = sessionStorage.getItem('sortType') || '';
 
+    // 取得した条件でstateを更新
     setSearchWord(initialSearchWord);
     setSelectedFaculty(initialSelectedFaculty);
     setSortType(initialSortType);
 
     fetchLectures();
+    // 第二引数が空の配列なので、初回のレンダリング時に実行される
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('searchWord', searchWord);
-    localStorage.setItem('selectedFaculty', selectedFaculty);
-    localStorage.setItem('sortType', sortType);
+    sessionStorage.setItem('searchWord', searchWord);
+    sessionStorage.setItem('selectedFaculty', selectedFaculty);
+    sessionStorage.setItem('sortType', sortType);
   }, [searchWord, selectedFaculty, sortType]);
 
   const updateSearchWord = () => {
@@ -57,9 +62,13 @@ const LectureList = () => {
       setStateFunc(e.target.value);
     };
 
-  const matchSearchWord = (obj: LectureSchema) => {
-    const isFacultyMatch = selectedFaculty ? obj.faculty === selectedFaculty : true;
-    const { id, created_at, updated_at, ...rest } = obj;
+  const matchSearchWord = (lecture: LectureSchema) => {
+    // facultyが一致しているかどうかをチェック
+    const isFacultyMatch = lecture.faculty === selectedFaculty;
+    // 分割代入を使ってid, created_at, updated_at以外のプロパティを取り出す
+    const { id, created_at, updated_at, ...rest } = lecture;
+
+    // Object.valuesでrestを配列にする。配列のvalueのうち少なくとも一つsearchWordと一致した場合trueを返す。
     return isFacultyMatch && Object.values(rest).some((value) =>
       value.toString().toLowerCase().includes(searchWord.toLowerCase())
     );
@@ -68,12 +77,12 @@ const LectureList = () => {
   const sortLectures = (lectures: Array<LectureSchema>) => {
     if (sortType === 'newest') {
       return lectures.sort((a, b) => {
-        const aLatestReviewDate = a.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
-        const bLatestReviewDate = b.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
-        return bLatestReviewDate.getTime() - aLatestReviewDate.getTime();
+        const aLatestReview = a.reviews.length > 0 ? new Date(a.reviews[a.reviews.length - 1].created_at) : new Date(0);
+        const bLatestReview = b.reviews.length > 0 ? new Date(b.reviews[b.reviews.length - 1].created_at) : new Date(0);
+
+        return bLatestReview.getTime() - aLatestReview.getTime();
       });
-    }
-    if (sortType === 'highestRating') {
+    } if (sortType === 'highestRating') {
       return lectures.sort((a, b) => b.avg_rating - a.avg_rating);
     }
     if (sortType === 'mostReviewed') {
@@ -83,7 +92,7 @@ const LectureList = () => {
   };
 
   const renderLectures = () => {
-    const filteredLectures = fetchedLectures.filter((el) => matchSearchWord(el));
+    const filteredLectures = fetchedLectures.filter((lecture) => matchSearchWord(lecture));
     const sortedLectures = sortLectures(filteredLectures);
 
     return sortedLectures.map((lecture) => (
