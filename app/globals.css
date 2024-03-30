@@ -10,3 +10,14 @@ body {
     Meiryo,
     sans-serif;
 }
+
+.swiper-button-next, .swiper-button-prev {
+  @apply w-6 h-6; /* デフォルトサイズ */
+  @apply md:w-24 md:h-24; /* 768px以上のデバイスでのサイズ */
+}
+
+@media (min-width: 768px) {
+  .md\:br-hidden br {
+    display: none;
+  }
+}
