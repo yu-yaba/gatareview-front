@@ -66,7 +66,7 @@ export default function BasicSlider() {
       loop={true} // スライドをループさせる
       speed={900} // スライドが切り替わる時の速度
       autoplay={{
-        delay: 200000,
+        delay: 2000,
         disableOnInteraction: false,
       }} // スライド表示時間
       navigation // ナビゲーション（左右の矢印）
@@ -84,18 +84,20 @@ export default function BasicSlider() {
       className="flex justify-center items-center"
     >
       {images.map((src, index) => (
-        <SwiperSlide key={index} className="flex justify-center items-center">
-          <div className="flex justify-center items-center">
-            <Image
-              src={src}
-              width={1920}
-              height={1038}
-              alt="icon"
-              priority
-              className="w-11/12 mt-4 h-auto md:w-8/12 md:h-7/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
-            />
-          </div>
-        </SwiperSlide>
+        <React.Fragment key={`image-${index}`}>
+          <SwiperSlide className="flex justify-center items-center">
+            <div className="flex justify-center items-center">
+              <Image
+                src={src}
+                width={1920}
+                height={1038}
+                alt="icon"
+                priority
+                className="w-11/12 mt-4 h-auto md:w-8/12 md:h-7/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
+              />
+            </div>
+          </SwiperSlide>
+        </React.Fragment>
       ))}
       {latestReviews.map((review, reviewIndex) => (
         <SwiperSlide key={`review-${review.lecture.id}-${reviewIndex}`} className="flex justify-center items-center">
