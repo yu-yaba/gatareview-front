@@ -59,7 +59,7 @@ export default function BasicSlider() {
 
   return (
     <Swiper
-      initialSlide={0}
+      initialSlide={2}
       modules={[Navigation, Pagination, Autoplay]}
       breakpoints={slideSettings} // slidesPerViewを指定
       slidesPerView={"auto"} // ハイドレーションエラー対策
