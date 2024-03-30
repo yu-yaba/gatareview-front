@@ -1,6 +1,8 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import BasicSlider from './_components/Slider';
+import './globals.css';
 
 
 export default function Page() {
@@ -36,13 +38,12 @@ export default function Page() {
   return (
     <div className='flex justify-center'>
       <div className='w-full'>
-        <div className='text-center font-extrabold text-3xl text-slate-700 mt-10'>
-          <h1 className='text-lg md:text-3xl mt-20'>ガタレビュ!は新大生のための<br></br>
-            授業レビューサイト</h1>
-          <p className='mt-20 text-2xl md:text-3xl'>現在の総レビュー数  <br /><span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
+        <div className='text-center font-extrabold text-3xl text-slate-700 mt-7 lg:mt-0'>
+          <p className='text-xl md:text-2xl md:mt-5'>現在の総レビュー数  <br /><span className='text-5xl text-green-500'>{totalReviews}</span>件</p>
+          <BasicSlider />
         </div>
         <div className=' flex justify-center'>
-          <div className="flex flex-wrap justify-center items-center w-11/12 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-md bg-green-500 text-sm md:text-lg font-bold mt-20">
+          <div className="flex flex-wrap justify-center items-center w-11/12 2xl:w-7/12 border border-1 py-6 px-6 rounded-2xl shadow-md bg-green-500 text-sm md:text-lg font-bold mt-0">
             <div className='flex justify-center w-full md:w-7/12 items-center mb-4 md:mb-0'>
               <label className=' w-full text-start pl-4 rounded-lg inline-block py-3 bg-white hover:bg-green-50 text-gray-600 shadow-md'>
                 キーワード
@@ -56,7 +57,7 @@ export default function Page() {
                 />
               </label>
             </div>
-            <div className='w-full md:w-4/12  flex justify-center'>
+            <div className='w-full md:w-4/12 flex justify-center'>
               <div className="flex justify-center md:ml-6 relative w-8/12 text-slate-600 cursor-pointer hover:bg-green-100">
                 <select
                   id="faculty"
