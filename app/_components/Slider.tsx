@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import "../globals.css"
 import Link from "next/link";
 import ReactStars from "react-stars";
 import { handleAjaxError } from '../_helpers/helpers';
@@ -65,7 +66,7 @@ export default function BasicSlider() {
       loop={true} // スライドをループさせる
       speed={900} // スライドが切り替わる時の速度
       autoplay={{
-        delay: 2000,
+        delay: 200000,
         disableOnInteraction: false,
       }} // スライド表示時間
       navigation // ナビゲーション（左右の矢印）
@@ -83,22 +84,22 @@ export default function BasicSlider() {
       className="flex justify-center items-center"
     >
       {images.map((src, index) => (
-        <React.Fragment key={`image-${index}`}>
-          <SwiperSlide className="flex justify-center items-center">
+        <SwiperSlide key={index} className="flex justify-center items-center">
+          <div className="flex justify-center items-center">
             <Image
               src={src}
               width={1920}
               height={1038}
               alt="icon"
               priority
-              className="w-11/12 mt-4 h-auto md:w-8/12 md:h-7/12 flex items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
+              className="w-11/12 mt-4 h-auto md:w-8/12 md:h-7/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
             />
-          </SwiperSlide>
-        </React.Fragment>
+          </div>
+        </SwiperSlide>
       ))}
       {latestReviews.map((review, reviewIndex) => (
         <SwiperSlide key={`review-${review.lecture.id}-${reviewIndex}`} className="flex justify-center items-center">
-          <div className="ml-2">
+          <div className="">
             <h5 className="flex justify-center text-base mt-2">新着のレビュー</h5>
             <Link href={`/lectures/${review.lecture.id}`} className='mt-2 md:mt-6 xl:mt-10 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-11/12 md:w-9/12 2xl:w-full hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition duration-150'>
               <div className="text-center">
