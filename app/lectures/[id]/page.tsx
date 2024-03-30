@@ -117,7 +117,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                   </tr>
                   <tr>
                     <td className='w-24 pt-4'><strong>コメント</strong></td>
-                    <td className=' pt-4'>{review.content}</td>
+                    <td className=' pt-4 break-all'>{review.content}</td>
                   </tr>
                 </tbody>
               </table>
