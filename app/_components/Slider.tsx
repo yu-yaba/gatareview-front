@@ -59,12 +59,10 @@ export default function BasicSlider() {
 
   return (
     <Swiper
-      initialSlide={2}
       modules={[Navigation, Pagination, Autoplay]}
       breakpoints={slideSettings} // slidesPerViewを指定
       slidesPerView={"auto"} // ハイドレーションエラー対策
       centeredSlides={true} // スライドを中央に配置
-      loop={true} // スライドをループさせる
       speed={900} // スライドが切り替わる時の速度
       autoplay={{
         delay: 2000,
