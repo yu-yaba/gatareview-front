@@ -14,6 +14,7 @@ body {
 .swiper-button-next, .swiper-button-prev {
   @apply w-6 h-6; /* デフォルトサイズ */
   @apply md:w-24 md:h-24; /* 768px以上のデバイスでのサイズ */
+  @apply top-1/2
 }
 
 @media (min-width: 768px) {

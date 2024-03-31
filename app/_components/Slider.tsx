@@ -76,15 +76,15 @@ export default function BasicSlider() {
         '--swiper-pagination-color': '#1ebe67',
         '--swiper-navigation-color': '#1ebe67',
         '--swiper-navigation-sides-offset': '5px',
-        'paddingBottom': '40px',
-        'paddingTop': '40px',
+        'paddingTop': '30px',
         '--swiper-pagination-bullet-size': '13px',
+        'height': '265px',
       } as React.CSSProperties}
       className="flex justify-center items-center"
     >
       {images.map((src, index) => (
         <React.Fragment key={`image-${index}`}>
-          <SwiperSlide className="flex justify-center items-center">
+          <SwiperSlide className="flex justify-center items-start">
             <div className="flex justify-center items-center">
               <Image
                 src={src}
@@ -92,22 +92,22 @@ export default function BasicSlider() {
                 height={1038}
                 alt="icon"
                 priority
-                className="w-11/12 mt-4 h-auto md:w-8/12 md:h-7/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
+                className="w-11/12 mt-4 sm:w-5/12 md:w-6/12 xl:w-4/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
               />
             </div>
           </SwiperSlide>
         </React.Fragment>
       ))}
       {latestReviews.map((review, reviewIndex) => (
-        <SwiperSlide key={`review-${review.lecture.id}-${reviewIndex}`} className="flex justify-center items-center">
+        <SwiperSlide key={`review-${review.lecture.id}-${reviewIndex}`} className="flex justify-center items-start">
           <div className="">
-            <h5 className="flex justify-center text-base mt-2">新着のレビュー</h5>
-            <Link href={`/lectures/${review.lecture.id}`} className='mt-2 md:mt-6 xl:mt-10 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-11/12 md:w-9/12 2xl:w-full hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition duration-150'>
+            <h5 className="flex justify-center text-xs md:text-base">新着のレビュー</h5>
+            <Link href={`/lectures/${review.lecture.id}`} className='mt-2 md:mt-4 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-11/12 h-auto md:w-8/12  2xl:w-full hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition duration-150'>
               <div className="text-center">
                 <h5 className=" text-xs">{review.lecture.title}</h5>
                 <p className=" text-xs">{review.lecture.lecturer}</p>
                 <ReactStars value={review.rating} size={13} edit={false} half={true} className="flex justify-center" />
-                <p className=" text-xs break-all line-clamp-3 md:line-clamp-5">{review.content}</p>
+                <p className=" text-xs break-all line-clamp-3">{review.content}</p>
               </div>
             </Link>
           </div>
