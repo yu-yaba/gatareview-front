@@ -27,7 +27,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
       }
     };
     fetchLectureDetail()
-  }, []);
+  }, [params.id]);
 
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
       }
     };
     fetchReviews();
-  }, []);
+  }, [params.id]);
 
 
 
