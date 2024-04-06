@@ -1,4 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
+import greenTitle from "../public/green-title.png";
+
 
 export default function Header() {
   return (
@@ -18,7 +21,7 @@ export default function Header() {
         </Link>
       </div>
       <div className="flex justify-center items-center text-center py-2">
-        <img src="/green-title.png" alt="footer-title" className="w-[120px] h-[40px] mr-6" />
+        <Image src={greenTitle} alt="title" className="w-20 mx-2"></Image>
         <p className="text-[#808080] text-[0.7rem] mx-2">© 2024 ガタレビュ！</p>
       </div>
     </footer>
