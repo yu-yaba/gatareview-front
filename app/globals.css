@@ -22,3 +22,8 @@ body {
     display: none;
   }
 }
+
+_::-webkit-full-page-media, _:future, :root .swiper-slide img {
+	height: auto;
+  width: 290px;
+}

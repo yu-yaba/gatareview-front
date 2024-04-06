@@ -92,7 +92,7 @@ export default function BasicSlider() {
                 height={1038}
                 alt="icon"
                 priority
-                className="w-11/12 mt-4 sm:w-5/12 md:w-6/12 xl:w-4/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
+                className="mt-4 w-11/12 h-40 sm:w-5/12 md:w-6/12 xl:w-5/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
               />
             </div>
           </SwiperSlide>
