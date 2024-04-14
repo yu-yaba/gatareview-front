@@ -16,6 +16,9 @@ import React from "react";
 
 const images = [
   "/gatareview_ogp.png",
+  "/junki.png",
+  "/taketo.png",
+  "/yuya.png",
 ];
 
 export default function BasicSlider() {
@@ -92,7 +95,7 @@ export default function BasicSlider() {
                 height={1038}
                 alt="icon"
                 priority
-                className="mt-4 w-11/12 h-40 sm:w-5/12 md:w-6/12 xl:w-5/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
+                className="mt-4 w-full h-40 sm:w-full md:w-6/12 xl:w-5/12 flex justify-center items-center rounded-xl shadow-md hover:scale-105 transition duration-150"
               />
             </div>
           </SwiperSlide>
