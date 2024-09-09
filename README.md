@@ -2,6 +2,7 @@
 <img src="https://img.shields.io/badge/-TypeScript-007ACC.svg?logo=typescript&style=flat">
 <img src="https://img.shields.io/badge/-React-555.svg?logo=react&style=flat">
 <img src="https://img.shields.io/badge/-Docker-EEE.svg?logo=docker&style=flat">
+<img src="https://img.shields.io/badge/-NextJS-EEE.svg?logo=nextjs&style=flat">
 
 
 # ガタレビュ！
