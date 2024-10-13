@@ -9,6 +9,9 @@
 ## ガタレビュ！
 新潟大学の授業レビューサイトのフロントエンドリポジトリです。レビューの登録ができます。
 
+バックエンドリポジトリはこちらです。
+  * https://github.com/yu-yaba/gatareview-back
+
 # URL
 https://www.gatareview.com
 
