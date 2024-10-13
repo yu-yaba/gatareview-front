@@ -51,12 +51,86 @@ https://www.gatareview.com
 | Infra | Vercel Heroku  AWS S3 |
 | Development | Docker |
 
-# ER図
-<img width="563" alt="スクリーンショット 2023-10-15 20 05 30" src="https://github.com/yu-yaba/gatareview-front/assets/109569162/b3324e04-6d08-49a7-980c-9577bd62d7f3">
+# 開発環境のセットアップ
+### フォルダ構造
+
+```
+|-- gatareview-front
+|-- gatareview-back
+|
+|-- docker
+|   |-- <DBのデータが入る。docker-compose buildすると自動作成されるので、ディレクトリを作成する必要はない。>
+|
+|-- docker-compose.yml
+|-- .env
+```
+
+## リポジトリのクローン
+* このリポジトリをクローンする
+* バックエンドリポジトリをcloneする
+  * https://github.com/yu-yaba/gatareview-back
 
 
-※rails-erdで作成
+## docker-compose.yml
 
+```yml
+services: 
+  gatareview-front:                             # Next.js用コンテナ
+    build:
+      context: ./gatareview-front
+    volumes:
+      - ./gatareview-front:/usr/src/app
+    command: 'npm run dev'
+    ports:
+      - "8080:3000"
+  gatareview-back:                              # Rails用コンテナ
+    build:
+      context: ./gatareview-back
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./gatareview-back:/app
+    environment:                     # 環境変数の設定　.envファイルから取得
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_HOST: ${MYSQL_HOST}
+    depends_on:
+      - db
+  db:                                # Mysql用コンテナ
+    image: mysql:8.0.33
+    environment:                     # 環境変数の設定　.envファイルから取得
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - "./docker/db:/var/lib/mysql"
+```
+
+## .env
+* docker-compose.ymlとRailsのdatabase.ymlのDBの設定値を管理するファイル
+* ルートディレクトリ直下に作成する
+* 任意の値を設定する
+```env
+MYSQL_ROOT_PASSWORD=your_password
+MYSQL_DATABASE=your_database
+MYSQL_PASSWORD=your_password
+MYSQL_USER=your_user
+MYSQL_HOST=db
+```
+
+## .env.local
+* Next.jsの環境変数を設定するファイル
+* ここでは開発環境でapiにリクエストを送信する際の値を設定する
+* gatareview-front直下に作成する
+```env
+NEXT_PUBLIC_ENV=http://localhost:3001
+```
+
+### コンテナを起動
+```
+docker-compose up --build
+```
 
 # 開発以外の活動
 * X（旧Twitter）でのSNS運用
