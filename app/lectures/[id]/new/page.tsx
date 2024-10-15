@@ -8,6 +8,7 @@ import { success } from '@/app/_helpers/notifications';
 import { handleAjaxError } from '../../../_helpers/helpers';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 const ReviewForm = ({ params }: { params: { id: number } }) => {
   const [review, setReview] = useState<ReviewData>({
@@ -54,41 +55,57 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
       </div>
     );
   };
-  const addReview = async (newReview: ReviewData) => {
+
+  const addReview = async (newReview: ReviewData, token: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}/reviews`, {
-        method: 'POST',
-        body: JSON.stringify({ review: newReview }),
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}/reviews`, {
+        review: newReview,
+        token,
+      }, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      if (!res.ok) throw Error(res.statusText);
-      success('レビューを登録しました');
-      router.push(`/lectures/${params.id}`);
+      if (res.data.success) {
+        success('レビューを登録しました');
+        router.push(`/lectures/${params.id}`);
+      } else {
+        handleAjaxError(res.data.message || "reCAPTCHA認証に失敗しました");
+      }
     } catch (error) {
       handleAjaxError("レビューの登録に失敗しました");
     }
   };
 
-
-  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errors = validateReview(review); // errorsにエラーメッセージを格納
 
     if (!isEmptyObject(errors)) { // errorsが空でない場合はエラーメッセージを表示
       setFormErrors(errors);
     } else {
-      addReview({ ...review, lecture_id: params.id, rating: value } as unknown as ReviewData);
+      if (!window.grecaptcha) {
+        setFormErrors({ recaptcha: 'reCAPTCHAが読み込まれていません。' });
+        return;
+      }
+
+      try {
+        const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
+        const token = await window.grecaptcha.execute(SITE_KEY, { action: 'submit' });
+
+        addReview({ ...review, rating: value }, token);
+      } catch (error) {
+        handleAjaxError("reCAPTCHAの取得に失敗しました");
+      }
     }
   };
 
   const cancelURL = `/lectures/${params.id}`;
-  const [value, setvalue] = useState(3);
+  const [value, setValue] = useState(3);
 
   const starOnChange = (newValue: number) => {
-    setvalue(newValue);
+    setValue(newValue);
     setReview({ ...review, rating: newValue });
   };
 
