@@ -5,6 +5,7 @@ import Header from './header'
 import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
 import ScriptGa from './_components/ScriptGa'
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -39,10 +40,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
   return (
     <html lang="en">
       <head>
         <ScriptGa />
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`}
+          strategy="beforeInteractive"
+        />
       </head>
       <body>
         <Header />
