@@ -1,6 +1,7 @@
-'use client'
+'use client';
+
 import { useState } from 'react';
-import ReactStars from 'react-stars'
+import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview } from '../../../_helpers/helpers';
 import Link from 'next/link';
 import { success } from '@/app/_helpers/notifications';
@@ -21,7 +22,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
     content_quality: '',
     content: '',
   });
-  const router = useRouter()
+  const router = useRouter();
 
   const updateReview = (name: string, value: string) => {
     setReview((prevReview) => ({ ...prevReview, [name]: value }));
@@ -29,13 +30,11 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { target } = e;
-    const { name } = target;
-    const { value } = target;
-
+    const { name, value } = target;
     updateReview(name, value);
   };
 
-  const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const renderErrors = () => {
     if (isEmptyObject(formErrors)) {
@@ -44,10 +43,10 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
 
     return (
       <div className="flex justify-center">
-        <div className=" text-red-500 ">
-          <h3 className=' font-bold text-lg'>※</h3>
-          <ul className=" list-none ml-4">
-            {((Object.values(formErrors) as unknown) as string[]).map((formError, index) => (
+        <div className="text-red-500">
+          <h3 className='font-bold text-lg'>※</h3>
+          <ul className="list-none ml-4">
+            {Object.values(formErrors).map((formError, index) => (
               <li key={index}>{formError}</li>
             ))}
           </ul>
