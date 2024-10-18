@@ -134,6 +134,7 @@ const ReviewForm = ({ params }: { params: { id: number } }) => {
                 onChange={handleInputChange}
                 className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500">
                 <option>選択してください</option>
+                <option>2024</option>
                 <option>2023</option>
                 <option>2022</option>
                 <option>2021</option>
