@@ -136,7 +136,8 @@ docker-compose up --build
 ```
 
 ## DBのER図
-![image](https://github.com/user-attachments/assets/d32eb330-cf09-45e4-8a7d-cab91db5138b)
+![image](https://github.com/user-attachments/assets/8c3ae1a2-3f9d-4640-828c-8445694b00ec)
+
 
 
 # 開発以外の活動
