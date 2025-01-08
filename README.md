@@ -131,6 +131,12 @@ NEXT_PUBLIC_ENV=http://localhost:3001
 ```
 
 ### コンテナを起動
+
+初回起動時のみnode_modulesがないので以下を実行
+```
+docker-compose run --rm front npm install
+```
+
 ```
 docker-compose up --build
 ```
