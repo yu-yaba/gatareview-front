@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react'; // useCallback をインポート
 import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../_helpers/helpers';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Loading from 'react-loading';
+import { debounce } from 'lodash'; // debounce をインポート
 
 declare global {
   interface Window {
@@ -45,8 +46,15 @@ const NewReviewPage = () => {
     fetchLectures();
   }, []);
 
-  const updateSearchWord = () => {
-    setSearchWord(searchInput.current?.value || '');
+  const debouncedUpdateSearchWord = useCallback(
+    debounce((value: string) => {
+      setSearchWord(value);
+    }, 300), // 300ms の遅延
+    []
+  );
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedUpdateSearchWord(e.target.value);
   };
 
   const matchSearchWord = (lecture: LectureSchema) => {
@@ -71,7 +79,7 @@ const NewReviewPage = () => {
       content_quality: '',
       content: '',
     });
-    setRatingValue(3); // Reset rating display
+    setRatingValue(3); 
     setFormErrors({}); // Clear previous errors
   };
 
@@ -172,8 +180,8 @@ const NewReviewPage = () => {
             <input
               type="text"
               ref={searchInput}
-              value={searchWord}
-              onChange={updateSearchWord}
+              defaultValue={searchWord} // 初期値は defaultValue で設定
+              onChange={handleSearchInputChange} // デバウンスされた関数を呼び出す
               placeholder="授業名、教員名などで検索..."
               className="w-full p-3 border rounded-md shadow focus:border-green-500 outline-none"
             />
