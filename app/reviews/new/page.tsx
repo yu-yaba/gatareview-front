@@ -49,7 +49,7 @@ const NewReviewPage = () => {
   const debouncedUpdateSearchWord = useCallback(
     debounce((value: string) => {
       setSearchWord(value);
-    }, 300), // 300ms の遅延
+    }, 300), // 300msの遅延
     []
   );
 
@@ -58,8 +58,8 @@ const NewReviewPage = () => {
   };
 
   const matchSearchWord = (lecture: LectureSchema) => {
-    if (!searchWord) return true; // Show all if search is empty
-    const { id, created_at, updated_at, avg_rating, reviews, ...rest } = lecture; // Exclude non-searchable fields
+    if (!searchWord) return true; // 検索語がない場合はすべて表示
+    const { id, created_at, updated_at, avg_rating, reviews, ...rest } = lecture; // 検索対象外のフィールドを除外
     return Object.values(rest).some((value) =>
       value.toString().toLowerCase().includes(searchWord.toLowerCase())
     );
@@ -79,11 +79,11 @@ const NewReviewPage = () => {
       content_quality: '',
       content: '',
     });
-    setRatingValue(3); 
-    setFormErrors({}); // Clear previous errors
+    setRatingValue(3);
+    setFormErrors({}); // 以前のエラーをクリア
   };
 
-  // Review form logic (adapted from lectures/[id]/new/page.tsx)
+  // レビューフォームのロジック (lectures/[id]/new/page.tsx から流用)
   const updateReview = (name: string, value: string | number) => {
     if (!review) return;
     setReview((prevReview) => ({ ...prevReview!, [name]: value }));
@@ -180,8 +180,8 @@ const NewReviewPage = () => {
             <input
               type="text"
               ref={searchInput}
-              defaultValue={searchWord} // 初期値は defaultValue で設定
-              onChange={handleSearchInputChange} // デバウンスされた関数を呼び出す
+              defaultValue={searchWord} // 初期値はdefaultValueで設定
+              onChange={handleSearchInputChange} // debounceされた関数を呼び出す
               placeholder="授業名、教員名などで検索..."
               className="w-full p-3 border rounded-md shadow focus:border-green-500 outline-none"
             />
@@ -222,7 +222,7 @@ const NewReviewPage = () => {
           <p className="text-gray-600 mb-4">({selectedLecture.lecturer} / {selectedLecture.faculty})</p>
           {renderErrors()}
           <form onSubmit={handleSubmit} className="flex flex-col w-10/12 md:w-8/12 2xl:w-5/12">
-            {/* Rating */}
+            {/* 評価 */}
             <div className="mb-6 flex flex-col">
               <label htmlFor="rating" className="block text-bold">
                 <p className="font-bold mb-2">評価</p>
@@ -232,7 +232,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Period Year */}
+            {/* 授業を受けた年 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
                 <p className="font-bold mb-2">授業を受けた年</p>
@@ -252,7 +252,7 @@ const NewReviewPage = () => {
                     <option>2020</option>
                     <option>その他・不明</option>
                   </select>
-                  {/* Arrow Icon */}
+                  {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -260,7 +260,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Period Term */}
+            {/* ターム */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
                 <p className="font-bold mb-2">ターム</p>
@@ -281,7 +281,7 @@ const NewReviewPage = () => {
                     <option>3, 4ターム</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* Arrow Icon */}
+                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -289,7 +289,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Textbook */}
+            {/* 教科書 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
                 <p className="font-bold mb-2">教科書</p>
@@ -306,7 +306,7 @@ const NewReviewPage = () => {
                     <option>不要</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* Arrow Icon */}
+                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -314,7 +314,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Attendance */}
+            {/* 出席確認 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
                 <p className="font-bold mb-2">出席確認</p>
@@ -332,7 +332,7 @@ const NewReviewPage = () => {
                     <option>なし</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* Arrow Icon */}
+                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -340,7 +340,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Grading Type */}
+            {/* 採点方法 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
                 <p className="font-bold mb-2">採点方法</p>
@@ -358,7 +358,7 @@ const NewReviewPage = () => {
                     <option>テスト,レポート</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* Arrow Icon */}
+                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -366,7 +366,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Content Difficulty */}
+            {/* 単位取得難易度 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
                 <p className="font-bold mb-2">単位取得難易度</p>
@@ -385,7 +385,7 @@ const NewReviewPage = () => {
                     <option>難</option>
                     <option>とても難しい</option>
                   </select>
-                   {/* Arrow Icon */}
+                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -393,7 +393,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Content Quality */}
+            {/* 内容充実度 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
                 <p className="font-bold mb-2">内容充実度</p>
@@ -412,7 +412,7 @@ const NewReviewPage = () => {
                     <option>悪い</option>
                     <option>とても悪い</option>
                   </select>
-                   {/* Arrow Icon */}
+                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -420,7 +420,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Content/Comment */}
+            {/* コメント */}
             <div className="mb-8 flex flex-col">
               <label htmlFor="content" className="block text-bold">
                 <p className="font-bold mb-2">コメント (任意)</p>
@@ -436,7 +436,7 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* Buttons */}
+            {/* ボタン */}
             <div className="flex justify-center mt-6">
               <button
                 type="submit"
