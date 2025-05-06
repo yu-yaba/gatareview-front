@@ -60,11 +60,16 @@ const NewReviewPage = () => {
   const matchSearchWord = (lecture: LectureSchema) => {
     if (!searchWord) return true; // 検索語がない場合はすべて表示
     const { id, created_at, updated_at, avg_rating, reviews, ...rest } = lecture; // 検索対象外のフィールドを除外
-    return Object.values(rest).some((value) =>
-      value.toString().toLowerCase().includes(searchWord.toLowerCase())
-    );
+    return Object.values(rest).some((value) => {
+      // value が null または undefined の場合は空文字列として扱い、それ以外の場合は toString() を呼び出す
+      let stringValue = '';
+      if (value !== null && typeof value !== 'undefined') {
+        stringValue = value.toString();
+      }
+      return stringValue.toLowerCase().includes(searchWord.toLowerCase());
+    });
   };
-
+  
   const handleLectureSelect = (lecture: LectureSchema) => {
     setSelectedLecture(lecture);
     setReview({
