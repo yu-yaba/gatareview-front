@@ -28,23 +28,30 @@ const NewReviewPage = () => {
   const router = useRouter();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [ratingValue, setRatingValue] = useState(3);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchLectures = async (currentSearchWord: string) => {
+    try {
+      setIsLoading(true);
+      const queryParams = new URLSearchParams({
+        search: currentSearchWord,
+      });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?${queryParams}`);
+      if (!response.ok) throw new Error(response.statusText);
+      const data = await response.json();
+      setFetchedLectures(data);
+    } catch (error) {
+      handleAjaxError("授業リストの取得に失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLectures = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`);
-        if (!response.ok) throw new Error(response.statusText);
-        const data = await response.json();
-        setFetchedLectures(data);
-      } catch (error) {
-        handleAjaxError("授業リストの取得に失敗しました");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchLectures();
-  }, []);
+    // Trigger fetch when searchWord changes.
+    // The initial fetch will also be covered here as searchWord is initialized.
+    fetchLectures(searchWord);
+  }, [searchWord]);
 
   const debouncedUpdateSearchWord = useCallback(
     debounce((value: string) => {
@@ -55,19 +62,6 @@ const NewReviewPage = () => {
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     debouncedUpdateSearchWord(e.target.value);
-  };
-
-  const matchSearchWord = (lecture: LectureSchema) => {
-    if (!searchWord) return true; // 検索語がない場合はすべて表示
-    const { id, created_at, updated_at, avg_rating, reviews, ...rest } = lecture; // 検索対象外のフィールドを除外
-    return Object.values(rest).some((value) => {
-      // value が null または undefined の場合は空文字列として扱い、それ以外の場合は toString() を呼び出す
-      let stringValue = '';
-      if (value !== null && typeof value !== 'undefined') {
-        stringValue = value.toString();
-      }
-      return stringValue.toLowerCase().includes(searchWord.toLowerCase());
-    });
   };
   
   const handleLectureSelect = (lecture: LectureSchema) => {
@@ -123,7 +117,10 @@ const NewReviewPage = () => {
   };
 
   const addReview = async (newReview: ReviewData, token: string) => {
-    if (!selectedLecture) return;
+    if (!selectedLecture) {
+      setIsSubmitting(false); // Ensure isSubmitting is reset
+      return;
+    }
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${selectedLecture.id}/reviews`, {
         review: newReview,
@@ -139,32 +136,44 @@ const NewReviewPage = () => {
         router.push(`/lectures/${selectedLecture.id}`);
       } else {
         handleAjaxError(res.data.message || "reCAPTCHA認証に失敗しました");
+        setFormErrors(prevErrors => ({ ...prevErrors, submit: res.data.message || "reCAPTCHA認証に失敗しました" }));
       }
     } catch (error) {
       handleAjaxError("レビューの登録に失敗しました");
+      setFormErrors(prevErrors => ({ ...prevErrors, submit: "レビューの登録に失敗しました" }));
+    } finally {
+      setIsSubmitting(false); // Reset submission state regardless of outcome
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!review) return;
+    if (!review || isSubmitting) return; // Prevent multiple submissions
 
+    setFormErrors({}); // Clear previous errors
     const errors = validateReview(review);
     if (!isEmptyObject(errors)) {
       setFormErrors(errors);
-    } else {
-      if (!window.grecaptcha) {
-        setFormErrors({ recaptcha: 'reCAPTCHAが読み込まれていません。ページをリロードしてください。' });
-        return;
-      }
-      try {
-        const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
-        const token = await window.grecaptcha.execute(SITE_KEY, { action: 'submit' });
-        addReview(review, token);
-      } catch (error) {
-        handleAjaxError("reCAPTCHAの取得に失敗しました");
-        setFormErrors({ recaptcha: 'reCAPTCHAの検証に失敗しました。' });
-      }
+      return; // Don't proceed to submission
+    }
+
+    setIsSubmitting(true); // Set submitting state true
+
+    if (!window.grecaptcha) {
+      setFormErrors({ recaptcha: 'reCAPTCHAが読み込まれていません。ページをリロードしてください。' });
+      setIsSubmitting(false); // Reset submitting state
+      return;
+    }
+
+    try {
+      const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
+      const token = await window.grecaptcha.execute(SITE_KEY, { action: 'submit' });
+      // addReview will handle setIsSubmitting(false) in its finally block
+      await addReview(review, token); 
+    } catch (error) {
+      handleAjaxError("reCAPTCHAの取得に失敗しました");
+      setFormErrors({ recaptcha: 'reCAPTCHAの検証に失敗しました。' });
+      setIsSubmitting(false); // Reset submitting state on reCAPTCHA error
     }
   };
 
@@ -174,7 +183,9 @@ const NewReviewPage = () => {
     setFormErrors({});
   };
 
-  const filteredLectures = fetchedLectures.filter(matchSearchWord);
+  // Client-side filtering is removed.
+  // The backend now handles filtering based on the searchWord.
+  const lecturesToDisplay = fetchedLectures;
 
   return (
     <section className="flex flex-col items-center p-4 md:p-8">
@@ -197,8 +208,8 @@ const NewReviewPage = () => {
             </div>
           ) : (
             <div className="w-full flex flex-col items-center">
-              {filteredLectures.length > 0 ? (
-                filteredLectures.map((lecture) => (
+              {lecturesToDisplay.length > 0 ? (
+                lecturesToDisplay.map((lecture) => (
                   <button
                     key={lecture.id}
                     onClick={() => handleLectureSelect(lecture)}
@@ -445,13 +456,15 @@ const NewReviewPage = () => {
             <div className="flex justify-center mt-6">
               <button
                 type="submit"
-                className="p-2 px-6 rounded-lg font-bold text-white mr-4 bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 transition duration-150"
+                disabled={isSubmitting}
+                className="p-2 px-6 rounded-lg font-bold text-white mr-4 bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 transition duration-150 disabled:opacity-50"
               >
-                投稿する
+                {isSubmitting ? '投稿中...' : '投稿する'}
               </button>
               <button
                 type='button'
                 onClick={cancelReview}
+                disabled={isSubmitting} // Also disable cancel if submitting
                 className='p-2 px-4 rounded-lg shadow border-2 bg-white text-gray-600 hover:bg-gray-100 transition duration-150'
               >
                 授業選択に戻る

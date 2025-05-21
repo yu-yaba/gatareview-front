@@ -14,17 +14,21 @@ const LectureList = () => {
   const [fetchedLectures, setFetchedLectures] = useState<Array<LectureSchema>>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchLectures = async () => {
+  const fetchLectures = async (currentSearchWord: string, currentSelectedFaculty: string, currentSortType: string) => {
     try {
       setIsLoading(true);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`, { next: { revalidate: 60 } });
+      const queryParams = new URLSearchParams({
+        search: currentSearchWord,
+        faculty: currentSelectedFaculty,
+        sortBy: currentSortType,
+      });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?${queryParams}`, { next: { revalidate: 60 } });
       if (!response.ok) throw new Error(response.statusText);
       const data = await response.json();
 
       setFetchedLectures(data);
     } catch (error) {
-      handleAjaxError("検索条件を入力してください");
+      handleAjaxError("講義情報の取得に失敗しました。");
     } finally {
       setIsLoading(false);
     }
@@ -38,14 +42,18 @@ const LectureList = () => {
     setSearchWord(initialSearchWord);
     setSelectedFaculty(initialSelectedFaculty);
     setSortType(initialSortType);
-
-    fetchLectures();
+    // Initial fetch is triggered by the dependency array of the next useEffect
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem('searchWord', searchWord);
-    sessionStorage.setItem('selectedFaculty', selectedFaculty);
-    sessionStorage.setItem('sortType', sortType);
+    // This useEffect will run when searchWord, selectedFaculty, or sortType changes,
+    // and also on initial mount due to state updates in the previous useEffect.
+    if (searchWord !== undefined && selectedFaculty !== undefined && sortType !== undefined) {
+      fetchLectures(searchWord, selectedFaculty, sortType);
+      sessionStorage.setItem('searchWord', searchWord);
+      sessionStorage.setItem('selectedFaculty', selectedFaculty);
+      sessionStorage.setItem('sortType', sortType);
+    }
   }, [searchWord, selectedFaculty, sortType]);
 
   const updateSearchWord = () => {
@@ -57,36 +65,10 @@ const LectureList = () => {
       setStateFunc(e.target.value);
     };
 
-  const matchSearchWord = (obj: LectureSchema) => {
-    const isFacultyMatch = selectedFaculty ? obj.faculty === selectedFaculty : true;
-    const { id, created_at, updated_at, ...rest } = obj;
-    return isFacultyMatch && Object.values(rest).some((value) =>
-      value.toString().toLowerCase().includes(searchWord.toLowerCase())
-    );
-  };
-
-  const sortLectures = (lectures: Array<LectureSchema>) => {
-    if (sortType === 'newest') {
-      return lectures.sort((a, b) => {
-        const aLatestReviewDate = a.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
-        const bLatestReviewDate = b.reviews.reduce((latest, review) => new Date(review.created_at) > latest ? new Date(review.created_at) : latest, new Date(0));
-        return bLatestReviewDate.getTime() - aLatestReviewDate.getTime();
-      });
-    }
-    if (sortType === 'highestRating') {
-      return lectures.sort((a, b) => b.avg_rating - a.avg_rating);
-    }
-    if (sortType === 'mostReviewed') {
-      return lectures.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
-    }
-    return lectures;
-  };
-
   const renderLectures = () => {
-    const filteredLectures = fetchedLectures.filter((el) => matchSearchWord(el));
-    const sortedLectures = sortLectures(filteredLectures);
-
-    return sortedLectures.map((lecture) => (
+    // Client-side filtering and sorting are removed.
+    // The backend now handles these operations.
+    return fetchedLectures.map((lecture) => (
       <Link href={`/lectures/${lecture.id}`} key={lecture.id} className='m-3 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-10/12 md:w-8/12 2xl:w-7/12 hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition  duration-150'>
         <li key={lecture.id}>
           <div className=' flex items-center flex-wrap'>
