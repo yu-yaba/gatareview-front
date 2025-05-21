@@ -6,52 +6,62 @@ import { notFound } from 'next/navigation';
 import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
+import Loading from 'react-loading';
 
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
-  const [lecture, setLecture] = useState<LectureSchema | null>(null)
+  const [lecture, setLecture] = useState<LectureSchema | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   useEffect(() => {
-    const fetchLectureDetail = async () => {
+    const fetchLectureData = async () => {
+      setIsLoading(true); // Set loading true at the beginning of fetch
       try {
         // eslint-disable-next-line no-undef
-        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`);
+        // Note: Caching is set to 60 seconds. A newly submitted review might not be visible immediately on this page due to this policy.
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`, { next: { revalidate: 60 } });
         if (!res.ok) throw Error(res.statusText);
-        const data = await res.json();
-        console.log(data)
-        setLecture(data)
+        const data = await res.json(); // Assuming data is { ...lectureData, reviews: [...reviewDataArray], avg_rating: 4.5 }
+        
+        // Separate lecture data from reviews and avg_rating
+        const { reviews: fetchedReviews, avg_rating: fetchedAvgRating, ...lectureData } = data;
+        
+        setLecture(lectureData);
+        setReviews({ 
+          reviews: fetchedReviews || [], // Ensure reviews is an array
+          avgRating: fetchedAvgRating ? fetchedAvgRating.toString() : "0.0" // Ensure avgRating is a string
+        });
+
       } catch (error) {
-        handleAjaxError("授業の取得に失敗しました");
+        handleAjaxError("授業詳細とレビューの取得に失敗しました");
+        // Optionally, redirect to notFound or show a more specific error message
+      } finally {
+        setIsLoading(false); // Set loading false after fetch attempt (success or fail)
       }
     };
-    fetchLectureDetail()
+    fetchLectureData();
   }, [params.id]);
-
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        // eslint-disable-next-line no-undef
-        const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}/reviews`);
-        if (!res.ok) throw Error(res.statusText);
-        const data = await res.json();
-        let avgRating = "0.0";
-        if (data.length > 0) {
-          avgRating = (data.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / data.length).toFixed(1);
-        }
-        setReviews({ reviews: data, avgRating });
-      } catch (error) {
-        handleAjaxError("レビューの取得に失敗しました");
-      }
-    };
-    fetchReviews();
-  }, [params.id]);
-
-
 
   if (!params.id) notFound();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loading type={"bubbles"} width={200} height={500} color={"#1DBE67"} />
+      </div>
+    );
+  }
+  
+  // Early return if lecture data is still null after loading is complete (e.g. fetch error)
+  if (!lecture) {
+    // This can happen if fetchLectureData fails and sets isLoading to false
+    // but lecture remains null.
+    // You might want to show an error message or redirect.
+    // For now, returning null or a simple message.
+    return <div className="text-center mt-10">授業データの読み込みに失敗しました。</div>;
+  }
 
   return (
     <div className=''>
