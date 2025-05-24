@@ -16,13 +16,14 @@ jest.mock('next/navigation', () => ({
   notFound: jest.fn(),
 }));
 
-// Mock the entire module that exports authOptions to prevent NextAuth() call issues
-jest.mock('@/app/api/auth/[...nextauth]/route', () => ({
+// Mock the entire module that exports authOptions from its new location
+jest.mock('@/app/lib/auth', () => ({
   authOptions: { /* minimal mock of authOptions if its structure is needed by getServerSession */
     providers: [], // Example property
-    // Add other properties if getServerSession mock relies on them
+    // Add other properties if getServerSession mock relies on them, e.g., secret
+    secret: 'mockSecret',
   },
-  // We don't need to mock GET/POST handlers for this test, only authOptions
+  // No need to mock GET/POST handlers as they are not in this module
 }));
 
 // Mock fetch

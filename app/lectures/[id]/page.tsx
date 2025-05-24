@@ -1,6 +1,6 @@
 // 'use client' // Removed to make it a server component
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "../../../app/api/auth/[...nextauth]/route" // Adjusted path
+import { authOptions } from "@/app/lib/auth" // Updated import path
 import { redirect } from "next/navigation"
 // import ReactStars from 'react-stars' // Client component, cannot be used directly
 // import { handleAjaxError } from '../../_helpers/helpers'; // Client-side helper
