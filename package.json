@@ -27,6 +27,7 @@
     "react-awesome-stars-rating": "^0.13.8",
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
+    "react-error-boundary": "^6.0.0",
     "react-icons": "^4.9.0",
     "react-modal": "^3.16.1",
     "react-paginate": "^8.2.0",
