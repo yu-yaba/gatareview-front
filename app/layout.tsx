@@ -6,6 +6,7 @@ import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
 import ScriptGa from './_components/ScriptGa'
 import Script from 'next/script';
+import NextAuthProvider from './_components/NextAuthProvider';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -52,10 +53,12 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Header />
-        <ToastContainer />
-        {children}
-        <Footer />
+        <NextAuthProvider>
+          <Header />
+          <ToastContainer />
+          {children}
+          <Footer />
+        </NextAuthProvider>
       </body>
     </html>
   )
