@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import BasicSlider from './_components/Slider';
 import './globals.css';
+import AuthButtons from './_components/AuthButtons';
 
 
 export default function Page() {
@@ -38,6 +39,10 @@ export default function Page() {
   return (
     <div className='flex justify-center'>
       <div className='w-full'>
+        {/* Add AuthButtons component here */}
+        <div className="my-4 flex justify-center">
+          <AuthButtons />
+        </div>
         <div className='text-center font-extrabold text-3xl text-slate-700 mt-7 lg:mt-0'>
           <p className='text-sm md:text-2xl md:mt-5'>現在の総レビュー数  <br /><span className='text-4xl md:text-5xl text-green-500'>{totalReviews}</span>件</p>
           <BasicSlider />
