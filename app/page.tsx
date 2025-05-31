@@ -79,19 +79,13 @@ export default function Page() {
       icon: <FaUsers className="text-4xl text-white" />,
       title: "コミュニティ",
       description: "新潟大学生同士で情報を共有し、より良い学習環境を作りましょう"
-    },
-    {
-      icon: <FaGraduationCap className="text-4xl text-white" />,
-      title: "過去問共有",
-      description: "過去の試験問題や課題情報を共有して、効率的な学習をサポート"
     }
   ];
 
   const stats = [
     { number: totalReviews || "1000+", label: "累計レビュー数", icon: <FaChartLine /> },
-    { number: "500+", label: "登録授業数", icon: <FaBookOpen /> },
-    { number: "200+", label: "アクティブユーザー", icon: <FaUsers /> },
-    { number: "4.8", label: "満足度", icon: <FaStar /> }
+    { number: "7000+", label: "登録授業数", icon: <FaBookOpen /> },
+    { number: "5000+", label: "累計アクティブユーザー", icon: <FaUsers /> }
   ];
 
   return (
@@ -203,7 +197,7 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">数字で見るガタレビュ！</h2>
-            <p className="text-xl text-green-100">学生の皆さんに愛され続けています</p>
+            <p className="text-xl text-green-100">新大生の皆さんが閲覧しています。</p>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
@@ -225,7 +219,6 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">最新のレビュー</h2>
-            <p className="text-xl text-gray-600">学生の生の声をお届け</p>
           </div>
 
           <BasicSlider />
@@ -237,7 +230,7 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">ガタレビュ！の特徴</h2>
-            <p className="text-xl text-green-100">新潟大学生のための、新潟大学生による授業レビューサイト</p>
+            <p className="text-xl text-green-100">新大生のための、新大生による授業レビューサイト</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -265,11 +258,6 @@ export default function Page() {
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             今すぐ始めましょう
           </h2>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            あなたの学習体験をより良いものにするために
-            <br />ガタレビュ！で情報を共有し、発見しましょう
-          </p>
-
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <button
               onClick={() => router.push('/reviews/new')}
@@ -285,28 +273,6 @@ export default function Page() {
               <FaLightbulb className="mr-2" />
               授業を探す
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA with improved styling - Green Background */}
-      <section className="py-16 bg-gradient-to-br from-green-500 via-green-600 to-green-700">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-white bg-opacity-10 backdrop-blur-sm p-12 rounded-3xl shadow-2xl border border-white border-opacity-20">
-            <h3 className="text-3xl font-bold text-white mb-4">
-              みんなで作る、みんなのための授業レビュー
-            </h3>
-            <p className="text-lg text-green-100 mb-8">
-              新潟大学をもっと良い学習環境にするために、あなたの体験を共有してください
-            </p>
-            <div className="flex justify-center">
-              <button
-                onClick={() => router.push('/lectures')}
-                className="px-8 py-4 bg-white text-green-600 font-bold rounded-2xl hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-              >
-                今すぐ探す
-              </button>
-            </div>
           </div>
         </div>
       </section>
