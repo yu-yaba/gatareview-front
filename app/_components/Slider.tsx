@@ -14,21 +14,25 @@ import React from "react";
 
 export default function BasicSlider() {
   const slideSettings = {
-    0: {
-      slidesPerView: 1.2,
-      spaceBetween: 110,
+    320: {
+      slidesPerView: 1,
+      spaceBetween: 16,
+    },
+    480: {
+      slidesPerView: 1,
+      spaceBetween: 20,
     },
     768: {
-      slidesPerView: 1.1,
-      spaceBetween: 50,
+      slidesPerView: 1,
+      spaceBetween: 24,
     },
     1024: {
-      slidesPerView: 1.5,
-      spaceBetween: 210,
+      slidesPerView: 1.2,
+      spaceBetween: 32,
     },
-    2560: {
-      slidesPerView: 2,
-      spaceBetween: 860,
+    1280: {
+      slidesPerView: 1.4,
+      spaceBetween: 40,
     }
   };
 
@@ -52,47 +56,69 @@ export default function BasicSlider() {
   }, []);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
+    <div className="w-full px-4 sm:px-6 lg:px-8">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         breakpoints={slideSettings}
         slidesPerView={1}
         centeredSlides={true}
-        speed={900}
+        speed={800}
         autoplay={{
-          delay: 2000,
+          delay: 3000,
           disableOnInteraction: false,
         }}
-        navigation
+        navigation={{
+          enabled: true,
+        }}
         pagination={{
           clickable: true,
+          dynamicBullets: true,
         }}
         style={{
-          '--swiper-pagination-color': '#1ebe67',
-          '--swiper-navigation-color': '#1ebe67',
-          '--swiper-navigation-sides-offset': '10px',
-          'paddingTop': '30px',
-          'paddingBottom': '40px',
-          '--swiper-pagination-bullet-size': '13px',
-          'minHeight': '250px',
+          '--swiper-pagination-color': '#10b981',
+          '--swiper-navigation-color': '#10b981',
+          '--swiper-navigation-size': '24px',
+          '--swiper-navigation-sides-offset': '8px',
+          'paddingTop': '16px',
+          'paddingBottom': '48px',
+          '--swiper-pagination-bullet-size': '10px',
+          '--swiper-pagination-bullet-inactive-color': '#d1d5db',
+          'overflow': 'visible',
         } as React.CSSProperties}
-        className="w-full"
+        className="w-full !overflow-visible"
       >
         {latestReviews.map((review, reviewIndex) => (
-          <SwiperSlide key={`review-${review.lecture.id}-${reviewIndex}`} className="flex justify-center items-center h-auto">
-            <div className="w-full max-w-md flex flex-col justify-center">
-              <h5 className="text-center text-xs md:text-base mb-2">新着のレビュー</h5>
+          <SwiperSlide key={`review-${review.lecture.id}-${reviewIndex}`} className="!flex !justify-center !items-center">
+            <div className="w-full max-w-xs mx-auto px-2">
+              <div className="text-center mb-3">
+                <span className="text-sm text-gray-500 font-medium">新着のレビュー</span>
+              </div>
               <Link
                 href={`/lectures/${review.lecture.id}`}
-                className='block w-full mt-2 md:mt-4 p-5 rounded-3xl bg-white border border-1 shadow-md hover:bg-green-100 hover:border-green-400 transform hover:scale-105 transition duration-150'
+                className="block w-full bg-white rounded-3xl border border-gray-200 shadow-lg hover:shadow-xl p-5 transition-all duration-300 hover:scale-[1.03] hover:border-green-400 hover:bg-gradient-to-br hover:from-green-50 hover:to-white"
               >
-                <div className="text-center">
-                  <h5 className="text-xs">{review.lecture.title}</h5>
-                  <p className="text-xs">{review.lecture.lecturer}</p>
-                  <div className="flex justify-center">
-                    <ReactStars value={review.rating} size={13} edit={false} half={true} />
+                <div className="text-center space-y-3">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">
+                      {review.lecture.title}
+                    </h3>
+                    <p className="text-xs text-gray-600">{review.lecture.lecturer}</p>
                   </div>
-                  <p className="text-xs break-all line-clamp-3">{review.content}</p>
+
+                  <div className="flex justify-center">
+                    <ReactStars
+                      value={review.rating}
+                      size={14}
+                      edit={false}
+                      half={true}
+                      color1="#d1d5db"
+                      color2="#fbbf24"
+                    />
+                  </div>
+
+                  <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
+                    {review.content}
+                  </p>
                 </div>
               </Link>
             </div>
