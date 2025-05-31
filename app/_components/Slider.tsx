@@ -21,6 +21,7 @@ interface SwiperBreakpoint {
 
 interface SwiperBreakpoints {
   readonly [key: number]: SwiperBreakpoint;
+  readonly [key: string]: SwiperBreakpoint;
 }
 
 interface SwiperStyleConfig {
@@ -44,7 +45,7 @@ const SWIPER_CONFIG = {
   DISABLE_ON_INTERACTION: false
 } as const;
 
-const SWIPER_BREAKPOINTS: SwiperBreakpoints = {
+const SWIPER_BREAKPOINTS = {
   320: {
     slidesPerView: 1,
     spaceBetween: 16,
