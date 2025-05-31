@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   CSS Custom Properties (Variables)
+======================================== */
+:root {
+  /* Animation durations */
+  --animation-fast: 0.3s;
+  --animation-medium: 0.6s;
+  --animation-slow: 1s;
+  --animation-extra-slow: 2s;
+  
+  /* Animation delays */
+  --delay-small: 1s;
+  --delay-medium: 2s;
+  --delay-large: 3s;
+  --delay-extra-large: 4s;
+  
+  /* Color palette with opacity variants */
+  --green-primary: #10b981;
+  --green-secondary: #34d399;
+  --green-tertiary: #6ee7b7;
+  --green-dark: #059669;
+  
+  /* Gradients */
+  --gradient-green: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+  --gradient-green-light: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+}
+
+/* ========================================
+   Base Styles
+======================================== */
 body {
   font-family: "Helvetica Neue",
     Arial,
@@ -11,19 +41,626 @@ body {
     sans-serif;
 }
 
-.swiper-button-next, .swiper-button-prev {
-  @apply w-6 h-6; /* デフォルトサイズ */
-  @apply md:w-24 md:h-24; /* 768px以上のデバイスでのサイズ */
-  @apply top-1/2
+/* ========================================
+   Swiper Component Customizations
+======================================== */
+.swiper-button-next, 
+.swiper-button-prev {
+  @apply w-6 h-6 top-1/2;
+  @apply md:w-24 md:h-24;
 }
 
+/* Responsive line break utility */
 @media (min-width: 768px) {
   .md\:br-hidden br {
     display: none;
   }
 }
 
-_::-webkit-full-page-media, _:future, :root .swiper-slide img {
-	height: auto;
+/* Swiper slide image fix for specific webkit browsers */
+_::-webkit-full-page-media, 
+_:future, 
+:root .swiper-slide img {
+  height: auto;
   width: 290px;
+}
+
+/* ========================================
+   Animation Keyframes - Base Effects
+======================================== */
+@keyframes gradient-x {
+  0%, 100% {
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  50% {
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    text-shadow: 
+      0 0 20px rgba(16, 185, 129, 0.8), 
+      0 0 30px rgba(16, 185, 129, 0.6);
+  }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* ========================================
+   Animation Keyframes - Advanced Effects
+======================================== */
+@keyframes particle-float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px) rotate(90deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px) translateX(-15px) rotate(180deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-30px) translateX(5px) rotate(270deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateX(40px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(40px) rotate(-360deg);
+  }
+}
+
+@keyframes morphing-bg {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: var(--gradient-green);
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    background: linear-gradient(90deg, var(--green-secondary), var(--green-tertiary));
+  }
+  50% {
+    border-radius: 80% 20% 60% 40% / 40% 70% 30% 60%;
+    background: linear-gradient(135deg, var(--green-tertiary), var(--green-primary));
+  }
+  75% {
+    border-radius: 40% 60% 30% 70% / 60% 40% 60% 30%;
+    background: linear-gradient(180deg, var(--green-primary), var(--green-dark));
+  }
+}
+
+@keyframes pulse-3d {
+  0%, 100% {
+    transform: translateZ(0) scale(1);
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1);
+  }
+  50% {
+    transform: translateZ(20px) scale(1.05);
+    box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.4);
+  }
+}
+
+@keyframes holographic {
+  0%, 100% {
+    background: var(--gradient-green-light);
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    background: linear-gradient(90deg, rgba(52, 211, 153, 0.2), rgba(110, 231, 183, 0.1));
+    transform: rotateX(5deg) rotateY(2deg);
+  }
+  50% {
+    background: linear-gradient(135deg, rgba(110, 231, 183, 0.1), rgba(16, 185, 129, 0.2));
+    transform: rotateX(0deg) rotateY(5deg);
+  }
+  75% {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
+    transform: rotateX(-5deg) rotateY(0deg);
+  }
+}
+
+/* ========================================
+   Animation Keyframes - Text Effects
+======================================== */
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px rgba(16, 185, 129, 0.2),
+      0 0 10px rgba(16, 185, 129, 0.1),
+      0 0 15px rgba(16, 185, 129, 0.05);
+  }
+  50% {
+    text-shadow: 
+      0 0 8px rgba(16, 185, 129, 0.3),
+      0 0 15px rgba(16, 185, 129, 0.2),
+      0 0 25px rgba(16, 185, 129, 0.1);
+  }
+}
+
+@keyframes letter-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) rotateX(0);
+  }
+  40% {
+    transform: translateY(-8px) rotateX(15deg);
+  }
+  60% {
+    transform: translateY(-4px) rotateX(-10deg);
+  }
+}
+
+/* ========================================
+   Animation Keyframes - Layout Effects
+======================================== */
+@keyframes section-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) rotateX(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+@keyframes background-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes card-hover-lift {
+  0% {
+    transform: translateY(0) rotateX(0) rotateY(0) scale(1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    transform: translateY(-12px) rotateX(8deg) rotateY(3deg) scale(1.03);
+    box-shadow: 
+      0 25px 50px -12px rgba(16, 185, 129, 0.25),
+      0 0 30px rgba(16, 185, 129, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+}
+
+@keyframes search-focus {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.2);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    transform: scale(1);
+  }
+}
+
+/* ========================================
+   Animation Keyframes - Special Effects
+======================================== */
+@keyframes neural-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(90deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  75% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(270deg);
+  }
+}
+
+@keyframes liquid-background {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    background: linear-gradient(45deg, rgba(16, 185, 129, 0.05), rgba(52, 211, 153, 0.05));
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    background: linear-gradient(90deg, rgba(52, 211, 153, 0.08), rgba(110, 231, 183, 0.05));
+  }
+  50% {
+    border-radius: 80% 20% 60% 40% / 40% 70% 30% 60%;
+    background: linear-gradient(135deg, rgba(110, 231, 183, 0.05), rgba(16, 185, 129, 0.08));
+  }
+  75% {
+    border-radius: 40% 60% 30% 70% / 60% 40% 60% 30%;
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.05));
+  }
+}
+
+/* ========================================
+   Animation Utility Classes
+======================================== */
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+  background-size: 200% 200%;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-wave {
+  animation: wave 2s ease-in-out infinite;
+}
+
+.animate-particle-float {
+  animation: particle-float 8s ease-in-out infinite;
+}
+
+.animate-orbit {
+  animation: orbit 12s linear infinite;
+}
+
+.animate-morphing-bg {
+  animation: morphing-bg 6s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 200% 100%;
+}
+
+.animate-pulse-3d {
+  animation: pulse-3d 3s ease-in-out infinite;
+  perspective: 1000px;
+}
+
+.animate-holographic {
+  animation: holographic 5s ease-in-out infinite;
+  perspective: 1000px;
+}
+
+.animate-text-glow {
+  animation: text-glow 3s ease-in-out infinite;
+}
+
+.animate-letter-bounce {
+  animation: letter-bounce 2s ease-in-out infinite;
+}
+
+.animate-section-slide-in {
+  animation: section-slide-in 0.8s ease-out forwards;
+}
+
+.animate-background-flow {
+  animation: background-flow 10s ease-in-out infinite;
+  background-size: 200% 200%;
+}
+
+.animate-card-hover-lift {
+  transition: all var(--animation-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-card-hover-lift:hover {
+  animation: card-hover-lift var(--animation-medium) ease-out forwards;
+}
+
+.animate-search-focus:focus {
+  animation: search-focus 0.8s ease-out;
+}
+
+.animate-neural-pulse {
+  animation: neural-pulse 4s ease-in-out infinite;
+}
+
+.animate-liquid-background {
+  animation: liquid-background 8s ease-in-out infinite;
+}
+
+/* ========================================
+   Component Styles - Cards
+======================================== */
+.hero-card {
+  transition: all var(--animation-fast) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Genius-level modern card for white sections */
+.genius-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--animation-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.genius-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-green-light);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--animation-medium) ease;
+  z-index: -1;
+}
+
+.genius-card:hover {
+  transform: translateY(-15px) rotateX(10deg) rotateY(5deg) scale(1.05);
+  box-shadow: 
+    0 40px 80px -20px rgba(16, 185, 129, 0.3),
+    0 0 40px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.genius-card:hover::before {
+  opacity: 1;
+}
+
+.genius-card:hover .genius-icon {
+  transform: rotateY(180deg) scale(1.2);
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+}
+
+.genius-card:hover .genius-number {
+  transform: scale(1.1) rotateX(15deg);
+  background: linear-gradient(45deg, var(--green-primary), var(--green-secondary), var(--green-tertiary));
+  background-size: 300% 300%;
+  animation: gradient-x 2s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.5));
+}
+
+.genius-icon {
+  transition: all var(--animation-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.genius-number {
+  transition: all var(--animation-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+/* ========================================
+   Component Styles - Typography
+======================================== */
+.genius-title {
+  background: linear-gradient(45deg, #1f2937, #374151, #1f2937);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: background-flow 6s ease-in-out infinite;
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.08);
+  transition: all var(--animation-medium) ease;
+}
+
+.genius-title:hover {
+  background: linear-gradient(45deg, var(--green-primary), var(--green-secondary), var(--green-primary));
+  animation: gradient-x 2s ease infinite;
+  transform: scale(1.02);
+  text-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.3),
+    0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.genius-subtitle {
+  color: #6b7280;
+  transition: all var(--animation-medium) ease;
+}
+
+.genius-subtitle:hover {
+  color: var(--green-primary);
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  transform: translateY(-2px);
+}
+
+.genius-title-white {
+  color: #1f2937;
+  transition: all var(--animation-medium) ease;
+}
+
+.genius-title-white:hover {
+  color: var(--green-primary);
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  transform: scale(1.02);
+}
+
+.genius-title-green {
+  color: #ffffff;
+  transition: all var(--animation-medium) ease;
+}
+
+.genius-title-green:hover {
+  color: #ffffff;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
+}
+
+/* ========================================
+   Component Styles - Search
+======================================== */
+.genius-search {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--animation-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  position: relative;
+  overflow: hidden;
+}
+
+.genius-search::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(16, 185, 129, 0.02), rgba(52, 211, 153, 0.02));
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--animation-medium) ease;
+  z-index: -1;
+}
+
+.genius-search:hover {
+  transform: translateY(-5px) rotateX(5deg) scale(1.02);
+  box-shadow: 
+    0 25px 50px -12px rgba(16, 185, 129, 0.15),
+    0 0 30px rgba(16, 185, 129, 0.1);
+}
+
+.genius-search:hover::before {
+  opacity: 1;
+}
+
+/* ========================================
+   Component Styles - Sections
+======================================== */
+.genius-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.genius-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+  animation: neural-pulse 8s ease-in-out infinite;
+  z-index: -1;
+}
+
+.genius-section-green {
+  background: var(--gradient-green);
+  position: relative;
+  overflow: hidden;
+}
+
+.genius-section-green::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  animation: background-flow 12s ease-in-out infinite;
+  background-size: 200% 200%;
+  z-index: -1;
+}
+
+/* Enhanced genius card for green sections */
+.genius-card-green {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all var(--animation-medium) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.genius-card-green::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1));
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--animation-medium) ease;
+  z-index: -1;
+}
+
+.genius-card-green:hover {
+  transform: translateY(-12px) rotateX(8deg) rotateY(3deg) scale(1.03);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 30px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.genius-card-green:hover::before {
+  opacity: 1;
 }
