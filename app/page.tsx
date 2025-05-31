@@ -157,12 +157,12 @@ export default function Page() {
                     />
                   </div>
 
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                     <select
                       value={selectedFaculty}
                       onChange={(e) => setSelectedFaculty(e.target.value)}
                       onKeyUp={handleKeyUp}
-                      className="px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white min-w-48"
+                      className="w-full sm:w-auto px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white"
                     >
                       <option value="">学部を選択</option>
                       <option value="G:教養科目">G:教養科目</option>
@@ -180,7 +180,7 @@ export default function Page() {
 
                     <button
                       onClick={handleSearch}
-                      className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
                       検索
                     </button>
@@ -200,7 +200,7 @@ export default function Page() {
             <p className="text-xl text-green-100">新大生の皆さんが閲覧しています。</p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center p-8 bg-white bg-opacity-10 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white border-opacity-20">
                 <div className="text-4xl text-white mb-4 flex justify-center">
@@ -233,7 +233,7 @@ export default function Page() {
             <p className="text-xl text-green-100">新大生のための、新大生による授業レビューサイト</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="text-center p-8 bg-white bg-opacity-10 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white border-opacity-20">
                 <div className="mb-6 flex justify-center">
