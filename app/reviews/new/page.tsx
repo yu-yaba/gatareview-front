@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Loading from 'react-loading';
 import { debounce } from 'lodash'; // debounce をインポート
+import { FaArrowLeft, FaEdit, FaStar, FaHeart, FaBookOpen, FaUser, FaUniversity } from 'react-icons/fa';
 
 declare global {
   interface Window {
@@ -223,8 +224,41 @@ const NewReviewPage = () => {
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-bold mb-1 2xl:text-4xl">レビュー投稿: {selectedLecture.title}</h2>
-          <p className="text-gray-600 mb-4">({selectedLecture.lecturer} / {selectedLecture.faculty})</p>
+          <div className="text-center mb-8 flex flex-col animate-fade-in">
+            <div className="relative inline-block">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+                <span className="bg-gradient-to-r from-green-500 via-green-600 to-green-500 bg-clip-text text-transparent">
+                  <FaEdit className="inline-block mr-3 text-green-500" />
+                  レビュー投稿
+                </span>
+              </h1>
+            </div>
+
+            <div className="inline-block p-6 lg:p-8 rounded-3xl shadow-2xl border border-green-100/30 bg-white/95 backdrop-blur-md transform hover:scale-105 transition-all duration-500 relative overflow-hidden group">
+
+              {/* コンテンツ */}
+              <div className="relative z-10">
+                <div className="flex items-center justify-center mb-3 animate-fade-in-up">
+                  <FaBookOpen className="text-green-500 mr-3 text-xl" />
+                  <h2 className="text-xl lg:text-2xl font-bold text-gray-900">{selectedLecture.title}</h2>
+                </div>
+
+                <div className="flex flex-col items-center justify-center space-y-2 text-gray-600 font-medium animate-fade-in-up delay-150">
+                  <div className="flex items-center animate-slide-in-left">
+                    <FaUser className="text-blue-500 mr-2" />
+                    <span>{selectedLecture.lecturer}</span>
+                  </div>
+                  <div className="flex items-center animate-slide-in-right">
+                    <FaUniversity className="text-yellow-500 mr-2" />
+                    <span>{selectedLecture.faculty}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ホバーエフェクト */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+            </div>
+          </div>
           {renderErrors()}
           <form onSubmit={handleSubmit} className="flex flex-col w-10/12 md:w-8/12 2xl:w-5/12">
             {/* 評価 */}
@@ -445,19 +479,31 @@ const NewReviewPage = () => {
             </div>
 
             {/* ボタン */}
-            <div className="flex justify-center mt-6">
+            <div className="flex flex-col md:flex-row justify-center gap-6 pt-8 animate-fade-in-up">
               <button
                 type='button'
                 onClick={cancelReview}
-                className='p-2 px-4 rounded-lg shadow border-2 bg-white text-gray-600 hover:bg-gray-100 transition duration-150 mr-4'
+                className='px-8 py-4 bg-transparent border-2 border-gray-300 text-gray-600 font-bold rounded-2xl hover:bg-gray-50 hover:border-gray-400 transform hover:scale-110 transition-all duration-300 flex items-center justify-center relative overflow-hidden group shadow-lg hover:shadow-xl'
               >
-                授業選択に戻る
+                <FaArrowLeft className="mr-3 transform group-hover:scale-110 group-hover:-translate-x-1 transition-all duration-300" />
+                <span className="relative z-10">授業選択に戻る</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </button>
+
               <button
                 type="submit"
-                className="p-2 px-6 rounded-lg font-bold text-white  bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 transition duration-150"
+                className="px-10 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group"
               >
-                投稿する
+                <FaHeart className="mr-3 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300 animate-heartbeat" />
+                <span className="relative z-10">投稿する</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+
+                {/* キラキラエフェクト */}
+                <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full animate-twinkle opacity-0 group-hover:opacity-100"></div>
+                <div className="absolute bottom-3 left-3 w-1 h-1 bg-white rounded-full animate-twinkle opacity-0 group-hover:opacity-100 delay-100"></div>
+                <div className="absolute top-1/2 left-1/2 w-0.5 h-0.5 bg-white rounded-full animate-twinkle opacity-0 group-hover:opacity-100 delay-200"></div>
               </button>
             </div>
           </form>
