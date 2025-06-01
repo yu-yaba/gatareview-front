@@ -69,7 +69,7 @@ const NewReviewPage = () => {
       return stringValue.toLowerCase().includes(searchWord.toLowerCase());
     });
   };
-  
+
   const handleLectureSelect = (lecture: LectureSchema) => {
     setSelectedLecture(lecture);
     setReview({
@@ -286,7 +286,7 @@ const NewReviewPage = () => {
                     <option>3, 4ターム</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* 下矢印アイコン */}
+                  {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -311,7 +311,7 @@ const NewReviewPage = () => {
                     <option>不要</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* 下矢印アイコン */}
+                  {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -337,7 +337,7 @@ const NewReviewPage = () => {
                     <option>なし</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* 下矢印アイコン */}
+                  {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -363,7 +363,7 @@ const NewReviewPage = () => {
                     <option>テスト,レポート</option>
                     <option>その他・不明</option>
                   </select>
-                   {/* 下矢印アイコン */}
+                  {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -390,7 +390,7 @@ const NewReviewPage = () => {
                     <option>難</option>
                     <option>とても難しい</option>
                   </select>
-                   {/* 下矢印アイコン */}
+                  {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -417,7 +417,7 @@ const NewReviewPage = () => {
                     <option>悪い</option>
                     <option>とても悪い</option>
                   </select>
-                   {/* 下矢印アイコン */}
+                  {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
@@ -444,17 +444,17 @@ const NewReviewPage = () => {
             {/* ボタン */}
             <div className="flex justify-center mt-6">
               <button
-                type="submit"
-                className="p-2 px-6 rounded-lg font-bold text-white mr-4 bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 transition duration-150"
-              >
-                投稿する
-              </button>
-              <button
                 type='button'
                 onClick={cancelReview}
-                className='p-2 px-4 rounded-lg shadow border-2 bg-white text-gray-600 hover:bg-gray-100 transition duration-150'
+                className='p-2 px-4 rounded-lg shadow border-2 bg-white text-gray-600 hover:bg-gray-100 transition duration-150 mr-4'
               >
                 授業選択に戻る
+              </button>
+              <button
+                type="submit"
+                className="p-2 px-6 rounded-lg font-bold text-white  bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-600 focus:ring-opacity-50 transition duration-150"
+              >
+                投稿する
               </button>
             </div>
           </form>
