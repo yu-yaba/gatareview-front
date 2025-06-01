@@ -30,6 +30,60 @@ const NewReviewPage = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [ratingValue, setRatingValue] = useState(3);
 
+  // フィールド設定の型定義
+  interface SelectFieldConfig {
+    id: string;
+    name: keyof ReviewData;
+    label: string;
+    options: string[];
+  }
+
+  // フィールド設定の定義
+  const selectFieldConfigs: SelectFieldConfig[] = [
+    {
+      id: 'period_year',
+      name: 'period_year',
+      label: '授業を受けた年',
+      options: ['2025', '2024', '2023', '2022', '2021', '2020', 'その他・不明']
+    },
+    {
+      id: 'period_term',
+      name: 'period_term',
+      label: '開講',
+      options: ['1ターム', '2ターム', '1, 2ターム', '3ターム', '4ターム', '3, 4ターム', '通年', '集中', 'その他・不明']
+    },
+    {
+      id: 'textbook',
+      name: 'textbook',
+      label: '教科書',
+      options: ['必要', '不要', 'その他・不明']
+    },
+    {
+      id: 'attendance',
+      name: 'attendance',
+      label: '出席確認',
+      options: ['毎回確認', 'たまに確認', 'なし', 'その他・不明']
+    },
+    {
+      id: 'grading_type',
+      name: 'grading_type',
+      label: '採点方法',
+      options: ['テストのみ', 'レポートのみ', 'テスト,レポート', 'その他・不明']
+    },
+    {
+      id: 'content_difficulty',
+      name: 'content_difficulty',
+      label: '単位取得難易度',
+      options: ['とても楽', '楽', '普通', '難', 'とても難しい']
+    },
+    {
+      id: 'content_quality',
+      name: 'content_quality',
+      label: '内容充実度',
+      options: ['とても良い', '良い', '普通', '悪い', 'とても悪い']
+    }
+  ];
+
   useEffect(() => {
     const fetchLectures = async () => {
       try {
@@ -137,6 +191,39 @@ const NewReviewPage = () => {
     }
     return `${baseClasses} border-2 focus:border-green-400 focus:ring-green-200 hover:border-green-200`;
   };
+
+  // ドロップダウンアイコンコンポーネント
+  const DropdownIcon = () => (
+    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+      <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+      </svg>
+    </div>
+  );
+
+  // SelectFieldコンポーネント
+  const SelectField = ({ id, name, label, options }: SelectFieldConfig) => (
+    <div className="mb-6 flex flex-col">
+      <label className="block text-bold">
+        <p className="font-bold mb-3 text-gray-800">{label}</p>
+        <div className="relative">
+          <select
+            id={id}
+            name={name}
+            value={(review as any)?.[name] || ''}
+            onChange={handleInputChange}
+            className={getFieldBorderClass(name)}>
+            <option value="">選択してください</option>
+            {options.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+          {renderFieldError(name)}
+          <DropdownIcon />
+        </div>
+      </label>
+    </div>
+  );
 
   const addReview = async (newReview: ReviewData, token: string) => {
     if (!selectedLecture) return;
@@ -286,195 +373,36 @@ const NewReviewPage = () => {
             </div>
 
             {/* 授業を受けた年 */}
-            <div className="mb-6 flex flex-col">
-              <label className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">授業を受けた年</p>
-                <div className="relative">
-                  <select
-                    id="period_year"
-                    name="period_year"
-                    value={review?.period_year || ''}
-                    onChange={handleInputChange}
-                    className={getFieldBorderClass('period_year')}>
-                    <option value="">選択してください</option>
-                    <option>2025</option>
-                    <option>2024</option>
-                    <option>2023</option>
-                    <option>2022</option>
-                    <option>2021</option>
-                    <option>2020</option>
-                    <option>その他・不明</option>
-                  </select>
-                  {renderFieldError('period_year')}
-                  {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
+            <SelectField id="period_year" name="period_year" label="授業を受けた年" options={selectFieldConfigs[0].options} />
 
             {/* 開講 */}
-            <div className="mb-6 flex flex-col">
-              <label className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">開講</p>
-                <div className="relative">
-                  <select
-                    id="period_term"
-                    name="period_term"
-                    onChange={handleInputChange}
-                    value={review?.period_term || ''}
-                    className={getFieldBorderClass('period_term')}>
-                    <option value="">選択してください</option>
-                    <option>1ターム</option>
-                    <option>2ターム</option>
-                    <option>1, 2ターム</option>
-                    <option>3ターム</option>
-                    <option>4ターム</option>
-                    <option>3, 4ターム</option>
-                    <option>通年</option>
-                    <option>集中</option>
-                    <option>その他・不明</option>
-                  </select>
-                  {renderFieldError('period_term')}
-                  {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
+            <SelectField id="period_term" name="period_term" label="開講" options={selectFieldConfigs[1].options} />
 
             {/* 教科書 */}
-            <div className="mb-6 flex flex-col">
-              <label className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">教科書</p>
-                <div className="relative">
-                  <select
-                    id="textbook"
-                    name="textbook"
-                    value={review?.textbook || ''}
-                    onChange={handleInputChange}
-                    className={getFieldBorderClass('textbook')}>
-                    <option value="">選択してください</option>
-                    <option>必要</option>
-                    <option>不要</option>
-                    <option>その他・不明</option>
-                  </select>
-                  {renderFieldError('textbook')}
-                  {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
+            <SelectField id="textbook" name="textbook" label="教科書" options={selectFieldConfigs[2].options} />
 
             {/* 出席確認 */}
-            <div className="mb-6 flex flex-col">
-              <label className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">出席確認</p>
-                <div className="relative">
-                  <select
-                    id="attendance"
-                    name="attendance"
-                    value={review?.attendance || ''}
-                    onChange={handleInputChange}
-                    className={getFieldBorderClass('attendance')}>
-                    <option value="">選択してください</option>
-                    <option>毎回確認</option>
-                    <option>たまに確認</option>
-                    <option>なし</option>
-                    <option>その他・不明</option>
-                  </select>
-                  {renderFieldError('attendance')}
-                  {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
+            <SelectField id="attendance" name="attendance" label="出席確認" options={selectFieldConfigs[3].options} />
 
             {/* 採点方法 */}
-            <div className="mb-6 flex flex-col">
-              <label className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">採点方法</p>
-                <div className="relative">
-                  <select
-                    id="grading_type"
-                    name="grading_type"
-                    onChange={handleInputChange}
-                    value={review?.grading_type || ''}
-                    className={getFieldBorderClass('grading_type')}>
-                    <option value="">選択してください</option>
-                    <option>テストのみ</option>
-                    <option>レポートのみ</option>
-                    <option>テスト,レポート</option>
-                    <option>その他・不明</option>
-                  </select>
-                  {renderFieldError('grading_type')}
-                  {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
+            <SelectField id="grading_type" name="grading_type" label="採点方法" options={selectFieldConfigs[4].options} />
 
             {/* 単位取得難易度 */}
-            <div className="mb-6 flex flex-col">
-              <label className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">単位取得難易度</p>
-                <div className="relative">
-                  <select
-                    id="content_difficulty"
-                    name="content_difficulty"
-                    onChange={handleInputChange}
-                    value={review?.content_difficulty || ''}
-                    className={getFieldBorderClass('content_difficulty')}>
-                    <option value="">選択してください</option>
-                    <option>とても楽</option>
-                    <option>楽</option>
-                    <option>普通</option>
-                    <option>難</option>
-                    <option>とても難しい</option>
-                  </select>
-                  {renderFieldError('content_difficulty')}
-                  {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
+            <SelectField id="content_difficulty" name="content_difficulty" label="単位取得難易度" options={selectFieldConfigs[5].options} />
 
             {/* 内容充実度 */}
-            <div className="mb-6 flex flex-col">
-              <label className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">内容充実度</p>
-                <div className="relative">
-                  <select
-                    id="content_quality"
-                    name="content_quality"
-                    onChange={handleInputChange}
-                    value={review?.content_quality || ''}
-                    className={getFieldBorderClass('content_quality')}>
-                    <option value="">選択してください</option>
-                    <option>とても良い</option>
-                    <option>良い</option>
-                    <option>普通</option>
-                    <option>悪い</option>
-                    <option>とても悪い</option>
-                  </select>
-                  {renderFieldError('content_quality')}
-                  {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
-                  </div>
-                </div>
-              </label>
-            </div>
+            <SelectField id="content_quality" name="content_quality" label="内容充実度" options={selectFieldConfigs[6].options} />
+
+            {/* select要素を動的生成 */}
+            {selectFieldConfigs.map((config) => (
+              <SelectField
+                key={config.id}
+                id={config.id}
+                name={config.name}
+                label={config.label}
+                options={config.options}
+              />
+            ))}
 
             {/* コメント */}
             <div className="mb-8 flex flex-col">
