@@ -153,10 +153,7 @@ const ReviewSlide = memo<ReviewSlideProps>(({ review, reviewIndex }) => {
 
   return (
     <SwiperSlide key={slideKey} className="!flex !justify-center !items-center">
-      <div className="w-full max-w-xs mx-auto px-2">
-        <div className="text-center mb-3">
-          <span className="text-sm text-gray-500 font-medium">新着のレビュー</span>
-        </div>
+      <div className="w-full max-w-xs mx-auto mb-9">
         <Link
           href={`/lectures/${review.lecture.id}`}
           className="block w-full bg-white rounded-3xl border border-gray-200 shadow-lg hover:shadow-xl p-5 transition-all duration-300 hover:scale-[1.03] hover:border-green-400 hover:bg-gradient-to-br hover:from-green-50 hover:to-white"
