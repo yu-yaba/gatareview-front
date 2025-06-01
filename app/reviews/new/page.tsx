@@ -250,6 +250,7 @@ const NewReviewPage = () => {
                     required
                     className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
                     <option value="">選択してください</option>
+                    <option>2025</option>
                     <option>2024</option>
                     <option>2023</option>
                     <option>2022</option>
@@ -265,10 +266,10 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* ターム */}
+            {/* 開講 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">ターム</p>
+                <p className="font-bold mb-2">開講</p>
                 <div className="flex relative w-full text-gray-600">
                   <select
                     id="period_term"
@@ -284,6 +285,8 @@ const NewReviewPage = () => {
                     <option>3ターム</option>
                     <option>4ターム</option>
                     <option>3, 4ターム</option>
+                    <option>通年</option>
+                    <option>集中</option>
                     <option>その他・不明</option>
                   </select>
                   {/* 下矢印アイコン */}
