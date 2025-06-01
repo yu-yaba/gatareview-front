@@ -264,8 +264,8 @@ const NewReviewPage = () => {
             {/* 評価 */}
             <div className="mb-6 flex flex-col">
               <label htmlFor="rating" className="block text-bold">
-                <p className="font-bold mb-2">評価</p>
-                <div className="p-2 pl-5 w-full border rounded-md shadow bg-white">
+                <p className="font-bold mb-3 text-gray-800">評価</p>
+                <div className="p-4 w-full border-2 rounded-xl shadow-lg bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm">
                   <ReactStars onChange={starOnChange} size={25} value={ratingValue} edit={true} />
                 </div>
               </label>
@@ -274,15 +274,15 @@ const NewReviewPage = () => {
             {/* 授業を受けた年 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">授業を受けた年</p>
-                <div className="flex relative w-full text-gray-600">
+                <p className="font-bold mb-3 text-gray-800">授業を受けた年</p>
+                <div className="relative">
                   <select
                     id="period_year"
                     name="period_year"
                     value={review?.period_year || ''}
                     onChange={handleInputChange}
                     required
-                    className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
+                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
                     <option value="">選択してください</option>
                     <option>2025</option>
                     <option>2024</option>
@@ -293,8 +293,8 @@ const NewReviewPage = () => {
                     <option>その他・不明</option>
                   </select>
                   {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
                 </div>
               </label>
@@ -303,15 +303,15 @@ const NewReviewPage = () => {
             {/* 開講 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">開講</p>
-                <div className="flex relative w-full text-gray-600">
+                <p className="font-bold mb-3 text-gray-800">開講</p>
+                <div className="relative">
                   <select
                     id="period_term"
                     name="period_term"
                     onChange={handleInputChange}
                     value={review?.period_term || ''}
                     required
-                    className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
+                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
                     <option value="">選択してください</option>
                     <option>1ターム</option>
                     <option>2ターム</option>
@@ -324,8 +324,8 @@ const NewReviewPage = () => {
                     <option>その他・不明</option>
                   </select>
                   {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
                 </div>
               </label>
@@ -334,23 +334,23 @@ const NewReviewPage = () => {
             {/* 教科書 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">教科書</p>
-                <div className="flex relative w-full text-gray-600">
+                <p className="font-bold mb-3 text-gray-800">教科書</p>
+                <div className="relative">
                   <select
                     id="textbook"
                     name="textbook"
                     value={review?.textbook || ''}
                     onChange={handleInputChange}
                     required
-                    className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
+                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
                     <option value="">選択してください</option>
                     <option>必要</option>
                     <option>不要</option>
                     <option>その他・不明</option>
                   </select>
                   {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
                 </div>
               </label>
@@ -359,15 +359,15 @@ const NewReviewPage = () => {
             {/* 出席確認 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">出席確認</p>
-                <div className="flex relative w-full text-gray-600">
+                <p className="font-bold mb-3 text-gray-800">出席確認</p>
+                <div className="relative">
                   <select
                     id="attendance"
                     name="attendance"
                     value={review?.attendance || ''}
                     onChange={handleInputChange}
                     required
-                    className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
+                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
                     <option value="">選択してください</option>
                     <option>毎回確認</option>
                     <option>たまに確認</option>
@@ -375,8 +375,8 @@ const NewReviewPage = () => {
                     <option>その他・不明</option>
                   </select>
                   {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
                 </div>
               </label>
@@ -385,15 +385,15 @@ const NewReviewPage = () => {
             {/* 採点方法 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">採点方法</p>
-                <div className="flex relative w-full text-gray-600">
+                <p className="font-bold mb-3 text-gray-800">採点方法</p>
+                <div className="relative">
                   <select
                     id="grading_type"
                     name="grading_type"
                     onChange={handleInputChange}
                     value={review?.grading_type || ''}
                     required
-                    className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
+                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
                     <option value="">選択してください</option>
                     <option>テストのみ</option>
                     <option>レポートのみ</option>
@@ -401,8 +401,8 @@ const NewReviewPage = () => {
                     <option>その他・不明</option>
                   </select>
                   {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
                 </div>
               </label>
@@ -411,15 +411,15 @@ const NewReviewPage = () => {
             {/* 単位取得難易度 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">単位取得難易度</p>
-                <div className="flex relative w-full text-gray-600">
+                <p className="font-bold mb-3 text-gray-800">単位取得難易度</p>
+                <div className="relative">
                   <select
                     id="content_difficulty"
                     name="content_difficulty"
                     onChange={handleInputChange}
                     value={review?.content_difficulty || ''}
                     required
-                    className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
+                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
                     <option value="">選択してください</option>
                     <option>とても楽</option>
                     <option>楽</option>
@@ -428,8 +428,8 @@ const NewReviewPage = () => {
                     <option>とても難しい</option>
                   </select>
                   {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
                 </div>
               </label>
@@ -438,15 +438,15 @@ const NewReviewPage = () => {
             {/* 内容充実度 */}
             <div className="mb-6 flex flex-col">
               <label className="block text-bold">
-                <p className="font-bold mb-2">内容充実度</p>
-                <div className="flex relative w-full text-gray-600">
+                <p className="font-bold mb-3 text-gray-800">内容充実度</p>
+                <div className="relative">
                   <select
                     id="content_quality"
                     name="content_quality"
                     onChange={handleInputChange}
                     value={review?.content_quality || ''}
                     required
-                    className="block appearance-none w-full bg-white p-3 border rounded-md shadow focus:border-green-500 outline-none cursor-pointer">
+                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
                     <option value="">選択してください</option>
                     <option>とても良い</option>
                     <option>良い</option>
@@ -455,8 +455,8 @@ const NewReviewPage = () => {
                     <option>とても悪い</option>
                   </select>
                   {/* 下矢印アイコン */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+                    <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
                   </div>
                 </div>
               </label>
@@ -465,15 +465,16 @@ const NewReviewPage = () => {
             {/* コメント */}
             <div className="mb-8 flex flex-col">
               <label htmlFor="content" className="block text-bold">
-                <p className="font-bold mb-2">コメント (任意)</p>
+                <p className="font-bold mb-3 text-gray-800">コメント (任意)</p>
                 <textarea
                   cols={30}
                   rows={5}
                   id="content"
                   name="content"
-                  className="mt-1 p-2 w-full border rounded-md shadow focus:border-green-500 outline-none"
+                  className="p-4 w-full border-2 rounded-xl shadow-lg bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none text-gray-700 font-medium hover:border-green-200 transition-all duration-300 resize-none"
                   onChange={handleInputChange}
                   value={review?.content || ''}
+                  placeholder="授業の感想や後輩へのアドバイスなどをお書きください..."
                 />
               </label>
             </div>
