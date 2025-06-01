@@ -105,22 +105,37 @@ const NewReviewPage = () => {
     updateReview('rating', newValue);
   };
 
-  const renderErrors = () => {
-    if (isEmptyObject(formErrors)) {
-      return null;
+  // 個別フィールドのエラー表示用関数
+  const renderFieldError = (fieldName: string) => {
+    if (formErrors[fieldName]) {
+      return (
+        <p className="mt-2 text-sm text-red-600 font-medium flex items-center animate-fade-in">
+          <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          {formErrors[fieldName]}
+        </p>
+      );
     }
-    return (
-      <div className="flex justify-center my-4">
-        <div className="text-red-500">
-          <h3 className='font-bold text-lg'>※入力内容に誤りがあります</h3>
-          <ul className="list-none ml-4">
-            {Object.values(formErrors).map((formError, index) => (
-              <li key={index}>{formError}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
+    return null;
+  };
+
+  // フィールドのボーダー色を決定する関数
+  const getFieldBorderClass = (fieldName: string) => {
+    const baseClasses = "block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 rounded-xl shadow-lg focus:ring-2 focus:outline-none cursor-pointer text-gray-700 font-medium transition-all duration-300";
+    if (formErrors[fieldName]) {
+      return `${baseClasses} border-2 border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
+    }
+    return `${baseClasses} border-2 focus:border-green-400 focus:ring-green-200 hover:border-green-200`;
+  };
+
+  // textareaのクラス取得関数
+  const getTextareaClass = (fieldName: string) => {
+    const baseClasses = "p-4 w-full rounded-xl shadow-lg bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm focus:ring-2 focus:outline-none text-gray-700 font-medium transition-all duration-300 resize-none";
+    if (formErrors[fieldName]) {
+      return `${baseClasses} border-2 border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
+    }
+    return `${baseClasses} border-2 focus:border-green-400 focus:ring-green-200 hover:border-green-200`;
   };
 
   const addReview = async (newReview: ReviewData, token: string) => {
@@ -259,7 +274,6 @@ const NewReviewPage = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
             </div>
           </div>
-          {renderErrors()}
           <form onSubmit={handleSubmit} className="flex flex-col w-10/12 md:w-8/12 2xl:w-5/12">
             {/* 評価 */}
             <div className="mb-6 flex flex-col">
@@ -281,8 +295,7 @@ const NewReviewPage = () => {
                     name="period_year"
                     value={review?.period_year || ''}
                     onChange={handleInputChange}
-                    required
-                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
+                    className={getFieldBorderClass('period_year')}>
                     <option value="">選択してください</option>
                     <option>2025</option>
                     <option>2024</option>
@@ -292,6 +305,7 @@ const NewReviewPage = () => {
                     <option>2020</option>
                     <option>その他・不明</option>
                   </select>
+                  {renderFieldError('period_year')}
                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                     <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
@@ -310,8 +324,7 @@ const NewReviewPage = () => {
                     name="period_term"
                     onChange={handleInputChange}
                     value={review?.period_term || ''}
-                    required
-                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
+                    className={getFieldBorderClass('period_term')}>
                     <option value="">選択してください</option>
                     <option>1ターム</option>
                     <option>2ターム</option>
@@ -323,6 +336,7 @@ const NewReviewPage = () => {
                     <option>集中</option>
                     <option>その他・不明</option>
                   </select>
+                  {renderFieldError('period_term')}
                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                     <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
@@ -341,13 +355,13 @@ const NewReviewPage = () => {
                     name="textbook"
                     value={review?.textbook || ''}
                     onChange={handleInputChange}
-                    required
-                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
+                    className={getFieldBorderClass('textbook')}>
                     <option value="">選択してください</option>
                     <option>必要</option>
                     <option>不要</option>
                     <option>その他・不明</option>
                   </select>
+                  {renderFieldError('textbook')}
                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                     <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
@@ -366,14 +380,14 @@ const NewReviewPage = () => {
                     name="attendance"
                     value={review?.attendance || ''}
                     onChange={handleInputChange}
-                    required
-                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
+                    className={getFieldBorderClass('attendance')}>
                     <option value="">選択してください</option>
                     <option>毎回確認</option>
                     <option>たまに確認</option>
                     <option>なし</option>
                     <option>その他・不明</option>
                   </select>
+                  {renderFieldError('attendance')}
                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                     <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
@@ -392,14 +406,14 @@ const NewReviewPage = () => {
                     name="grading_type"
                     onChange={handleInputChange}
                     value={review?.grading_type || ''}
-                    required
-                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
+                    className={getFieldBorderClass('grading_type')}>
                     <option value="">選択してください</option>
                     <option>テストのみ</option>
                     <option>レポートのみ</option>
                     <option>テスト,レポート</option>
                     <option>その他・不明</option>
                   </select>
+                  {renderFieldError('grading_type')}
                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                     <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
@@ -418,8 +432,7 @@ const NewReviewPage = () => {
                     name="content_difficulty"
                     onChange={handleInputChange}
                     value={review?.content_difficulty || ''}
-                    required
-                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
+                    className={getFieldBorderClass('content_difficulty')}>
                     <option value="">選択してください</option>
                     <option>とても楽</option>
                     <option>楽</option>
@@ -427,6 +440,7 @@ const NewReviewPage = () => {
                     <option>難</option>
                     <option>とても難しい</option>
                   </select>
+                  {renderFieldError('content_difficulty')}
                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                     <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
@@ -445,8 +459,7 @@ const NewReviewPage = () => {
                     name="content_quality"
                     onChange={handleInputChange}
                     value={review?.content_quality || ''}
-                    required
-                    className="block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 border-2 rounded-xl shadow-lg focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none cursor-pointer text-gray-700 font-medium hover:border-green-200 transition-all duration-300">
+                    className={getFieldBorderClass('content_quality')}>
                     <option value="">選択してください</option>
                     <option>とても良い</option>
                     <option>良い</option>
@@ -454,6 +467,7 @@ const NewReviewPage = () => {
                     <option>悪い</option>
                     <option>とても悪い</option>
                   </select>
+                  {renderFieldError('content_quality')}
                   {/* 下矢印アイコン */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                     <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path></svg>
@@ -471,11 +485,12 @@ const NewReviewPage = () => {
                   rows={5}
                   id="content"
                   name="content"
-                  className="p-4 w-full border-2 rounded-xl shadow-lg bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm focus:border-green-400 focus:ring-2 focus:ring-green-200 focus:outline-none text-gray-700 font-medium hover:border-green-200 transition-all duration-300 resize-none"
+                  className={getTextareaClass('content')}
                   onChange={handleInputChange}
                   value={review?.content || ''}
-                  placeholder="授業の感想や後輩へのアドバイスなどをお書きください..."
+                  placeholder="コメントは150文字以内で入力してください..."
                 />
+                {renderFieldError('content')}
               </label>
             </div>
 
