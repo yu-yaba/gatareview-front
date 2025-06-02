@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'ガタレビュ！',
-  description: '新潟大学生のための授業レビューサイトです。シラバスではわからない情報や過去問を共有しましょう。',
+  description: '新潟大学生のための授業レビューサイトです。シラバスではわからないリアルな授業情報を共有しましょう。',
   icons: {
     icon: '/icon.png',
     apple: '/apple-touch-icon.png'
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   colorScheme: 'light',
   openGraph: {
     title: 'ガタレビュ！',
-    description: '新潟大学生のための授業レビューサイトです。シラバスではわからない情報や過去問を共有しましょう。',
+    description: '新潟大学生のための授業レビューサイトです。シラバスではわからないリアルな授業情報を共有しましょう。',
     url: 'https://gatareview.com',
     siteName: 'ガタレビュ！',
     images: [
