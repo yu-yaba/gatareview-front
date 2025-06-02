@@ -87,14 +87,46 @@ const LectureList = () => {
     const sortedLectures = sortLectures(filteredLectures);
 
     return sortedLectures.map((lecture) => (
-      <Link href={`/lectures/${lecture.id}`} key={lecture.id} className='m-3 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-10/12 md:w-8/12 2xl:w-7/12 hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition  duration-150'>
-        <li key={lecture.id}>
-          <div className=' flex items-center flex-wrap'>
-            <h2 className="inline-block w-full md:w-4/12 font-bold text-2xl my-1 text-center">{lecture.title}</h2>
-            <div className='flex flex-wrap w-full md:w-8/12'>
-              <div className="flex flex-row w-full md:w-7/12  justify-center">
-                <p className="mx-2 my-3">{lecture.lecturer}</p>
-                <p className="mx-2 my-3">{lecture.faculty}</p>
+      <Link href={`/lectures/${lecture.id}`} key={lecture.id} className="block">
+        <div className="m-3 p-5 rounded-3xl bg-white border border-1 shadow-md inline-block w-10/12 md:w-8/12 2xl:w-7/12 hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition duration-150">
+          {/* メインコンテンツ */}
+          <div className="flex items-center flex-wrap">
+            {/* タイトルセクション */}
+            <div className="w-full md:w-4/12 mb-4 md:mb-0">
+              <h2 className="font-bold text-xl lg:text-2xl text-center md:text-left text-gray-800 leading-tight">
+                {lecture.title}
+              </h2>
+            </div>
+
+            {/* 詳細情報セクション */}
+            <div className="w-full md:w-8/12">
+              <div className="flex flex-wrap">
+                {/* 教員・学部情報 */}
+                <div className="w-full lg:w-7/12 flex flex-col space-y-3 mb-4 lg:mb-0">
+                  <div className="flex items-center justify-center lg:justify-start">
+                    <FaUser className="text-blue-500 mr-2 text-sm" />
+                    <span className="text-gray-700 font-medium text-sm lg:text-base">{lecture.lecturer}</span>
+                  </div>
+                  <div className="flex items-center justify-center lg:justify-start">
+                    <FaUniversity className="text-purple-500 mr-2 text-sm" />
+                    <span className="text-gray-600 text-sm lg:text-base">{lecture.faculty}</span>
+                  </div>
+                </div>
+
+                {/* 評価セクション */}
+                <div className="w-full lg:w-5/12 flex flex-col items-center lg:items-end">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <ReactStars
+                      value={lecture.avg_rating}
+                      size={18}
+                      edit={false}
+                      half={true}
+                      className="flex"
+                    />
+                    <span className="text-sm text-gray-500 font-medium">
+                      ({lecture.reviews?.length || 0}件)
+                    </span>
+                  </div>
               </div>
               <div className='flex justify-center items-center w-full md:w-5/12'>
                 <p className=' mr-2 font-bold text-2xl text-yellow-400'>{lecture.avg_rating}</p>
