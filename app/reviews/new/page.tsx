@@ -372,27 +372,6 @@ const NewReviewPage = () => {
               </label>
             </div>
 
-            {/* 授業を受けた年 */}
-            <SelectField id="period_year" name="period_year" label="授業を受けた年" options={selectFieldConfigs[0].options} />
-
-            {/* 開講 */}
-            <SelectField id="period_term" name="period_term" label="開講" options={selectFieldConfigs[1].options} />
-
-            {/* 教科書 */}
-            <SelectField id="textbook" name="textbook" label="教科書" options={selectFieldConfigs[2].options} />
-
-            {/* 出席確認 */}
-            <SelectField id="attendance" name="attendance" label="出席確認" options={selectFieldConfigs[3].options} />
-
-            {/* 採点方法 */}
-            <SelectField id="grading_type" name="grading_type" label="採点方法" options={selectFieldConfigs[4].options} />
-
-            {/* 単位取得難易度 */}
-            <SelectField id="content_difficulty" name="content_difficulty" label="単位取得難易度" options={selectFieldConfigs[5].options} />
-
-            {/* 内容充実度 */}
-            <SelectField id="content_quality" name="content_quality" label="内容充実度" options={selectFieldConfigs[6].options} />
-
             {/* select要素を動的生成 */}
             {selectFieldConfigs.map((config) => (
               <SelectField
