@@ -348,11 +348,11 @@ const NewReviewPage = () => {
                 <div className="flex flex-col items-center justify-center space-y-2 text-gray-600 font-medium animate-fade-in-up delay-150">
                   <div className="flex items-center animate-slide-in-left">
                     <FaUser className="text-blue-500 mr-2" />
-                    <span>{selectedLecture.lecturer}</span>
+                    <span className="font-semibold">{selectedLecture.lecturer}</span>
                   </div>
                   <div className="flex items-center animate-slide-in-right">
                     <FaUniversity className="text-yellow-500 mr-2" />
-                    <span>{selectedLecture.faculty}</span>
+                    <span className="font-semibold">{selectedLecture.faculty}</span>
                   </div>
                 </div>
               </div>
