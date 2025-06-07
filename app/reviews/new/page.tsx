@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { success } from '@/app/_helpers/notifications';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Loading from 'react-loading';
 import { debounce } from 'lodash'; // debounce をインポート
@@ -25,8 +25,10 @@ const NewReviewPage = () => {
   const [searchWord, setSearchWord] = useState('');
   const [fetchedLectures, setFetchedLectures] = useState<Array<LectureSchema>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingLecture, setIsLoadingLecture] = useState(false);
   const searchInput = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [ratingValue, setRatingValue] = useState(3);
 
@@ -84,22 +86,50 @@ const NewReviewPage = () => {
     }
   ];
 
+  // URLパラメータから特定の授業を取得する関数
+  const fetchSpecificLecture = async (lectureId: string) => {
+    try {
+      setIsLoadingLecture(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lectureId}`);
+      if (!response.ok) throw new Error(response.statusText);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      handleAjaxError("指定された授業の取得に失敗しました");
+      return null;
+    } finally {
+      setIsLoadingLecture(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLectures = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`);
-        if (!response.ok) throw new Error(response.statusText);
-        const data = await response.json();
-        setFetchedLectures(data);
-      } catch (error) {
-        handleAjaxError("授業リストの取得に失敗しました");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchLectures();
-  }, []);
+    const lectureId = searchParams.get('lectureId');
+
+    if (lectureId) {
+      // URLパラメータで授業IDが指定されている場合、その授業を取得して自動選択
+      fetchSpecificLecture(lectureId).then((lecture) => {
+        if (lecture) {
+          handleLectureSelect(lecture);
+        }
+      });
+    } else {
+      // 通常の授業リスト取得
+      const fetchLectures = async () => {
+        try {
+          setIsLoading(true);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures`);
+          if (!response.ok) throw new Error(response.statusText);
+          const data = await response.json();
+          setFetchedLectures(data);
+        } catch (error) {
+          handleAjaxError("授業リストの取得に失敗しました");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchLectures();
+    }
+  }, [searchParams]);
 
   const debouncedUpdateSearchWord = useCallback(
     debounce((value: string) => {
@@ -143,7 +173,7 @@ const NewReviewPage = () => {
     setFormErrors({}); // 以前のエラーをクリア
   };
 
-  // レビューフォームのロジック (lectures/[id]/new/page.tsx から流用)
+  // レビューフォームのロジック
   const updateReview = (name: string, value: string | number) => {
     if (!review) return;
     setReview((prevReview) => ({ ...prevReview!, [name]: value }));
@@ -272,12 +302,30 @@ const NewReviewPage = () => {
   };
 
   const cancelReview = () => {
-    setSelectedLecture(null);
-    setReview(null);
-    setFormErrors({});
+    const lectureId = searchParams.get('lectureId');
+    if (lectureId) {
+      // URLパラメータで授業IDが指定されていた場合は、その授業の詳細ページに戻る
+      router.push(`/lectures/${lectureId}`);
+    } else {
+      // 通常の場合は授業選択画面に戻る
+      setSelectedLecture(null);
+      setReview(null);
+      setFormErrors({});
+    }
   };
 
   const filteredLectures = fetchedLectures.filter(matchSearchWord);
+
+  // URLパラメータで授業が指定されている場合のロード画面
+  if (isLoadingLecture) {
+    return (
+      <section className="flex flex-col items-center p-4 md:p-8">
+        <div className="flex justify-center items-center h-64">
+          <Loading type={"bubbles"} width={100} height={100} color={"#1DBE67"} />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col items-center p-4 md:p-8">
@@ -409,7 +457,7 @@ const NewReviewPage = () => {
                 className='px-8 py-4 bg-transparent border-2 border-gray-300 text-gray-600 font-bold rounded-2xl hover:bg-gray-50 hover:border-gray-400 transform hover:scale-110 transition-all duration-300 flex items-center justify-center relative overflow-hidden group shadow-lg hover:shadow-xl'
               >
                 <FaArrowLeft className="mr-3 transform group-hover:scale-110 group-hover:-translate-x-1 transition-all duration-300" />
-                <span className="relative z-10">授業選択に戻る</span>
+                <span className="relative z-10">{searchParams.get('lectureId') ? '授業詳細に戻る' : '授業選択に戻る'}</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-200 opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </button>
