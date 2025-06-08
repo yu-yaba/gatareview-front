@@ -5,7 +5,7 @@ import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
-import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 
 interface PaginationInfo {
   current_page: number;
@@ -139,9 +139,9 @@ const LectureList = () => {
         <button
           key="prev"
           onClick={() => handlePageChange(current - 1)}
-          className="px-3 py-2 mx-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          前へ
+          ←
         </button>
       );
     }
@@ -155,13 +155,13 @@ const LectureList = () => {
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className="px-3 py-2 mx-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
           1
         </button>
       );
       if (startPage > 2) {
-        pages.push(<span key="ellipsis1" className="px-2 py-2 text-gray-500">...</span>);
+        pages.push(<span key="ellipsis1" className="flex items-center justify-center w-10 h-10 text-gray-400 text-sm">...</span>);
       }
     }
 
@@ -170,9 +170,9 @@ const LectureList = () => {
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`px-3 py-2 mx-1 text-sm font-medium rounded-md ${i === current
-            ? 'text-white bg-green-600 border border-green-600'
-            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+          className={`flex items-center justify-center w-10 h-10 text-sm font-bold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${i === current
+            ? 'text-white bg-gradient-to-r from-[#1DBE67] to-[#15A85A] border border-[#1DBE67] shadow-[#1DBE67]/20'
+            : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
             }`}
         >
           {i}
@@ -182,13 +182,13 @@ const LectureList = () => {
 
     if (endPage < total) {
       if (endPage < total - 1) {
-        pages.push(<span key="ellipsis2" className="px-2 py-2 text-gray-500">...</span>);
+        pages.push(<span key="ellipsis2" className="flex items-center justify-center w-10 h-10 text-gray-400 text-sm">...</span>);
       }
       pages.push(
         <button
           key={total}
           onClick={() => handlePageChange(total)}
-          className="px-3 py-2 mx-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
           {total}
         </button>
@@ -201,16 +201,16 @@ const LectureList = () => {
         <button
           key="next"
           onClick={() => handlePageChange(current + 1)}
-          className="px-3 py-2 mx-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          次へ
+          →
         </button>
       );
     }
 
     return (
       <div className="flex justify-center items-center mt-8 mb-6">
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           {pages}
         </div>
       </div>
@@ -376,147 +376,179 @@ const LectureList = () => {
                     <div className="flex justify-center mb-4">
                       <button
                         onClick={() => setShowDetailedSearch(!showDetailedSearch)}
-                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        className={`flex items-center px-6 py-3 font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg ${showDetailedSearch
+                          ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-emerald-500/25'
+                          : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-gray-100 hover:to-gray-200 border border-gray-200'
+                          }`}
                       >
-                        <FaFilter className="mr-2" />
+                        <FaFilter className="mr-2 transform transition-transform duration-300" />
                         詳細検索
-                        {showDetailedSearch ? <FaChevronUp className="ml-2" /> : <FaChevronDown className="ml-2" />}
+                        <div className="ml-2 transform transition-transform duration-300">
+                          {showDetailedSearch ? <FaChevronUp /> : <FaChevronDown />}
+                        </div>
                       </button>
                     </div>
 
                     {/* 詳細検索セクション */}
                     {showDetailedSearch && (
-                      <div className="border-t border-gray-200 pt-6 mb-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {/* 授業を受けた年 */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">授業を受けた年</label>
-                            <select
-                              value={periodYear}
-                              onChange={(e) => setPeriodYear(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                              <option value="">選択してください</option>
-                              <option value="2025">2025</option>
-                              <option value="2024">2024</option>
-                              <option value="2023">2023</option>
-                              <option value="2022">2022</option>
-                              <option value="2021">2021</option>
-                              <option value="2020">2020</option>
-                              <option value="その他・不明">その他・不明</option>
-                            </select>
+                      <div className="border-t border-gradient-to-r from-transparent via-gray-200 to-transparent pt-8 mb-8 animate-fadeIn">
+                        <div className="bg-gradient-to-br from-white/95 via-white/98 to-emerald-50/30 backdrop-blur-sm rounded-2xl p-6 shadow-inner border border-emerald-100/50">
+                          <h3 className="text-lg font-bold text-gray-800 mb-6 text-center bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                            🔍 詳細検索オプション
+                          </h3>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* 授業を受けた年 */}
+                            <div className="group">
+                              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
+                                <FaCalendarAlt className="text-blue-500 mr-2 text-sm" />
+                                授業を受けた年
+                              </label>
+                              <select
+                                value={periodYear}
+                                onChange={(e) => setPeriodYear(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-blue-300 group-hover:shadow-md"
+                              >
+                                <option value="">選択してください</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                                <option value="その他・不明">その他・不明</option>
+                              </select>
+                            </div>
+
+                            {/* 開講期間 */}
+                            <div className="group">
+                              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
+                                <FaClock className="text-emerald-500 mr-2 text-sm" />
+                                開講期間
+                              </label>
+                              <select
+                                value={periodTerm}
+                                onChange={(e) => setPeriodTerm(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-emerald-300 group-hover:shadow-md"
+                              >
+                                <option value="">選択してください</option>
+                                <option value="1ターム">1ターム</option>
+                                <option value="2ターム">2ターム</option>
+                                <option value="1, 2ターム">1, 2ターム</option>
+                                <option value="3ターム">3ターム</option>
+                                <option value="4ターム">4ターム</option>
+                                <option value="3, 4ターム">3, 4ターム</option>
+                                <option value="通年">通年</option>
+                                <option value="集中">集中</option>
+                                <option value="その他・不明">その他・不明</option>
+                              </select>
+                            </div>
+
+                            {/* 教科書 */}
+                            <div className="group">
+                              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
+                                <FaBookOpen className="text-amber-500 mr-2 text-sm" />
+                                教科書
+                              </label>
+                              <select
+                                value={textbook}
+                                onChange={(e) => setTextbook(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-amber-300 group-hover:shadow-md"
+                              >
+                                <option value="">選択してください</option>
+                                <option value="必要">必要</option>
+                                <option value="不要">不要</option>
+                                <option value="その他・不明">その他・不明</option>
+                              </select>
+                            </div>
+
+                            {/* 出席確認 */}
+                            <div className="group">
+                              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
+                                <FaClipboardList className="text-rose-500 mr-2 text-sm" />
+                                出席確認
+                              </label>
+                              <select
+                                value={attendance}
+                                onChange={(e) => setAttendance(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-rose-300 group-hover:shadow-md"
+                              >
+                                <option value="">選択してください</option>
+                                <option value="毎回確認">毎回確認</option>
+                                <option value="たまに確認">たまに確認</option>
+                                <option value="なし">なし</option>
+                                <option value="その他・不明">その他・不明</option>
+                              </select>
+                            </div>
+
+                            {/* 採点方法 */}
+                            <div className="group">
+                              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
+                                <FaGraduationCap className="text-violet-500 mr-2 text-sm" />
+                                採点方法
+                              </label>
+                              <select
+                                value={gradingType}
+                                onChange={(e) => setGradingType(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-violet-300 group-hover:shadow-md"
+                              >
+                                <option value="">選択してください</option>
+                                <option value="テストのみ">テストのみ</option>
+                                <option value="レポートのみ">レポートのみ</option>
+                                <option value="テスト,レポート">テスト,レポート</option>
+                                <option value="その他・不明">その他・不明</option>
+                              </select>
+                            </div>
+
+                            {/* 単位取得難易度 */}
+                            <div className="group">
+                              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
+                                <FaChartLine className="text-orange-500 mr-2 text-sm" />
+                                単位取得難易度
+                              </label>
+                              <select
+                                value={contentDifficulty}
+                                onChange={(e) => setContentDifficulty(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-orange-300 group-hover:shadow-md"
+                              >
+                                <option value="">選択してください</option>
+                                <option value="とても楽">とても楽</option>
+                                <option value="楽">楽</option>
+                                <option value="普通">普通</option>
+                                <option value="難">難</option>
+                                <option value="とても難しい">とても難しい</option>
+                              </select>
+                            </div>
+
+                            {/* 内容充実度 */}
+                            <div className="group">
+                              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
+                                <FaStar className="text-yellow-500 mr-2 text-sm" />
+                                内容充実度
+                              </label>
+                              <select
+                                value={contentQuality}
+                                onChange={(e) => setContentQuality(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-yellow-300 group-hover:shadow-md"
+                              >
+                                <option value="">選択してください</option>
+                                <option value="とても良い">とても良い</option>
+                                <option value="良い">良い</option>
+                                <option value="普通">普通</option>
+                                <option value="悪い">悪い</option>
+                                <option value="とても悪い">とても悪い</option>
+                              </select>
+                            </div>
                           </div>
 
-                          {/* 開講期間 */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">開講期間</label>
-                            <select
-                              value={periodTerm}
-                              onChange={(e) => setPeriodTerm(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                          <div className="flex justify-center mt-8 space-x-4">
+                            <button
+                              onClick={clearDetailedSearch}
+                              className="px-6 py-2 text-sm font-medium text-gray-600 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-200"
                             >
-                              <option value="">選択してください</option>
-                              <option value="1ターム">1ターム</option>
-                              <option value="2ターム">2ターム</option>
-                              <option value="1, 2ターム">1, 2ターム</option>
-                              <option value="3ターム">3ターム</option>
-                              <option value="4ターム">4ターム</option>
-                              <option value="3, 4ターム">3, 4ターム</option>
-                              <option value="通年">通年</option>
-                              <option value="集中">集中</option>
-                              <option value="その他・不明">その他・不明</option>
-                            </select>
+                              🗑️ クリア
+                            </button>
                           </div>
-
-                          {/* 教科書 */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">教科書</label>
-                            <select
-                              value={textbook}
-                              onChange={(e) => setTextbook(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                              <option value="">選択してください</option>
-                              <option value="必要">必要</option>
-                              <option value="不要">不要</option>
-                              <option value="その他・不明">その他・不明</option>
-                            </select>
-                          </div>
-
-                          {/* 出席確認 */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">出席確認</label>
-                            <select
-                              value={attendance}
-                              onChange={(e) => setAttendance(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                              <option value="">選択してください</option>
-                              <option value="毎回確認">毎回確認</option>
-                              <option value="たまに確認">たまに確認</option>
-                              <option value="なし">なし</option>
-                              <option value="その他・不明">その他・不明</option>
-                            </select>
-                          </div>
-
-                          {/* 採点方法 */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">採点方法</label>
-                            <select
-                              value={gradingType}
-                              onChange={(e) => setGradingType(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                              <option value="">選択してください</option>
-                              <option value="テストのみ">テストのみ</option>
-                              <option value="レポートのみ">レポートのみ</option>
-                              <option value="テスト,レポート">テスト,レポート</option>
-                              <option value="その他・不明">その他・不明</option>
-                            </select>
-                          </div>
-
-                          {/* 単位取得難易度 */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">単位取得難易度</label>
-                            <select
-                              value={contentDifficulty}
-                              onChange={(e) => setContentDifficulty(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                              <option value="">選択してください</option>
-                              <option value="とても楽">とても楽</option>
-                              <option value="楽">楽</option>
-                              <option value="普通">普通</option>
-                              <option value="難">難</option>
-                              <option value="とても難しい">とても難しい</option>
-                            </select>
-                          </div>
-
-                          {/* 内容充実度 */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">内容充実度</label>
-                            <select
-                              value={contentQuality}
-                              onChange={(e) => setContentQuality(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                              <option value="">選択してください</option>
-                              <option value="とても良い">とても良い</option>
-                              <option value="良い">良い</option>
-                              <option value="普通">普通</option>
-                              <option value="悪い">悪い</option>
-                              <option value="とても悪い">とても悪い</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-center mt-4 space-x-4">
-                          <button
-                            onClick={clearDetailedSearch}
-                            className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-                          >
-                            クリア
-                          </button>
                         </div>
                       </div>
                     )}
@@ -525,10 +557,17 @@ const LectureList = () => {
                     <div className="flex justify-center">
                       <button
                         onClick={handleSearch}
-                        className="px-8 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        className="px-12 py-4 bg-gradient-to-r from-[#1DBE67] to-[#15A85A] text-white font-bold rounded-2xl hover:from-[#15A85A] hover:to-[#12A150] transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-[#1DBE67]/25 flex items-center justify-center relative overflow-hidden group"
                       >
-                        <FaSearch className="inline-block mr-2" />
-                        検索
+                        <FaSearch className="mr-3 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" />
+                        <span className="relative z-10">検索する</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#22C55E] to-[#1DBE67] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+
+                        {/* キラキラエフェクト */}
+                        <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100"></div>
+                        <div className="absolute bottom-3 left-3 w-1 h-1 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100 delay-100"></div>
+                        <div className="absolute top-1/2 left-1/2 w-0.5 h-0.5 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100 delay-200"></div>
                       </button>
                     </div>
                   </div>
