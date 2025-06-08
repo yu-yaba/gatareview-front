@@ -86,12 +86,33 @@ const LectureList = () => {
     const initialSearchWord = sessionStorage.getItem('searchWord') || '';
     const initialSelectedFaculty = sessionStorage.getItem('selectedFaculty') || '';
     const initialSortType = sessionStorage.getItem('sortType') || 'newest';
+    const initialCurrentPage = parseInt(sessionStorage.getItem('currentPage') || '1');
+
+    // 詳細検索パラメータの復元
+    const initialPeriodYear = sessionStorage.getItem('periodYear') || '';
+    const initialPeriodTerm = sessionStorage.getItem('periodTerm') || '';
+    const initialTextbook = sessionStorage.getItem('textbook') || '';
+    const initialAttendance = sessionStorage.getItem('attendance') || '';
+    const initialGradingType = sessionStorage.getItem('gradingType') || '';
+    const initialContentDifficulty = sessionStorage.getItem('contentDifficulty') || '';
+    const initialContentQuality = sessionStorage.getItem('contentQuality') || '';
+    const initialShowDetailedSearch = sessionStorage.getItem('showDetailedSearch') === 'true';
 
     setSearchWord(initialSearchWord);
     setSelectedFaculty(initialSelectedFaculty);
     setSortType(initialSortType);
 
-    fetchLectures(1);
+    // 詳細検索状態の復元
+    setPeriodYear(initialPeriodYear);
+    setPeriodTerm(initialPeriodTerm);
+    setTextbook(initialTextbook);
+    setAttendance(initialAttendance);
+    setGradingType(initialGradingType);
+    setContentDifficulty(initialContentDifficulty);
+    setContentQuality(initialContentQuality);
+    setShowDetailedSearch(initialShowDetailedSearch);
+
+    fetchLectures(initialCurrentPage);
   }, []);
 
   useEffect(() => {
@@ -99,6 +120,29 @@ const LectureList = () => {
     sessionStorage.setItem('selectedFaculty', selectedFaculty);
     sessionStorage.setItem('sortType', sortType);
   }, [searchWord, selectedFaculty, sortType]);
+
+  // 詳細検索パラメータの保存
+  useEffect(() => {
+    sessionStorage.setItem('periodYear', periodYear);
+    sessionStorage.setItem('periodTerm', periodTerm);
+    sessionStorage.setItem('textbook', textbook);
+    sessionStorage.setItem('attendance', attendance);
+    sessionStorage.setItem('gradingType', gradingType);
+    sessionStorage.setItem('contentDifficulty', contentDifficulty);
+    sessionStorage.setItem('contentQuality', contentQuality);
+  }, [periodYear, periodTerm, textbook, attendance, gradingType, contentDifficulty, contentQuality]);
+
+  // 詳細検索表示状態の保存
+  useEffect(() => {
+    sessionStorage.setItem('showDetailedSearch', showDetailedSearch.toString());
+  }, [showDetailedSearch]);
+
+  // 現在のページをsessionStorageに保存
+  useEffect(() => {
+    if (currentPage > 0) {
+      sessionStorage.setItem('currentPage', currentPage.toString());
+    }
+  }, [currentPage]);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -124,6 +168,15 @@ const LectureList = () => {
     setGradingType('');
     setContentDifficulty('');
     setContentQuality('');
+
+    // sessionStorageからも詳細検索パラメータを削除
+    sessionStorage.removeItem('periodYear');
+    sessionStorage.removeItem('periodTerm');
+    sessionStorage.removeItem('textbook');
+    sessionStorage.removeItem('attendance');
+    sessionStorage.removeItem('gradingType');
+    sessionStorage.removeItem('contentDifficulty');
+    sessionStorage.removeItem('contentQuality');
   };
 
   const renderPagination = () => {
