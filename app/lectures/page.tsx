@@ -133,44 +133,33 @@ const LectureList = () => {
     const current = paginationInfo.current_page;
     const total = paginationInfo.total_pages;
 
-    // 前のページ
-    if (current > 1) {
-      pages.push(
-        <button
-          key="prev"
-          onClick={() => handlePageChange(current - 1)}
-          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
-        >
-          ←
-        </button>
-      );
-    }
+    // ページ番号（表示範囲を狭く）
+    let startPage = Math.max(1, current - 1);
+    let endPage = Math.min(total, current + 1);
 
-    // ページ番号
-    let startPage = Math.max(1, current - 2);
-    let endPage = Math.min(total, current + 2);
-
+    // 最初のページが範囲外の場合のみ表示
     if (startPage > 1) {
       pages.push(
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="flex items-center justify-center w-16 h-12 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
           1
         </button>
       );
       if (startPage > 2) {
-        pages.push(<span key="ellipsis1" className="flex items-center justify-center w-10 h-10 text-gray-400 text-sm">...</span>);
+        pages.push(<span key="ellipsis1" className="flex items-center justify-center w-12 h-12 text-gray-400 text-sm">...</span>);
       }
     }
 
+    // メインのページ番号
     for (let i = startPage; i <= endPage; i++) {
       pages.push(
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`flex items-center justify-center w-10 h-10 text-sm font-bold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${i === current
+          className={`flex items-center justify-center w-16 h-12 text-sm font-bold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${i === current
             ? 'text-white bg-gradient-to-r from-[#1DBE67] to-[#15A85A] border border-[#1DBE67] shadow-[#1DBE67]/20'
             : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
             }`}
@@ -180,37 +169,25 @@ const LectureList = () => {
       );
     }
 
+    // 最後のページが範囲外の場合のみ表示
     if (endPage < total) {
       if (endPage < total - 1) {
-        pages.push(<span key="ellipsis2" className="flex items-center justify-center w-10 h-10 text-gray-400 text-sm">...</span>);
+        pages.push(<span key="ellipsis2" className="flex items-center justify-center w-12 h-12 text-gray-400 text-sm">...</span>);
       }
       pages.push(
         <button
           key={total}
           onClick={() => handlePageChange(total)}
-          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="flex items-center justify-center w-16 h-12 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
         >
           {total}
         </button>
       );
     }
 
-    // 次のページ
-    if (current < total) {
-      pages.push(
-        <button
-          key="next"
-          onClick={() => handlePageChange(current + 1)}
-          className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
-        >
-          →
-        </button>
-      );
-    }
-
     return (
-      <div className="flex justify-center items-center mt-8 mb-6">
-        <div className="flex items-center gap-2">
+      <div className="flex justify-center items-center mt-8 mb-6 px-4">
+        <div className="flex items-center gap-3 overflow-x-auto pb-2">
           {pages}
         </div>
       </div>
@@ -286,17 +263,18 @@ const LectureList = () => {
           <>
             {/* 検索・フィルターセクション */}
             <div className="flex justify-center mb-4 md:mb-8">
-              <div className="w-full max-w-6xl">
-                <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 lg:p-8 shadow-xl border border-green-100/50">
+              <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+                <div className="bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-5 lg:p-8 shadow-xl border border-green-100/50">
                   <div className="relative z-10">
-                    <div className="flex flex-wrap justify-center items-end gap-4 lg:gap-6 mb-6">
+                    {/* メイン検索フィルター */}
+                    <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 lg:gap-6 mb-6">
                       {/* 検索ボックス */}
-                      <div className="w-full md:w-8/12 lg:w-4/12">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap w-24">
+                      <div className="md:col-span-12 lg:col-span-5 xl:col-span-4">
+                        <div className="space-y-2 md:space-y-0 md:flex md:items-center md:gap-3">
+                          <label className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap md:w-20 lg:w-24">
                             <FaSearch className="mr-1 text-green-500" />
                             キーワード
-                          </span>
+                          </label>
                           <div className="relative flex-1">
                             <input
                               className="w-full px-4 py-3 text-sm lg:text-base border-4 border-green-400 rounded-xl text-gray-800 font-semibold focus:border-green-500 focus:outline-none transition-all duration-300 shadow-inner bg-white/90 backdrop-blur-sm hover:bg-white"
@@ -311,12 +289,12 @@ const LectureList = () => {
                       </div>
 
                       {/* 学部フィルター */}
-                      <div className="w-full md:w-5/12 lg:w-3/12">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap w-24">
+                      <div className="md:col-span-6 lg:col-span-3 xl:col-span-4">
+                        <div className="space-y-2 md:space-y-0 md:flex md:items-center md:gap-3">
+                          <label className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap md:w-12 lg:w-16">
                             <FaUniversity className="mr-1 text-purple-500" />
                             学部
-                          </span>
+                          </label>
                           <div className="relative flex-1">
                             <select
                               value={selectedFaculty}
@@ -346,12 +324,12 @@ const LectureList = () => {
                       </div>
 
                       {/* ソート */}
-                      <div className="w-full md:w-5/12 lg:w-3/12">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap w-24">
+                      <div className="md:col-span-6 lg:col-span-4 xl:col-span-4">
+                        <div className="space-y-2 md:space-y-0 md:flex md:items-center md:gap-3">
+                          <label className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap md:w-14 lg:w-16">
                             <FaStar className="mr-1 text-yellow-500" />
                             並び順
-                          </span>
+                          </label>
                           <div className="relative flex-1">
                             <select
                               onChange={handleSelectChange(setSortType)}
@@ -391,13 +369,13 @@ const LectureList = () => {
 
                     {/* 詳細検索セクション */}
                     {showDetailedSearch && (
-                      <div className="border-t border-gradient-to-r from-transparent via-gray-200 to-transparent pt-8 mb-8 animate-fadeIn">
-                        <div className="bg-gradient-to-br from-white/95 via-white/98 to-emerald-50/30 backdrop-blur-sm rounded-2xl p-6 shadow-inner border border-emerald-100/50">
-                          <h3 className="text-lg font-bold text-gray-800 mb-6 text-center bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                      <div className="border-t border-gradient-to-r from-transparent via-gray-200 to-transparent pt-6 lg:pt-8 mb-6 lg:mb-8 animate-fadeIn">
+                        <div className="bg-gradient-to-br from-white/95 via-white/98 to-emerald-50/30 backdrop-blur-sm rounded-2xl p-4 sm:p-5 lg:p-6 shadow-inner border border-emerald-100/50">
+                          <h3 className="text-lg font-bold text-gray-800 mb-4 lg:mb-6 text-center bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                             🔍 詳細検索オプション
                           </h3>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                             {/* 授業を受けた年 */}
                             <div className="group">
                               <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center">
