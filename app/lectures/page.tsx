@@ -6,6 +6,7 @@ import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 interface PaginationInfo {
   current_page: number;
@@ -20,6 +21,10 @@ interface LecturesResponse {
 }
 
 const LectureList = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [searchWord, setSearchWord] = useState('');
   const [selectedFaculty, setSelectedFaculty] = useState('');
   const [sortType, setSortType] = useState('newest');
@@ -44,6 +49,46 @@ const LectureList = () => {
     per_page: 20
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // URLパラメータを更新する関数
+  const updateURL = (params: Record<string, string | number>) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value && value !== '' && value !== 'newest' && value !== 1) {
+        current.set(key, value.toString());
+      } else {
+        current.delete(key);
+      }
+    });
+
+    const search = current.toString();
+    const query = search ? `?${search}` : '';
+    router.push(`${pathname}${query}`, { scroll: false });
+  };
+
+  // URLパラメータから状態を復元する関数
+  const getInitialState = () => {
+    // URLパラメータを優先、なければsessionStorage、最後にデフォルト値
+    const getParam = (key: string, defaultValue: string = '') => {
+      return searchParams.get(key) || sessionStorage.getItem(key) || defaultValue;
+    };
+
+    return {
+      searchWord: getParam('search'),
+      selectedFaculty: getParam('faculty'),
+      sortType: getParam('sort', 'newest'),
+      currentPage: parseInt(getParam('page', '1')),
+      periodYear: getParam('period_year'),
+      periodTerm: getParam('period_term'),
+      textbook: getParam('textbook'),
+      attendance: getParam('attendance'),
+      gradingType: getParam('grading_type'),
+      contentDifficulty: getParam('content_difficulty'),
+      contentQuality: getParam('content_quality'),
+      showDetailedSearch: getParam('detailed', 'false') === 'true' || sessionStorage.getItem('showDetailedSearch') === 'true'
+    };
+  };
 
   const fetchLectures = async (page = 1) => {
     try {
@@ -82,82 +127,102 @@ const LectureList = () => {
     }
   };
 
+  // 初期化用のuseEffect（ページ読み込み時とURL直接変更時のみ）
   useEffect(() => {
-    const initialSearchWord = sessionStorage.getItem('searchWord') || '';
-    const initialSelectedFaculty = sessionStorage.getItem('selectedFaculty') || '';
-    const initialSortType = sessionStorage.getItem('sortType') || 'newest';
-    const initialCurrentPage = parseInt(sessionStorage.getItem('currentPage') || '1');
+    const initialState = getInitialState();
+    setSearchWord(initialState.searchWord);
+    setSelectedFaculty(initialState.selectedFaculty);
+    setSortType(initialState.sortType);
+    setCurrentPage(initialState.currentPage);
+    setPeriodYear(initialState.periodYear);
+    setPeriodTerm(initialState.periodTerm);
+    setTextbook(initialState.textbook);
+    setAttendance(initialState.attendance);
+    setGradingType(initialState.gradingType);
+    setContentDifficulty(initialState.contentDifficulty);
+    setContentQuality(initialState.contentQuality);
+    setShowDetailedSearch(initialState.showDetailedSearch);
 
-    // 詳細検索パラメータの復元
-    const initialPeriodYear = sessionStorage.getItem('periodYear') || '';
-    const initialPeriodTerm = sessionStorage.getItem('periodTerm') || '';
-    const initialTextbook = sessionStorage.getItem('textbook') || '';
-    const initialAttendance = sessionStorage.getItem('attendance') || '';
-    const initialGradingType = sessionStorage.getItem('gradingType') || '';
-    const initialContentDifficulty = sessionStorage.getItem('contentDifficulty') || '';
-    const initialContentQuality = sessionStorage.getItem('contentQuality') || '';
-    const initialShowDetailedSearch = sessionStorage.getItem('showDetailedSearch') === 'true';
+    fetchLectures(initialState.currentPage);
+  }, []); // 依存配列を空にして初回のみ実行
 
-    setSearchWord(initialSearchWord);
-    setSelectedFaculty(initialSelectedFaculty);
-    setSortType(initialSortType);
+  // 検索ワード変更時のハンドラー
+  const handleSearchWordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchWord(value);
 
-    // 詳細検索状態の復元
-    setPeriodYear(initialPeriodYear);
-    setPeriodTerm(initialPeriodTerm);
-    setTextbook(initialTextbook);
-    setAttendance(initialAttendance);
-    setGradingType(initialGradingType);
-    setContentDifficulty(initialContentDifficulty);
-    setContentQuality(initialContentQuality);
-    setShowDetailedSearch(initialShowDetailedSearch);
+    // sessionStorageにバックアップ保存
+    sessionStorage.setItem('searchWord', value);
+  };
 
-    fetchLectures(initialCurrentPage);
-  }, []);
+  // 詳細検索表示切り替え時のハンドラー
+  const handleDetailedSearchToggle = () => {
+    const newValue = !showDetailedSearch;
+    setShowDetailedSearch(newValue);
 
-  useEffect(() => {
-    sessionStorage.setItem('searchWord', searchWord);
-    sessionStorage.setItem('selectedFaculty', selectedFaculty);
-    sessionStorage.setItem('sortType', sortType);
-  }, [searchWord, selectedFaculty, sortType]);
-
-  // 詳細検索パラメータの保存
-  useEffect(() => {
-    sessionStorage.setItem('periodYear', periodYear);
-    sessionStorage.setItem('periodTerm', periodTerm);
-    sessionStorage.setItem('textbook', textbook);
-    sessionStorage.setItem('attendance', attendance);
-    sessionStorage.setItem('gradingType', gradingType);
-    sessionStorage.setItem('contentDifficulty', contentDifficulty);
-    sessionStorage.setItem('contentQuality', contentQuality);
-  }, [periodYear, periodTerm, textbook, attendance, gradingType, contentDifficulty, contentQuality]);
-
-  // 詳細検索表示状態の保存
-  useEffect(() => {
-    sessionStorage.setItem('showDetailedSearch', showDetailedSearch.toString());
-  }, [showDetailedSearch]);
-
-  // 現在のページをsessionStorageに保存
-  useEffect(() => {
-    if (currentPage > 0) {
-      sessionStorage.setItem('currentPage', currentPage.toString());
-    }
-  }, [currentPage]);
+    // sessionStorageに保存（URLは検索実行時に更新）
+    sessionStorage.setItem('showDetailedSearch', newValue.toString());
+  };
 
   const handleSearch = () => {
     setCurrentPage(1);
+
+    // 検索実行後は詳細検索エリアを閉じる（結果表示に集中できるよう）
+    setShowDetailedSearch(false);
+    sessionStorage.setItem('showDetailedSearch', 'false');
+
+    // URLパラメータを更新
+    updateURL({
+      search: searchWord,
+      faculty: selectedFaculty,
+      sort: sortType,
+      page: 1,
+      period_year: periodYear,
+      period_term: periodTerm,
+      textbook: textbook,
+      attendance: attendance,
+      grading_type: gradingType,
+      content_difficulty: contentDifficulty,
+      content_quality: contentQuality,
+      detailed: 'false' // 詳細検索は閉じた状態でURLに反映
+    });
+
     fetchLectures(1);
   };
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= paginationInfo.total_pages) {
+      setCurrentPage(page);
+
+      // URLのページ番号を更新
+      updateURL({
+        search: searchWord,
+        faculty: selectedFaculty,
+        sort: sortType,
+        page: page,
+        period_year: periodYear,
+        period_term: periodTerm,
+        textbook: textbook,
+        attendance: attendance,
+        grading_type: gradingType,
+        content_difficulty: contentDifficulty,
+        content_quality: contentQuality,
+        detailed: showDetailedSearch.toString()
+      });
+
       fetchLectures(page);
     }
   };
 
-  const handleSelectChange = (setStateFunc: React.Dispatch<React.SetStateAction<string>>) =>
+  const handleSelectChange = (setStateFunc: React.Dispatch<React.SetStateAction<string>>, key: string) =>
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setStateFunc(e.target.value);
+      const value = e.target.value;
+      setStateFunc(value);
+
+      // sessionStorageにもバックアップ保存
+      sessionStorage.setItem(key === 'search' ? 'searchWord' :
+        key === 'faculty' ? 'selectedFaculty' :
+          key === 'sort' ? 'sortType' : key, value);
     };
 
   const clearDetailedSearch = () => {
@@ -169,7 +234,7 @@ const LectureList = () => {
     setContentDifficulty('');
     setContentQuality('');
 
-    // sessionStorageからも詳細検索パラメータを削除
+    // sessionStorageからも詳細検索パラメータを削除（URLは検索実行時に更新）
     sessionStorage.removeItem('periodYear');
     sessionStorage.removeItem('periodTerm');
     sessionStorage.removeItem('textbook');
@@ -335,7 +400,7 @@ const LectureList = () => {
                               type="text"
                               ref={searchInput}
                               value={searchWord}
-                              onChange={(e) => setSearchWord(e.target.value)}
+                              onChange={handleSearchWordChange}
                             />
                           </div>
                         </div>
@@ -351,7 +416,7 @@ const LectureList = () => {
                           <div className="relative flex-1">
                             <select
                               value={selectedFaculty}
-                              onChange={handleSelectChange(setSelectedFaculty)}
+                              onChange={handleSelectChange(setSelectedFaculty, 'faculty')}
                               className="block appearance-none w-full px-4 py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
                             >
                               <option value="">全学部</option>
@@ -385,7 +450,7 @@ const LectureList = () => {
                           </label>
                           <div className="relative flex-1">
                             <select
-                              onChange={handleSelectChange(setSortType)}
+                              onChange={handleSelectChange(setSortType, 'sort')}
                               value={sortType}
                               className="block appearance-none w-full px-4 py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
                             >
@@ -406,7 +471,7 @@ const LectureList = () => {
                     {/* 詳細検索ボタン */}
                     <div className="flex justify-center mb-4">
                       <button
-                        onClick={() => setShowDetailedSearch(!showDetailedSearch)}
+                        onClick={handleDetailedSearchToggle}
                         className={`flex items-center px-6 py-3 font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg ${showDetailedSearch
                           ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-emerald-500/25'
                           : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-gray-100 hover:to-gray-200 border border-gray-200'
@@ -437,7 +502,7 @@ const LectureList = () => {
                               </label>
                               <select
                                 value={periodYear}
-                                onChange={(e) => setPeriodYear(e.target.value)}
+                                onChange={handleSelectChange(setPeriodYear, 'period_year')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-blue-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
@@ -459,7 +524,7 @@ const LectureList = () => {
                               </label>
                               <select
                                 value={periodTerm}
-                                onChange={(e) => setPeriodTerm(e.target.value)}
+                                onChange={handleSelectChange(setPeriodTerm, 'period_term')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-emerald-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
@@ -483,7 +548,7 @@ const LectureList = () => {
                               </label>
                               <select
                                 value={textbook}
-                                onChange={(e) => setTextbook(e.target.value)}
+                                onChange={handleSelectChange(setTextbook, 'textbook')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-amber-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
@@ -501,7 +566,7 @@ const LectureList = () => {
                               </label>
                               <select
                                 value={attendance}
-                                onChange={(e) => setAttendance(e.target.value)}
+                                onChange={handleSelectChange(setAttendance, 'attendance')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-rose-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
@@ -520,7 +585,7 @@ const LectureList = () => {
                               </label>
                               <select
                                 value={gradingType}
-                                onChange={(e) => setGradingType(e.target.value)}
+                                onChange={handleSelectChange(setGradingType, 'grading_type')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-violet-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
@@ -539,7 +604,7 @@ const LectureList = () => {
                               </label>
                               <select
                                 value={contentDifficulty}
-                                onChange={(e) => setContentDifficulty(e.target.value)}
+                                onChange={handleSelectChange(setContentDifficulty, 'content_difficulty')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-orange-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
@@ -559,7 +624,7 @@ const LectureList = () => {
                               </label>
                               <select
                                 value={contentQuality}
-                                onChange={(e) => setContentQuality(e.target.value)}
+                                onChange={handleSelectChange(setContentQuality, 'content_quality')}
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-yellow-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
