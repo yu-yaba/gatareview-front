@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Loading from 'react-loading';
 import { debounce } from 'lodash'; // debounce をインポート
-import { FaArrowLeft, FaEdit, FaStar, FaHeart, FaBookOpen, FaUser, FaUniversity } from 'react-icons/fa';
+import { FaArrowLeft, FaEdit, FaStar, FaHeart, FaBookOpen, FaUser, FaUniversity, FaArrowRight, FaComments } from 'react-icons/fa';
 
 declare global {
   interface Window {
@@ -349,23 +349,48 @@ const NewReviewPage = () => {
           ) : (
             <div className="w-full flex flex-col items-center">
               {filteredLectures.length > 0 ? (
-                filteredLectures.map((lecture) => (
-                  <button
-                    key={lecture.id}
-                    onClick={() => handleLectureSelect(lecture)}
-                    className='m-1 p-2 rounded-xl bg-white border border-1 shadow-md inline-block w-10/12 md:w-8/12 2xl:w-7/12 hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition duration-150'
-                  >
-                    <div className=' flex items-center flex-wrap'>
-                      <h2 className="inline-block w-full md:w-5/12 font-bold text-2xl my-1 text-center">{lecture.title}</h2>
-                      <div className='flex flex-wrap w-full md:w-7/12'>
-                        <div className="flex flex-row w-full justify-center">
-                          <p className="mx-2 my-3">{lecture.lecturer}</p>
-                          <p className="mx-2 my-3">{lecture.faculty}</p>
+                <div className="w-full max-w-6xl space-y-4">
+                  {filteredLectures.map((lecture) => (
+                    <button
+                      key={lecture.id}
+                      onClick={() => handleLectureSelect(lecture)}
+                      className="w-full bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-lg border border-green-100/50 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 relative overflow-hidden group"
+                    >
+                      {/* ホバーエフェクト */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+
+                      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-4">
+                        {/* 講義タイトル */}
+                        <div className="flex-1 lg:flex-[2]">
+                          <div className="flex items-center justify-center lg:justify-start mb-2">
+                            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 text-center lg:text-left leading-tight group-hover:text-green-600 transition-colors duration-300">
+                              {lecture.title}
+                            </h2>
+                          </div>
+                        </div>
+
+                        {/* 講義詳細情報 */}
+                        <div className="flex-1">
+                          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 justify-center lg:justify-start">
+                            <div className="flex items-center justify-center sm:justify-start lg:justify-start">
+                              <FaUser className="text-blue-500 mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
+                              <span className="text-gray-700 group-hover:text-blue-600 transition-colors duration-300">
+                                {lecture.lecturer}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-center sm:justify-start lg:justify-start">
+                              <FaUniversity className="text-purple-500 mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
+                              <span className="text-gray-700 group-hover:text-purple-600 transition-colors duration-300">
+                                {lecture.faculty}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                ))
+                    </button>
+                  ))}
+                </div>
               ) : (
                 <p className="text-gray-500 mt-4">該当する授業が見つかりません。</p>
               )}
