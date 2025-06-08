@@ -9,11 +9,11 @@ export default function Header() {
             <img src="/white-title.png" alt="title" className="w-[160px] md:w-[40%] md:h-[80%]" />
           </div>
         </Link>
-        <Link href="/reviews/new" className="mr-7 md:mr-10">
+        {/* <Link href="/reviews/new" className="mr-7 md:mr-10">
           <button className="bg-white text-green-500 font-bold py-2 px-4 rounded-md shadow-md hover:scale-110 transition-transform duration-200 ease-in-out">
             レビューする
           </button>
-        </Link>
+        </Link> */}
       </header>
     </>
   )
