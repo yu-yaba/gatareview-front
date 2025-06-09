@@ -455,112 +455,134 @@ const LectureList = () => {
               <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
                 <div className="bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-5 lg:p-8 shadow-xl border border-green-100/50">
                   <div className="relative z-10">
-                    {/* メイン検索フィルター */}
-                    <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 lg:gap-6 mb-6">
-                      {/* 検索ボックス */}
-                      <div className="md:col-span-12 lg:col-span-5 xl:col-span-4">
-                        <div className="space-y-2 md:space-y-0 md:flex md:items-center md:gap-3">
-                          <label htmlFor="search-input" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap md:w-20 lg:w-24">
-                            <FaSearch className="mr-1 text-green-500" aria-hidden="true" />
-                            キーワード
-                          </label>
-                          <div className="relative flex-1">
-                            <input
-                              id="search-input"
-                              className="w-full px-4 py-3 text-sm lg:text-base border-4 border-green-400 rounded-xl text-gray-800 font-semibold focus:border-green-500 focus:outline-none transition-all duration-300 shadow-inner bg-white/90 backdrop-blur-sm hover:bg-white"
-                              placeholder="授業・教授"
-                              type="text"
-                              ref={searchInput}
-                              value={tempSearchWord}
-                              onChange={handleSearchWordChange}
-                              aria-describedby="search-help"
-                            />
-                            <p id="search-help" className="sr-only">授業名または教授名で検索できます</p>
+                    {/* 768px以上では横並び、モバイルでは縦並び */}
+                    <div className="flex flex-col md:flex-row md:gap-8 lg:gap-12">
+                      {/* 左側：メイン検索フィルター */}
+                      <div className="flex-1 mb-6 md:mb-0">
+                        <div className="space-y-3 md:space-y-4">
+                          {/* 検索ボックス - 768px以上では全幅利用 */}
+                          <div className="w-full">
+                            <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                              <label htmlFor="search-input" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-[3] sm:w-24 sm:flex-none md:w-20 lg:w-24">
+                                <FaSearch className="mr-1 text-green-500" aria-hidden="true" />
+                                <span className="truncate">キーワード</span>
+                              </label>
+                              <div className="relative flex-[7] sm:flex-1">
+                                <input
+                                  id="search-input"
+                                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base border-4 border-green-400 rounded-xl text-gray-800 font-semibold focus:border-green-500 focus:outline-none transition-all duration-300 shadow-inner bg-white/90 backdrop-blur-sm hover:bg-white"
+                                  placeholder="授業・教授"
+                                  type="text"
+                                  ref={searchInput}
+                                  value={tempSearchWord}
+                                  onChange={handleSearchWordChange}
+                                  aria-describedby="search-help"
+                                />
+                                <p id="search-help" className="sr-only">授業名または教授名で検索できます</p>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
 
-                      {/* 学部フィルター */}
-                      <div className="md:col-span-6 lg:col-span-3 xl:col-span-4">
-                        <div className="space-y-2 md:space-y-0 md:flex md:items-center md:gap-3">
-                          <label htmlFor="faculty-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap md:w-12 lg:w-16">
-                            <FaUniversity className="mr-1 text-purple-500" aria-hidden="true" />
-                            学部
-                          </label>
-                          <div className="relative flex-1">
-                            <select
-                              id="faculty-select"
-                              value={tempSelectedFaculty}
-                              onChange={handleSelectChange(setTempSelectedFaculty)}
-                              className="block appearance-none w-full px-4 py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
-                            >
-                              <option value="">全学部</option>
-                              <option value="G:教養科目">G:教養科目</option>
-                              <option value="H:人文学部">H:人文学部</option>
-                              <option value="K:教育学部">K:教育学部</option>
-                              <option value="L:法学部">L:法学部</option>
-                              <option value="E:経済科学部">E:経済科学部</option>
-                              <option value="S:理学部">S:理学部</option>
-                              <option value="M:医学部">M:医学部</option>
-                              <option value="D:歯学部">D:歯学部</option>
-                              <option value="T:工学部">T:工学部</option>
-                              <option value="A:農学部">A:農学部</option>
-                              <option value="X:創生学部">X:創生学部</option>
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-green-600">
-                              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                              </svg>
+                          {/* 学部フィルターと並び順 - レスポンシブグリッド */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
+                            {/* 学部フィルター */}
+                            <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                              <label htmlFor="faculty-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-[3] sm:w-16 sm:flex-none md:w-12 lg:w-16">
+                                <FaUniversity className="mr-1 text-purple-500" aria-hidden="true" />
+                                <span className="truncate">学部</span>
+                              </label>
+                              <div className="relative flex-[7] sm:flex-1">
+                                <select
+                                  id="faculty-select"
+                                  value={tempSelectedFaculty}
+                                  onChange={handleSelectChange(setTempSelectedFaculty)}
+                                  className="block appearance-none w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
+                                >
+                                  <option value="">全学部</option>
+                                  <option value="G:教養科目">G:教養科目</option>
+                                  <option value="H:人文学部">H:人文学部</option>
+                                  <option value="K:教育学部">K:教育学部</option>
+                                  <option value="L:法学部">L:法学部</option>
+                                  <option value="E:経済科学部">E:経済科学部</option>
+                                  <option value="S:理学部">S:理学部</option>
+                                  <option value="M:医学部">M:医学部</option>
+                                  <option value="D:歯学部">D:歯学部</option>
+                                  <option value="T:工学部">T:工学部</option>
+                                  <option value="A:農学部">A:農学部</option>
+                                  <option value="X:創生学部">X:創生学部</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-green-600">
+                                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* ソート */}
+                            <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                              <label htmlFor="sort-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-[3] sm:w-16 sm:flex-none md:w-14 lg:w-16">
+                                <FaStar className="mr-1 text-yellow-500" aria-hidden="true" />
+                                <span className="truncate">並び順</span>
+                              </label>
+                              <div className="relative flex-[7] sm:flex-1">
+                                <select
+                                  id="sort-select"
+                                  onChange={handleSelectChange(setTempSortType)}
+                                  value={tempSortType}
+                                  className="block appearance-none w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
+                                >
+                                  <option value="newest">最新レビュー順</option>
+                                  <option value="highestRating">評価の高い順</option>
+                                  <option value="mostReviewed">レビュー数の多い順</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-green-600">
+                                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                  </svg>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* ソート */}
-                      <div className="md:col-span-6 lg:col-span-4 xl:col-span-4">
-                        <div className="space-y-2 md:space-y-0 md:flex md:items-center md:gap-3">
-                          <label htmlFor="sort-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap md:w-14 lg:w-16">
-                            <FaStar className="mr-1 text-yellow-500" aria-hidden="true" />
-                            並び順
-                          </label>
-                          <div className="relative flex-1">
-                            <select
-                              id="sort-select"
-                              onChange={handleSelectChange(setTempSortType)}
-                              value={tempSortType}
-                              className="block appearance-none w-full px-4 py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
-                            >
-                              <option value="newest">新しい順</option>
-                              <option value="highestRating">評価が高い順</option>
-                              <option value="mostReviewed">レビュー件数順</option>
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-green-600">
-                              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                              </svg>
-                            </div>
+                      {/* 右側：ボタンセクション（768px以上で固定幅） */}
+                      <div className="flex flex-col items-center justify-center space-y-4 md:w-48 lg:w-52 xl:w-56">
+                        {/* 詳細検索ボタン */}
+                        <button
+                          onClick={handleDetailedSearchToggle}
+                          className={`flex items-center px-6 py-3 font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-full justify-center ${showDetailedSearch
+                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-emerald-500/25'
+                            : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-gray-100 hover:to-gray-200 border border-gray-200'
+                            }`}
+                          aria-expanded={showDetailedSearch}
+                          aria-controls="detailed-search-panel"
+                        >
+                          <FaFilter className="mr-2 transform transition-transform duration-300" aria-hidden="true" />
+                          詳細検索
+                          <div className="ml-2 transform transition-transform duration-300">
+                            {showDetailedSearch ? <FaChevronUp aria-hidden="true" /> : <FaChevronDown aria-hidden="true" />}
                           </div>
-                        </div>
-                      </div>
-                    </div>
+                        </button>
 
-                    {/* 詳細検索ボタン */}
-                    <div className="flex justify-center mb-4">
-                      <button
-                        onClick={handleDetailedSearchToggle}
-                        className={`flex items-center px-6 py-3 font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg ${showDetailedSearch
-                          ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-emerald-500/25'
-                          : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-gray-100 hover:to-gray-200 border border-gray-200'
-                          }`}
-                        aria-expanded={showDetailedSearch}
-                        aria-controls="detailed-search-panel"
-                      >
-                        <FaFilter className="mr-2 transform transition-transform duration-300" aria-hidden="true" />
-                        詳細検索
-                        <div className="ml-2 transform transition-transform duration-300">
-                          {showDetailedSearch ? <FaChevronUp aria-hidden="true" /> : <FaChevronDown aria-hidden="true" />}
-                        </div>
-                      </button>
+                        {/* 検索ボタン */}
+                        <button
+                          onClick={handleSearch}
+                          className="w-full px-12 py-4 bg-gradient-to-r from-[#1DBE67] to-[#15A85A] text-white font-bold rounded-2xl hover:from-[#15A85A] hover:to-[#12A150] transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-[#1DBE67]/25 flex items-center justify-center relative overflow-hidden group"
+                          aria-label="現在の検索条件で授業を検索"
+                        >
+                          <FaSearch className="mr-3 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" aria-hidden="true" />
+                          <span className="relative z-10">検索する</span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-[#22C55E] to-[#1DBE67] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+
+                          {/* キラキラエフェクト */}
+                          <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100"></div>
+                          <div className="absolute bottom-3 left-3 w-1 h-1 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100 delay-100"></div>
+                          <div className="absolute top-1/2 left-1/2 w-0.5 h-0.5 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100 delay-200"></div>
+                        </button>
+                      </div>
                     </div>
 
                     {/* 詳細検索セクション */}
@@ -734,25 +756,6 @@ const LectureList = () => {
                         </div>
                       </div>
                     )}
-
-                    {/* 検索ボタン */}
-                    <div className="flex justify-center">
-                      <button
-                        onClick={handleSearch}
-                        className="px-12 py-4 bg-gradient-to-r from-[#1DBE67] to-[#15A85A] text-white font-bold rounded-2xl hover:from-[#15A85A] hover:to-[#12A150] transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-[#1DBE67]/25 flex items-center justify-center relative overflow-hidden group"
-                        aria-label="現在の検索条件で授業を検索"
-                      >
-                        <FaSearch className="mr-3 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" aria-hidden="true" />
-                        <span className="relative z-10">検索する</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#22C55E] to-[#1DBE67] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
-
-                        {/* キラキラエフェクト */}
-                        <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100"></div>
-                        <div className="absolute bottom-3 left-3 w-1 h-1 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100 delay-100"></div>
-                        <div className="absolute top-1/2 left-1/2 w-0.5 h-0.5 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100 delay-200"></div>
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
