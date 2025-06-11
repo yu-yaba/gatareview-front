@@ -596,6 +596,7 @@ export default function Page() {
               <button
                 onClick={handleNavigateToReviewCreate}
                 className="px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl flex items-center justify-center animate-card-hover-lift relative overflow-hidden group"
+                disabled={true}
               >
                 <FaHeart className="mr-2 transform group-hover:scale-110 transition-transform duration-500" />
                 <span className="relative z-10">レビューを投稿する</span>
