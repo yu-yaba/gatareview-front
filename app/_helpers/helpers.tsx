@@ -51,40 +51,14 @@ export const validateReview = (review: ReviewData) => {
     content: ""
   }; // 空のオブジェクトを作成し、エラーがある場合にエラーメッセージを格納する
 
-  if (review.period_year === '') {
-    ReviewErrors.period_year = '授業を受講した年を入力してください';
-  }
+  // ReactStars（rating）は必須 - デフォルトで3に設定されているので、特別なバリデーションは不要
 
-  if (review.period_term === '') {
-    ReviewErrors.period_term = '授業を受講したタームを入力してください';
-  }
-
-  if (review.textbook === '') {
-    ReviewErrors.textbook = '教科書の有無を入力してください';
-  }
-
-  if (review.attendance === '') {
-    ReviewErrors.attendance = '出席確認の有無を入力してください';
-  }
-
-  if (review.grading_type === '') {
-    ReviewErrors.grading_type = '採点方法を入力してください';
-  }
-
-  if (review.content_difficulty === '') {
-    ReviewErrors.content_difficulty = '単位取得の難易度を入力してください';
-  }
-
-  if (review.content_quality === '') {
-    ReviewErrors.content_quality = '内容の充実度を入力してください';
-  }
-
+  // コメントのみ必須
   if (review.content === '') {
     ReviewErrors.content = 'コメントを150文字以内で入力してください';
   } else if (review.content.length > 150) {
     ReviewErrors.content = 'コメントは150文字以内で入力してください'
   }
-
 
   return ReviewErrors;
 };

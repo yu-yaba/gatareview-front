@@ -235,7 +235,12 @@ const NewReviewPage = () => {
   const SelectField = ({ id, name, label, options }: SelectFieldConfig) => (
     <div className="mb-6 flex flex-col">
       <label className="block text-bold">
-        <p className="font-bold mb-3 text-gray-800">{label}</p>
+        <p className="font-bold mb-3 text-gray-800">
+          {label}
+          <span className="ml-2 text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            任意
+          </span>
+        </p>
         <div className="relative">
           <select
             id={id}
@@ -438,7 +443,12 @@ const NewReviewPage = () => {
             {/* 評価 */}
             <div className="mb-6 flex flex-col">
               <label htmlFor="rating" className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">評価</p>
+                <p className="font-bold mb-3 text-gray-800">
+                  評価
+                  <span className="ml-2 text-sm font-normal text-red-500 bg-red-50 px-2 py-1 rounded-full">
+                    必須
+                  </span>
+                </p>
                 <div className="p-4 w-full border-2 rounded-xl shadow-lg bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm">
                   <ReactStars onChange={starOnChange} size={25} value={ratingValue} edit={true} />
                 </div>
@@ -459,7 +469,12 @@ const NewReviewPage = () => {
             {/* コメント */}
             <div className="mb-8 flex flex-col">
               <label htmlFor="content" className="block text-bold">
-                <p className="font-bold mb-3 text-gray-800">コメント (任意)</p>
+                <p className="font-bold mb-3 text-gray-800">
+                  コメント
+                  <span className="ml-2 text-sm font-normal text-red-500 bg-red-50 px-2 py-1 rounded-full">
+                    必須
+                  </span>
+                </p>
                 <textarea
                   cols={30}
                   rows={5}

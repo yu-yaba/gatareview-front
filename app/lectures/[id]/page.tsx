@@ -152,54 +152,70 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       />
                       <span className="text-lg font-bold text-yellow-500">{review.rating}</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <FaCalendar className="mr-1" />
-                      {review.period_year}年 {review.period_term}
-                    </div>
+                    {(review.period_year || review.period_term) && (
+                      <div className="flex items-center text-sm text-gray-500">
+                        <FaCalendar className="mr-1" />
+                        {review.period_year && `${review.period_year}年`}
+                        {review.period_year && review.period_term && ' '}
+                        {review.period_term}
+                      </div>
+                    )}
                   </div>
 
                   {/* レビュー詳細情報 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <FaBookOpen className="text-blue-500 flex-shrink-0" />
-                        <div>
-                          <span className="text-sm text-gray-500 block">教科書</span>
-                          <span className="font-medium text-gray-800">{review.textbook}</span>
-                        </div>
+                  {(review.textbook || review.attendance || review.grading_type || review.content_difficulty || review.content_quality) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <div className="space-y-3">
+                        {review.textbook && (
+                          <div className="flex items-center gap-3">
+                            <FaBookOpen className="text-blue-500 flex-shrink-0" />
+                            <div>
+                              <span className="text-sm text-gray-500 block">教科書</span>
+                              <span className="font-medium text-gray-800">{review.textbook}</span>
+                            </div>
+                          </div>
+                        )}
+                        {review.attendance && (
+                          <div className="flex items-center gap-3">
+                            <FaClipboardList className="text-green-500 flex-shrink-0" />
+                            <div>
+                              <span className="text-sm text-gray-500 block">出席確認</span>
+                              <span className="font-medium text-gray-800">{review.attendance}</span>
+                            </div>
+                          </div>
+                        )}
+                        {review.grading_type && (
+                          <div className="flex items-center gap-3">
+                            <FaGraduationCap className="text-purple-500 flex-shrink-0" />
+                            <div>
+                              <span className="text-sm text-gray-500 block">採点方法</span>
+                              <span className="font-medium text-gray-800">{review.grading_type}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-3">
-                        <FaClipboardList className="text-green-500 flex-shrink-0" />
-                        <div>
-                          <span className="text-sm text-gray-500 block">出席確認</span>
-                          <span className="font-medium text-gray-800">{review.attendance}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <FaGraduationCap className="text-purple-500 flex-shrink-0" />
-                        <div>
-                          <span className="text-sm text-gray-500 block">採点方法</span>
-                          <span className="font-medium text-gray-800">{review.grading_type}</span>
-                        </div>
+                      <div className="space-y-3">
+                        {review.content_difficulty && (
+                          <div className="flex items-center gap-3">
+                            <FaChartLine className="text-red-500 flex-shrink-0" />
+                            <div>
+                              <span className="text-sm text-gray-500 block">難易度</span>
+                              <span className="font-medium text-gray-800">{review.content_difficulty}</span>
+                            </div>
+                          </div>
+                        )}
+                        {review.content_quality && (
+                          <div className="flex items-center gap-3">
+                            <FaStar className="text-yellow-500 flex-shrink-0" />
+                            <div>
+                              <span className="text-sm text-gray-500 block">内容の質</span>
+                              <span className="font-medium text-gray-800">{review.content_quality}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <FaChartLine className="text-red-500 flex-shrink-0" />
-                        <div>
-                          <span className="text-sm text-gray-500 block">難易度</span>
-                          <span className="font-medium text-gray-800">{review.content_difficulty}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <FaStar className="text-yellow-500 flex-shrink-0" />
-                        <div>
-                          <span className="text-sm text-gray-500 block">内容の質</span>
-                          <span className="font-medium text-gray-800">{review.content_quality}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  )}
 
                   {/* コメントセクション */}
                   {review.content && (
