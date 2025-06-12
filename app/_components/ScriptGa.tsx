@@ -2,27 +2,33 @@
 import Script from "next/script";
 
 const ScriptGa = () => {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+
+  if (!gaId) {
+    return null;
+  }
+
   return (
     <>
       <Script
         defer
         id="ga-connect"
-        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
       />
       <Script
         defer
         id="ga-track"
-        dangerouslySetInnerHTML={{
-          __html: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag() {
-          dataLayer.push(arguments);
-        }
-        gtag("js", new Date());
-        gtag("config", '${process.env.NEXT_PUBLIC_GA_ID}');
-        `,
-        }}
-      />
+        strategy="afterInteractive"
+      >
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag("js", new Date());
+          gtag("config", '${gaId}');
+        `}
+      </Script>
     </>
   );
 };
