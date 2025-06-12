@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# 優先的にクロールしてほしいページ
+Allow: /lectures
+Allow: /reviews
+Allow: /faq
+Allow: /welcome
+
+# クロールを制限するページ
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: *.json$
+
+# サイトマップの場所を指定
+Sitemap: https://gatareview.com/sitemap.xml
+
+# クロール頻度の調整
+Crawl-delay: 1 
