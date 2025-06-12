@@ -18,9 +18,6 @@ export default function NotFound() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Dynamic Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50">
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"></div>
-
         {/* Animated Gradient Overlay */}
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-green-100/40 via-transparent to-green-100/40 animate-pulse-slow"></div>
 
