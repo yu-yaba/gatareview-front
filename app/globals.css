@@ -887,3 +887,124 @@ _:future,
 .animate-pulse-slow {
   animation: pulse-slow 4s ease-in-out infinite;
 }
+
+/* Google AdSense スタイル */
+.adsense-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.adsense-container:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.adsbygoogle {
+  display: block !important;
+  min-height: 100px;
+  background-color: transparent;
+}
+
+/* 広告プレースホルダー */
+.ad-placeholder {
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.ad-placeholder:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #28a745;
+}
+
+.ad-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  background-color: #28a745;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: pulse-gentle 2s infinite;
+}
+
+/* 広告セクション */
+.ad-section {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 0;
+}
+
+/* 広告エラー表示 */
+.ad-error {
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .adsense-container {
+    margin: 1rem 0;
+  }
+  
+  .ad-section {
+    padding: 0.5rem 0;
+  }
+  
+  .ad-placeholder {
+    min-height: 200px !important;
+    padding: 1.5rem !important;
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .adsense-container {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .ad-section {
+    background-color: #1a1a1a;
+    border-color: #333;
+  }
+  
+  .ad-error {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ccc;
+  }
+  
+  .ad-placeholder {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #ccc !important;
+  }
+  
+  .ad-placeholder:hover {
+    border-color: #28a745 !important;
+    background-color: #343a40 !important;
+  }
+}
+
+/* アクセシビリティ */
+.ad-section[aria-label] {
+  position: relative;
+}
+
+.ad-section[aria-label]::before {
+  content: attr(aria-label);
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
