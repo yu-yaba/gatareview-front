@@ -5,7 +5,9 @@ import Header from './header'
 import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
 import ScriptGa from './_components/ScriptGa'
-import Script from 'next/script';
+import GoogleAdsense from './components/GoogleAdsense';
+import GoogleAdsenseScript from './components/GoogleAdsenseScript';
+import { ADSENSE_CONFIG } from './config/adsense';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -122,6 +124,8 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <ScriptGa />
+        <GoogleAdsenseScript />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -284,11 +288,32 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Header />
-        <ToastContainer />
-        <main>
-          {children}
+        <main className="min-h-screen">
+          <div className="">
+            {children}
+          </div>
         </main>
+
+        {/* フッター広告 */}
+        {ADSENSE_CONFIG.DISPLAY_SETTINGS.ENABLED && (
+          <section className="ad-section" aria-label="広告">
+            <div className="px-4">
+              <GoogleAdsense
+                adSlot={ADSENSE_CONFIG.AD_SLOTS.FOOTER}
+                adClient={ADSENSE_CONFIG.CLIENT_ID}
+                style={{
+                  margin: '2rem 0',
+                  textAlign: 'center' as const,
+                }}
+                className="footer-ad"
+                responsive={ADSENSE_CONFIG.DISPLAY_SETTINGS.RESPONSIVE}
+              />
+            </div>
+          </section>
+        )}
+
         <Footer />
+        <ToastContainer />
       </body>
     </html>
   )
