@@ -5,6 +5,7 @@ import Header from './header'
 import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
 import ScriptGa from './_components/ScriptGa'
+import PWAInstall from './_components/PWAInstall'
 import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] })
@@ -44,22 +45,57 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icon.png', sizes: '16x16', type: 'image/png' }
+      { url: '/icon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' }
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/icon-144x144.png', sizes: '144x144', type: 'image/png' },
+      { url: '/icon-120x120.png', sizes: '120x120', type: 'image/png' }
     ],
-    shortcut: '/icon.png'
+    shortcut: '/icon-96x96.png',
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/icon.svg',
+        color: '#1DBE67',
+      },
+    ],
   },
   manifest: '/manifest.json',
-  themeColor: '#1DBE67',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#1DBE67' },
+    { media: '(prefers-color-scheme: dark)', color: '#10b981' },
+  ],
   colorScheme: 'light',
   viewport: {
     width: 'device-width',
     initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: 'cover',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ガタレビュ',
+    startupImage: [
+      {
+        url: '/icon-512x512.png',
+        media: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)',
+      },
+      {
+        url: '/icon-512x512.png',
+        media: '(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)',
+      },
+      {
+        url: '/icon-512x512.png',
+        media: '(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)',
+      },
+    ],
   },
   verification: {
     google: 'google-site-verification-code', // 実際のコードに置き換える
@@ -289,6 +325,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <PWAInstall />
       </body>
     </html>
   )
