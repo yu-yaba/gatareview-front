@@ -20,6 +20,7 @@
     "eslint-config-next": "13.4.19",
     "lodash": "^4.17.21",
     "next": "13.4.19",
+    "next-pwa": "^5.6.0",
     "postcss": "8.4.29",
     "react": "18.2.0",
     "react-awesome-stars-rating": "^0.13.8",
