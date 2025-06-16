@@ -123,9 +123,21 @@ const LectureList = () => {
       return searchParams.get(key) || defaultValue.toString();
     };
 
+    // sessionStorageから値を取得する関数（クライアントサイドでのみ実行）
+    const getSessionStorageValue = (key: string, fallback: string = '') => {
+      if (typeof window !== 'undefined') {
+        return sessionStorage.getItem(key) || fallback;
+      }
+      return fallback;
+    };
+
+    // URLパラメータがない場合はsessionStorageから取得
+    const searchWord = getParam('search') || getSessionStorageValue('searchWord');
+    const selectedFaculty = getParam('faculty') || getSessionStorageValue('selectedFaculty');
+
     return {
-      searchWord: getParam('search'),
-      selectedFaculty: getParam('faculty'),
+      searchWord,
+      selectedFaculty,
       sortType: getParam('sort', DEFAULT_VALUES.sort),
       currentPage: parseInt(getParam('page', DEFAULT_VALUES.page)),
       periodYear: getParam('period_year'),
@@ -206,11 +218,35 @@ const LectureList = () => {
     setConfirmedContentDifficulty(initialState.contentDifficulty);
     setConfirmedContentQuality(initialState.contentQuality);
 
+    // sessionStorageから値を取得した場合はURLパラメータも更新
+    if (initialState.searchWord || initialState.selectedFaculty) {
+      updateURL({
+        search: initialState.searchWord,
+        faculty: initialState.selectedFaculty,
+        sort: initialState.sortType,
+        page: initialState.currentPage,
+        period_year: initialState.periodYear,
+        period_term: initialState.periodTerm,
+        textbook: initialState.textbook,
+        attendance: initialState.attendance,
+        grading_type: initialState.gradingType,
+        content_difficulty: initialState.contentDifficulty,
+        content_quality: initialState.contentQuality,
+        detailed: initialState.showDetailedSearch.toString()
+      });
+    }
+
     // 初回のデータ取得
     setTimeout(() => {
       fetchLectures(initialState.currentPage);
       setIsInitialized(true);
     }, 0);
+
+    // sessionStorageをクリア（一度使用したら削除）
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('searchWord');
+      sessionStorage.removeItem('selectedFaculty');
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 検索ワード変更時のハンドラー（一時的な状態のみ更新）
