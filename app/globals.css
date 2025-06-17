@@ -892,36 +892,55 @@ _:future,
    Animation Keyframes - PWA Specific
 ======================================== */
 @keyframes slide-up {
-  0% {
-    transform: translateY(100%);
+  from {
     opacity: 0;
+    transform: translateY(100%);
   }
-  100% {
-    transform: translateY(0);
+  to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @keyframes slide-down {
-  0% {
-    transform: translateY(0);
+  from {
     opacity: 1;
+    transform: translateY(0);
   }
-  100% {
-    transform: translateY(100%);
+  to {
     opacity: 0;
+    transform: translateY(100%);
   }
 }
 
 /* PWA Animation Classes */
 .animate-slide-up {
-  animation: slide-up 0.3s ease-out forwards;
+  animation: slide-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .animate-slide-down {
-  animation: slide-down 0.3s ease-in forwards;
+  animation: slide-down 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.animate-pulse-slow {
-  animation: pulse-slow 2s ease-in-out infinite;
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Custom backdrop blur for better browser support */
+.backdrop-blur-custom {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Smooth transitions for all interactive elements */
+.transition-all-smooth {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }

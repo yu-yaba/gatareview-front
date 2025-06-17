@@ -16,6 +16,7 @@ export default function PWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     // iOS Safari の検出
@@ -34,10 +35,35 @@ export default function PWAInstall() {
     const handleAppInstalled = () => {
       setShowInstallPrompt(false);
       setDeferredPrompt(null);
+      setIsVisible(false);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
+
+    // 開発環境では3秒後にモック表示（デザインと文言は本番と同じ）
+    if (process.env.NODE_ENV === 'development') {
+      const timer = setTimeout(() => {
+        if (!window.matchMedia('(display-mode: standalone)').matches) {
+          setShowInstallPrompt(true);
+          // モックのdeferredPromptを作成
+          const mockPrompt = {
+            platforms: ['web'],
+            userChoice: Promise.resolve({ outcome: 'accepted' as const, platform: 'web' }),
+            prompt: async () => {
+              console.log('開発環境: PWAインストールプロンプト（モック）');
+            }
+          } as BeforeInstallPromptEvent;
+          setDeferredPrompt(mockPrompt);
+        }
+      }, 3000);
+
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.removeEventListener('appinstalled', handleAppInstalled);
+      };
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -54,6 +80,7 @@ export default function PWAInstall() {
 
       if (outcome === 'accepted') {
         console.log('PWA インストールが受け入れられました');
+        setIsVisible(false);
       } else {
         console.log('PWA インストールが拒否されました');
       }
@@ -66,19 +93,33 @@ export default function PWAInstall() {
   };
 
   const handleDismiss = () => {
+    setIsVisible(false);
     setShowInstallPrompt(false);
-    // 1週間後に再表示
-    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+
+    // 開発環境では短時間で再表示、本番は1週間
+    if (process.env.NODE_ENV === 'development') {
+      // 開発環境では30秒後に再表示
+      setTimeout(() => {
+        setIsVisible(true);
+        setShowInstallPrompt(true);
+      }, 30000);
+    } else {
+      // 本番環境では1週間後に再表示
+      localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+    }
   };
 
-  // 1週間内にdismissされた場合は表示しない
+  // 1週間内にdismissされた場合は表示しない（本番環境のみ）
   useEffect(() => {
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) {
-      const dismissTime = parseInt(dismissed);
-      const weekInMs = 7 * 24 * 60 * 60 * 1000;
-      if (Date.now() - dismissTime < weekInMs) {
-        setShowInstallPrompt(false);
+    if (process.env.NODE_ENV !== 'development') {
+      const dismissed = localStorage.getItem('pwa-install-dismissed');
+      if (dismissed) {
+        const dismissTime = parseInt(dismissed);
+        const weekInMs = 7 * 24 * 60 * 60 * 1000; // 1週間
+        if (Date.now() - dismissTime < weekInMs) {
+          setShowInstallPrompt(false);
+          setIsVisible(false);
+        }
       }
     }
   }, []);
@@ -90,47 +131,73 @@ export default function PWAInstall() {
 
     if (isStandalone || isInWebAppiOS) {
       setShowInstallPrompt(false);
+      setIsVisible(false);
     }
   }, []);
 
-  if (!showInstallPrompt && !isIOS) return null;
+  if (!isVisible || (!showInstallPrompt && !isIOS)) return null;
 
   return (
     <>
       {/* Android/Chrome用のインストールプロンプト */}
       {showInstallPrompt && deferredPrompt && (
-        <div className="fixed bottom-4 left-4 right-4 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 mx-auto max-w-sm animate-slide-up">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="relative w-10 h-10 mr-3">
-                <Image
-                  src="/icon-96x96.png"
-                  alt="ガタレビュ"
-                  width={40}
-                  height={40}
-                  className="rounded-lg"
-                  priority
-                />
+        <div className="fixed bottom-6 left-4 right-4 z-50 animate-slide-up">
+          <div className="bg-white/90 backdrop-blur-md border border-gray-200 rounded-2xl shadow-xl p-5 mx-auto max-w-sm">
+            <div className="relative">
+              {/* ヘッダー */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="relative w-12 h-12 bg-white rounded-xl p-1 shadow-sm border border-gray-100">
+                      <Image
+                        src="/icon-96x96.png"
+                        alt="ガタレビュ"
+                        width={40}
+                        height={40}
+                        className="rounded-lg"
+                        priority
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">ガタレビュ</h3>
+                    <p className="text-sm text-gray-600">新潟大学授業レビューサイト</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleDismiss}
+                  className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                  aria-label="閉じる"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">ガタレビュ</p>
-                <p className="text-xs text-gray-600">アプリをインストール</p>
+
+              {/* メッセージ */}
+              <div className="mb-4">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  ホーム画面に追加してアプリのように快適に利用できます
+                </p>
               </div>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={handleDismiss}
-                className="text-gray-400 hover:text-gray-600 text-sm transition-colors"
-                aria-label="閉じる"
-              >
-                ✕
-              </button>
-              <button
-                onClick={handleInstallClick}
-                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
-              >
-                インストール
-              </button>
+
+              {/* ボタン */}
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleDismiss}
+                  className="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-all duration-200 text-sm"
+                >
+                  後で
+                </button>
+                <button
+                  onClick={handleInstallClick}
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-medium transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                >
+                  インストール
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -138,30 +205,65 @@ export default function PWAInstall() {
 
       {/* iOS Safari用の手動インストール指示 */}
       {isIOS && (
-        <div className="fixed bottom-4 left-4 right-4 z-50 bg-blue-50 border border-blue-200 rounded-lg p-4 mx-auto max-w-sm animate-slide-up">
-          <div className="flex items-start">
-            <div className="flex-shrink-0 relative w-10 h-10">
-              <Image
-                src="/icon-96x96.png"
-                alt="ガタレビュ"
-                width={40}
-                height={40}
-                className="rounded-lg"
-                priority
-              />
-            </div>
-            <div className="ml-3 flex-1">
-              <h3 className="text-sm font-semibold text-blue-900">
-                ホーム画面に追加
-              </h3>
-              <p className="text-xs text-blue-700 mt-1">
-                Safariで <span className="font-mono bg-blue-100 px-1 rounded">⎙</span> → 「ホーム画面に追加」でアプリのように使えます
-              </p>
+        <div className="fixed bottom-6 left-4 right-4 z-50 animate-slide-up">
+          <div className="bg-white/90 backdrop-blur-md border border-gray-200 rounded-2xl shadow-xl p-5 mx-auto max-w-sm">
+            <div className="relative">
+              {/* ヘッダー */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="relative w-12 h-12 bg-white rounded-xl p-1 shadow-sm border border-gray-100">
+                      <Image
+                        src="/icon-96x96.png"
+                        alt="ガタレビュ"
+                        width={40}
+                        height={40}
+                        className="rounded-lg"
+                        priority
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">ホーム画面に追加</h3>
+                    <p className="text-sm text-gray-600">アプリのように使用</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleDismiss}
+                  className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                  aria-label="閉じる"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* 手順説明 */}
+              <div className="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="flex items-center space-x-2 text-sm text-gray-700">
+                  <span className="flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-xs font-bold">1</span>
+                  <span>Safariで</span>
+                  <div className="flex items-center justify-center w-8 h-6 bg-gray-700 text-white rounded text-xs font-bold">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                  </div>
+                  <span>をタップ</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-700 mt-2">
+                  <span className="flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-xs font-bold">2</span>
+                  <span>「ホーム画面に追加」を選択</span>
+                </div>
+              </div>
+
+              {/* ボタン */}
               <button
                 onClick={handleDismiss}
-                className="text-xs text-blue-600 hover:text-blue-800 mt-2 transition-colors"
+                className="w-full px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-medium transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
               >
-                閉じる
+                理解しました
               </button>
             </div>
           </div>
