@@ -241,20 +241,31 @@ export default function PWAInstall() {
               </div>
 
               {/* 手順説明 */}
-              <div className="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                <div className="flex items-center space-x-2 text-sm text-gray-700">
-                  <span className="flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-xs font-bold">1</span>
-                  <span>Safariで</span>
-                  <div className="flex items-center justify-center w-8 h-6 bg-gray-700 text-white rounded text-xs font-bold">
+              <div className="mb-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="flex items-center space-x-3 text-sm text-gray-700 mb-3">
+                  <span className="flex items-center justify-center w-7 h-7 bg-blue-500 text-white rounded-full text-xs font-bold">1</span>
+                  <span className="font-medium">画面下部の</span>
+                  <div className="flex items-center justify-center w-10 h-7 bg-blue-500 text-white rounded-md text-xs font-bold shadow-sm">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                      <path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V10c0-1.1.9-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .9 2 2z" />
                     </svg>
                   </div>
-                  <span>をタップ</span>
+                  <span className="font-medium">共有ボタンをタップ</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-700 mt-2">
-                  <span className="flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-xs font-bold">2</span>
-                  <span>「ホーム画面に追加」を選択</span>
+                <div className="text-xs text-gray-500 mb-3 pl-10">
+                  ※画面下部の中央にある「共有」ボタンです
+                </div>
+
+                <div className="flex items-center space-x-3 text-sm text-gray-700">
+                  <span className="flex items-center justify-center w-7 h-7 bg-blue-500 text-white rounded-full text-xs font-bold">2</span>
+                  <span className="font-medium">メニューから</span>
+                  <div className="flex items-center px-2 py-1 bg-gray-200 rounded text-xs font-bold">
+                    <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                    </svg>
+                    ホーム画面に追加
+                  </div>
+                  <span className="font-medium">をタップ</span>
                 </div>
               </div>
 
