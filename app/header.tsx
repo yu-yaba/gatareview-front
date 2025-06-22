@@ -9,7 +9,7 @@ export default function Header() {
         <Link href="/" className="flex items-center group">
           <div className="pl-5 sm:pl-8 md:pl-7 lg:pl-10 flex">
             <Image
-              src="/white-title.png"
+              src="/white-title.svg"
               alt="ガタレビュ - 新潟大学授業レビューサイト"
               width={200}
               height={60}
