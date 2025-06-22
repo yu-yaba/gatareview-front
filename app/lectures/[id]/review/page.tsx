@@ -147,26 +147,26 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   // フィールドのボーダー色を決定する関数（メモ化）
   const getFieldBorderClass = useCallback((fieldName: string) => {
-    const baseClasses = "block appearance-none w-full bg-white border p-3 rounded-lg focus:ring-2 focus:outline-none cursor-pointer text-gray-900 transition-all duration-200";
+    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl";
     if (formErrors[fieldName]) {
-      return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200`;
+      return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
     }
-    return `${baseClasses} border-gray-300 focus:border-green-500 focus:ring-green-200`;
+    return `${baseClasses} focus:border-green-500 focus:ring-green-200 hover:border-green-300`;
   }, [formErrors]);
 
   // textareaのクラス取得関数（メモ化）
   const getTextareaClass = useCallback((fieldName: string) => {
-    const baseClasses = "p-3 w-full rounded-lg bg-white border focus:ring-2 focus:outline-none text-gray-900 transition-all duration-200 resize-none";
+    const baseClasses = "p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-none text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl";
     if (formErrors[fieldName]) {
-      return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200`;
+      return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
     }
-    return `${baseClasses} border-gray-300 focus:border-green-500 focus:ring-green-200`;
+    return `${baseClasses} focus:border-green-500 focus:ring-green-200 hover:border-green-300`;
   }, [formErrors]);
 
   // ドロップダウンアイコンコンポーネント（メモ化）
   const DropdownIcon = memo(() => (
-    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
+      <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
         <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
       </svg>
     </div>
@@ -177,9 +177,9 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
   const SelectField = memo<SelectFieldConfig>(({ id, name, label, options }) => (
     <div className="mb-6">
       <label className="block">
-        <p className="font-semibold mb-3 text-gray-800">
+        <p className="font-bold mb-3 text-gray-800">
           {label}
-          <span className="ml-2 text-sm font-normal text-gray-500">
+          <span className="ml-2 text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
             任意
           </span>
         </p>
@@ -274,12 +274,12 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* ページタイトルとヘッダー */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">レビュー投稿</h1>
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent mb-2">レビュー投稿</h1>
           <p className="text-gray-600">授業の評価とコメントを投稿してください</p>
         </div>
 
         {/* 授業情報カード */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300 mb-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
               <FaBookOpen className="text-green-600 mr-3 text-xl" />
@@ -299,21 +299,21 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
         </div>
 
         {/* レビューフォームカード */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300 p-6 md:p-8">
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* 評価セクション */}
             <div>
               <label className="block">
-                <p className="font-semibold mb-3 text-gray-800 text-lg">
+                <p className="font-bold mb-4 text-gray-800 text-lg">
                   総合評価
-                  <span className="ml-2 text-sm font-normal text-red-500">
+                  <span className="ml-3 text-sm font-normal text-red-500 bg-red-100 px-3 py-1 rounded-full">
                     必須
                   </span>
                 </p>
-                <div className="flex justify-center p-6 bg-gray-50 rounded-xl">
+                <div className="flex justify-center p-8 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl shadow-lg border border-yellow-100">
                   <ReactStars
                     onChange={starOnChange}
-                    size={32}
+                    size={36}
                     value={ratingValue}
                     edit={true}
                     color2="#EAB308"
@@ -338,9 +338,9 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
             {/* コメントセクション */}
             <div>
               <label className="block">
-                <p className="font-semibold mb-3 text-gray-800 text-lg">
+                <p className="font-bold mb-4 text-gray-800 text-lg">
                   コメント
-                  <span className="ml-2 text-sm font-normal text-red-500">
+                  <span className="ml-3 text-sm font-normal text-red-500 bg-red-100 px-3 py-1 rounded-full">
                     必須
                   </span>
                 </p>
@@ -359,30 +359,34 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
             </div>
 
             {/* ボタンセクション */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
               <button
                 type='button'
                 onClick={handleBack}
-                className='flex-1 px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center'
+                className='flex-1 px-8 py-4 bg-white/95 backdrop-blur-md border border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center relative overflow-hidden group'
               >
-                <FaArrowLeft className="mr-2" />
-                授業詳細に戻る
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <FaArrowLeft className="mr-2 relative z-10" />
+                <span className="relative z-10">授業詳細に戻る</span>
               </button>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="flex-1 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    投稿中...
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2 relative z-10"></div>
+                    <span className="relative z-10">投稿中...</span>
                   </>
                 ) : (
                   <>
-                    <FaHeart className="mr-2" />
-                    レビューを投稿
+                    <FaHeart className="mr-2 relative z-10 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" />
+                    <span className="relative z-10">レビューを投稿</span>
                   </>
                 )}
               </button>
