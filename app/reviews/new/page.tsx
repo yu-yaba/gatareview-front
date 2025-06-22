@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react'; // useCallback をインポート
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../_helpers/helpers';
 import Link from 'next/link';
@@ -10,7 +10,7 @@ import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Loading from 'react-loading';
-import { debounce } from 'lodash'; // debounce をインポート
+import { debounce } from 'lodash';
 import { FaArrowLeft, FaEdit, FaStar, FaHeart, FaBookOpen } from 'react-icons/fa';
 
 declare global {
@@ -28,12 +28,44 @@ const NewReviewPage = () => {
   const [isLoadingLecture, setIsLoadingLecture] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
+  const [lastSearchTerm, setLastSearchTerm] = useState('');
   const searchInput = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [ratingValue, setRatingValue] = useState(3);
+
+  // 講義選択ハンドラー（早期定義）
+  const handleLectureSelect = useCallback((lecture: LectureSchema) => {
+    setSelectedLecture(lecture);
+    setReview({
+      lecture_id: lecture.id,
+      rating: 3,
+      period_year: '',
+      period_term: '',
+      textbook: '',
+      attendance: '',
+      grading_type: '',
+      content_difficulty: '',
+      content_quality: '',
+      content: '',
+    });
+    setRatingValue(3);
+    setFormErrors({}); // 以前のエラーをクリア
+  }, []);
+
+  // 検索結果キャッシュ
+  const searchCache = useRef<Map<string, { lectures: LectureSchema[], pagination: any, timestamp: number }>>(new Map());
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // キャッシュ有効期限（5分）
+  const CACHE_DURATION = 5 * 60 * 1000;
+
+  // Intersection Observer for lazy loading optimization
+  const observerTarget = useRef<HTMLDivElement>(null);
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 10 });
 
   // フィールド設定の型定義
   interface SelectFieldConfig {
@@ -43,8 +75,8 @@ const NewReviewPage = () => {
     options: string[];
   }
 
-  // フィールド設定の定義
-  const selectFieldConfigs: SelectFieldConfig[] = [
+  // フィールド設定の定義（メモ化）
+  const selectFieldConfigs: SelectFieldConfig[] = useMemo(() => [
     {
       id: 'period_year',
       name: 'period_year',
@@ -87,7 +119,7 @@ const NewReviewPage = () => {
       label: '内容充実度',
       options: ['とても良い', '良い', '普通', '悪い', 'とても悪い']
     }
-  ];
+  ], []);
 
   // URLパラメータから特定の授業を取得する関数
   const fetchSpecificLecture = async (lectureId: string) => {
@@ -117,103 +149,146 @@ const NewReviewPage = () => {
       });
     }
     // 初期読み込み時は授業リストを取得しない（検索時のみ取得）
-  }, [searchParams]);
+  }, [searchParams, handleLectureSelect]);
 
-  // 授業検索関数
-  const fetchLectures = async (search: string, page: number = 1) => {
+  // 最適化された授業検索関数
+  const fetchLectures = useCallback(async (search: string, page: number = 1, fromPageChange: boolean = false) => {
+    // 空文字の場合のみ何もしない
     if (!search.trim()) {
-      setFetchedLectures([]);
-      setTotalPages(0);
-      setHasSearched(false);
+      if (!fromPageChange) {
+        setFetchedLectures([]);
+        setTotalPages(0);
+        setTotalCount(0);
+        setHasSearched(false);
+      }
       return;
     }
+
+    const cacheKey = `${search.trim()}_${page}`;
+    const now = Date.now();
+
+    // キャッシュチェック
+    if (searchCache.current.has(cacheKey)) {
+      const cached = searchCache.current.get(cacheKey)!;
+      if (now - cached.timestamp < CACHE_DURATION) {
+        setFetchedLectures(cached.lectures);
+        setTotalPages(cached.pagination.total_pages);
+        setTotalCount(cached.pagination.total_count);
+        setCurrentPage(page);
+        setHasSearched(true);
+        setLastSearchTerm(search.trim());
+        return;
+      } else {
+        // 期限切れキャッシュを削除
+        searchCache.current.delete(cacheKey);
+      }
+    }
+
+    // 進行中のリクエストをキャンセル
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
 
     try {
       setIsLoading(true);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?search=${encodeURIComponent(search)}&page=${page}`
+        `${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?search=${encodeURIComponent(search.trim())}&page=${page}`,
+        { signal: abortControllerRef.current.signal }
       );
-      if (!response.ok) throw new Error(response.statusText);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const data = await response.json();
+
+      // キャッシュに保存
+      searchCache.current.set(cacheKey, {
+        lectures: data.lectures || [],
+        pagination: data.pagination,
+        timestamp: now
+      });
+
+      // キャッシュサイズ制限（最大50エントリ）
+      if (searchCache.current.size > 50) {
+        const firstKey = searchCache.current.keys().next().value;
+        if (firstKey) {
+          searchCache.current.delete(firstKey);
+        }
+      }
+
       setFetchedLectures(data.lectures || []);
       setTotalPages(data.pagination?.total_pages || 0);
+      setTotalCount(data.pagination?.total_count || 0);
       setCurrentPage(page);
       setHasSearched(true);
-    } catch (error) {
-      handleAjaxError("授業リストの取得に失敗しました");
+      setLastSearchTerm(search.trim());
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return; // リクエストがキャンセルされた場合は何もしない
+      }
+
+      console.error('Search error:', error);
+      handleAjaxError("授業の検索に失敗しました。ネットワーク接続を確認してください。");
       setFetchedLectures([]);
       setTotalPages(0);
+      setTotalCount(0);
+      setHasSearched(true);
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
-  };
+  }, []);
 
+  // 最適化されたdebounce（1つのみ）
   const debouncedFetchLectures = useCallback(
     debounce((search: string) => {
-      fetchLectures(search, 1); // 検索時は1ページ目から
-    }, 500), // 500msの遅延でパフォーマンス向上
-    []
+      fetchLectures(search, 1);
+    }, 300), // 300msに短縮
+    [fetchLectures]
   );
 
-  const debouncedUpdateSearchWord = useCallback(
-    debounce((value: string) => {
-      setSearchWord(value);
+  const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchWord(value);
+
+    if (value.length >= 1) {
       debouncedFetchLectures(value);
-    }, 500),
-    [debouncedFetchLectures]
-  );
-
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedUpdateSearchWord(e.target.value);
-  };
-
-  const handlePageChange = (page: number) => {
-    if (searchWord.trim()) {
-      fetchLectures(searchWord, page);
+    } else if (value.length === 0) {
+      setFetchedLectures([]);
+      setTotalPages(0);
+      setTotalCount(0);
+      setHasSearched(false);
+      debouncedFetchLectures.cancel(); // debounceをキャンセル
     }
-  };
+  }, [debouncedFetchLectures]);
 
-  const matchSearchWord = (lecture: LectureSchema) => {
-    // サーバーサイドで検索済みなので、常にtrue
-    return true;
-  };
+  const handlePageChange = useCallback((page: number) => {
+    if (lastSearchTerm.length >= 1) {
+      fetchLectures(lastSearchTerm, page, true);
+    }
+  }, [lastSearchTerm, fetchLectures]);
 
-  const handleLectureSelect = (lecture: LectureSchema) => {
-    setSelectedLecture(lecture);
-    setReview({
-      lecture_id: lecture.id,
-      rating: 3,
-      period_year: '',
-      period_term: '',
-      textbook: '',
-      attendance: '',
-      grading_type: '',
-      content_difficulty: '',
-      content_quality: '',
-      content: '',
-    });
-    setRatingValue(3);
-    setFormErrors({}); // 以前のエラーをクリア
-  };
-
-  // レビューフォームのロジック
-  const updateReview = (name: string, value: string | number) => {
+  // レビューフォームのロジック（最適化）
+  const updateReview = useCallback((name: string, value: string | number) => {
     if (!review) return;
     setReview((prevReview) => ({ ...prevReview!, [name]: value }));
-  };
+  }, [review]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     updateReview(name, value);
-  };
+  }, [updateReview]);
 
-  const starOnChange = (newValue: number) => {
+  const starOnChange = useCallback((newValue: number) => {
     setRatingValue(newValue);
     updateReview('rating', newValue);
-  };
+  }, [updateReview]);
 
-  // 個別フィールドのエラー表示用関数
-  const renderFieldError = (fieldName: string) => {
+  // 個別フィールドのエラー表示用関数（メモ化）
+  const renderFieldError = useCallback((fieldName: string) => {
     if (formErrors[fieldName]) {
       return (
         <p className="mt-2 text-sm text-red-600 font-medium flex items-center animate-fade-in">
@@ -225,37 +300,38 @@ const NewReviewPage = () => {
       );
     }
     return null;
-  };
+  }, [formErrors]);
 
-  // フィールドのボーダー色を決定する関数
-  const getFieldBorderClass = (fieldName: string) => {
+  // フィールドのボーダー色を決定する関数（メモ化）
+  const getFieldBorderClass = useCallback((fieldName: string) => {
     const baseClasses = "block appearance-none w-full bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm p-4 rounded-xl shadow-lg focus:ring-2 focus:outline-none cursor-pointer text-gray-700 font-medium transition-all duration-300";
     if (formErrors[fieldName]) {
       return `${baseClasses} border-2 border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
     }
     return `${baseClasses} border-2 focus:border-green-400 focus:ring-green-200 hover:border-green-200`;
-  };
+  }, [formErrors]);
 
-  // textareaのクラス取得関数
-  const getTextareaClass = (fieldName: string) => {
+  // textareaのクラス取得関数（メモ化）
+  const getTextareaClass = useCallback((fieldName: string) => {
     const baseClasses = "p-4 w-full rounded-xl shadow-lg bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm focus:ring-2 focus:outline-none text-gray-700 font-medium transition-all duration-300 resize-none";
     if (formErrors[fieldName]) {
       return `${baseClasses} border-2 border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
     }
     return `${baseClasses} border-2 focus:border-green-400 focus:ring-green-200 hover:border-green-200`;
-  };
+  }, [formErrors]);
 
-  // ドロップダウンアイコンコンポーネント
-  const DropdownIcon = () => (
+  // ドロップダウンアイコンコンポーネント（メモ化）
+  const DropdownIcon = memo(() => (
     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
       <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
         <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
       </svg>
     </div>
-  );
+  ));
+  DropdownIcon.displayName = 'DropdownIcon';
 
-  // SelectFieldコンポーネント
-  const SelectField = ({ id, name, label, options }: SelectFieldConfig) => (
+  // SelectFieldコンポーネント（メモ化）
+  const SelectField = memo<SelectFieldConfig>(({ id, name, label, options }) => (
     <div className="mb-6 flex flex-col">
       <label className="block text-bold">
         <p className="font-bold mb-3 text-gray-800">
@@ -281,9 +357,10 @@ const NewReviewPage = () => {
         </div>
       </label>
     </div>
-  );
+  ));
+  SelectField.displayName = 'SelectField';
 
-  const addReview = async (newReview: ReviewData, token: string) => {
+  const addReview = useCallback(async (newReview: ReviewData, token: string) => {
     if (!selectedLecture) return;
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${selectedLecture.id}/reviews`, {
@@ -304,9 +381,9 @@ const NewReviewPage = () => {
     } catch (error) {
       handleAjaxError("レビューの登録に失敗しました");
     }
-  };
+  }, [selectedLecture, router]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!review) return;
 
@@ -327,9 +404,9 @@ const NewReviewPage = () => {
         setFormErrors({ recaptcha: 'reCAPTCHAの検証に失敗しました。' });
       }
     }
-  };
+  }, [review, addReview]);
 
-  const cancelReview = () => {
+  const cancelReview = useCallback(() => {
     const lectureId = searchParams.get('lectureId');
     if (lectureId) {
       // URLパラメータで授業IDが指定されていた場合は、その授業の詳細ページに戻る
@@ -340,17 +417,155 @@ const NewReviewPage = () => {
       setReview(null);
       setFormErrors({});
     }
-  };
+  }, [searchParams, router]);
 
-  const filteredLectures = fetchedLectures.filter(matchSearchWord);
+  // 講義カードコンポーネント（メモ化）
+  const LectureCard = memo<{ lecture: LectureSchema }>(({ lecture }) => (
+    <button
+      onClick={() => handleLectureSelect(lecture)}
+      className="w-full bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-lg border border-green-100/50 hover:shadow-xl transform hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group"
+    >
+      {/* ホバーエフェクト */}
+      <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+
+      <div className="relative z-10 text-left">
+        {/* 講義タイトル */}
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 leading-tight group-hover:text-green-600 transition-colors duration-300 mb-2">
+          {lecture.title}
+        </h2>
+        {/* 講師名 */}
+        <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors duration-300">
+          {lecture.lecturer}
+        </p>
+      </div>
+    </button>
+  ));
+  LectureCard.displayName = 'LectureCard';
+
+  // Intersection Observer for lazy loading optimization
+  useEffect(() => {
+    if (!observerTarget.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && fetchedLectures.length > visibleRange.end) {
+            setVisibleRange(prev => ({ ...prev, end: Math.min(prev.end + 10, fetchedLectures.length) }));
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(observerTarget.current);
+
+    return () => observer.disconnect();
+  }, [fetchedLectures.length, visibleRange.end]);
+
+  // Reset visible range when search changes
+  useEffect(() => {
+    setVisibleRange({ start: 0, end: Math.min(10, fetchedLectures.length) });
+  }, [fetchedLectures.length]);
+
+  // 講義リストコンポーネント（メモ化 + Virtual scrolling風の最適化）
+  const LectureList = memo(() => {
+    const visibleLectures = useMemo(
+      () => fetchedLectures.slice(visibleRange.start, visibleRange.end),
+      [visibleRange.start, visibleRange.end]
+    );
+
+    return (
+      <div className="w-full max-w-6xl space-y-4">
+        {visibleLectures.map((lecture) => (
+          <LectureCard key={lecture.id} lecture={lecture} />
+        ))}
+        {visibleRange.end < fetchedLectures.length && (
+          <div ref={observerTarget} className="h-10 flex items-center justify-center">
+            <div className="text-gray-400 text-sm">読み込み中...</div>
+          </div>
+        )}
+      </div>
+    );
+  });
+  LectureList.displayName = 'LectureList';
+
+  // ページネーションコンポーネント（メモ化）
+  const PaginationControls = memo(() => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex justify-center items-center mt-8 space-x-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+        >
+          前へ
+        </button>
+
+        <span className="px-4 py-2 text-gray-700 font-medium">
+          {currentPage} / {totalPages}
+        </span>
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+        >
+          次へ
+        </button>
+      </div>
+    );
+  });
+  PaginationControls.displayName = 'PaginationControls';
+
+  // ローディングコンポーネント（メモ化）
+  const LoadingSpinner = memo(() => (
+    <div className="flex justify-center items-center h-64">
+      <Loading type={"bubbles"} width={100} height={100} color={"#1DBE67"} />
+    </div>
+  ));
+  LoadingSpinner.displayName = 'LoadingSpinner';
+
+  // 検索ガイダンスコンポーネント（メモ化）
+  const SearchGuidance = memo(() => (
+    <div className="text-center mt-8">
+      <p className="text-gray-500 mb-2">
+        授業名または講師名を入力して検索してください
+      </p>
+    </div>
+  ));
+  SearchGuidance.displayName = 'SearchGuidance';
+
+  // 検索結果ヘッダーコンポーネント（メモ化）
+  const SearchResultHeader = memo(() => (
+    <div className="mb-4 text-center">
+      <p className="text-sm text-gray-600">
+        「{lastSearchTerm}」の検索結果: {totalCount}件
+      </p>
+    </div>
+  ));
+  SearchResultHeader.displayName = 'SearchResultHeader';
+
+  // 検索結果なしコンポーネント（メモ化）
+  const NoSearchResults = memo(() => (
+    <div className="text-center mt-8">
+      <p className="text-gray-500 mb-2">
+        「{lastSearchTerm}」に該当する授業が見つかりません
+      </p>
+      <p className="text-sm text-gray-400">
+        別のキーワードで検索してみてください
+      </p>
+    </div>
+  ));
+  NoSearchResults.displayName = 'NoSearchResults';
 
   // URLパラメータで授業が指定されている場合のロード画面
   if (isLoadingLecture) {
     return (
       <section className="flex flex-col items-center p-4 md:p-8">
-        <div className="flex justify-center items-center h-64">
-          <Loading type={"bubbles"} width={100} height={100} color={"#1DBE67"} />
-        </div>
+        <LoadingSpinner />
       </section>
     );
   }
@@ -371,69 +586,19 @@ const NewReviewPage = () => {
             />
           </div>
           {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <Loading type={"bubbles"} width={100} height={100} color={"#1DBE67"} />
-            </div>
+            <LoadingSpinner />
           ) : (
             <div className="w-full flex flex-col items-center">
               {!hasSearched ? (
-                <p className="text-gray-500 mt-8 text-center">
-                  授業名または講師名を入力して検索してください
-                </p>
-              ) : filteredLectures.length > 0 ? (
+                <SearchGuidance />
+              ) : fetchedLectures.length > 0 ? (
                 <>
-                  <div className="w-full max-w-6xl space-y-4">
-                    {filteredLectures.map((lecture) => (
-                      <button
-                        key={lecture.id}
-                        onClick={() => handleLectureSelect(lecture)}
-                        className="w-full bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-lg border border-green-100/50 hover:shadow-xl transform hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group"
-                      >
-                        {/* ホバーエフェクト */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-
-                        <div className="relative z-10 text-left">
-                          {/* 講義タイトル */}
-                          <h2 className="text-lg md:text-xl font-bold text-gray-800 leading-tight group-hover:text-green-600 transition-colors duration-300 mb-2">
-                            {lecture.title}
-                          </h2>
-                          {/* 講師名 */}
-                          <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors duration-300">
-                            {lecture.lecturer}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* ページネーション */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center items-center mt-8 space-x-2">
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                      >
-                        前へ
-                      </button>
-
-                      <span className="px-4 py-2 text-gray-700 font-medium">
-                        {currentPage} / {totalPages}
-                      </span>
-
-                      <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                      >
-                        次へ
-                      </button>
-                    </div>
-                  )}
+                  <SearchResultHeader />
+                  <LectureList />
+                  <PaginationControls />
                 </>
               ) : (
-                <p className="text-gray-500 mt-4">該当する授業が見つかりません。</p>
+                <NoSearchResults />
               )}
             </div>
           )}
@@ -552,4 +717,4 @@ const NewReviewPage = () => {
   );
 };
 
-export default NewReviewPage;
+export default memo(NewReviewPage);
