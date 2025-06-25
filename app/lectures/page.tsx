@@ -7,6 +7,8 @@ import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import NinjaAdMax from '../_components/NinjaAdMax';
+import { AD_CONFIG } from '../config/adConfig';
 
 interface PaginationInfo {
   current_page: number;
@@ -797,6 +799,7 @@ const LectureList = () => {
               </div>
             </div>
 
+
             {/* 結果表示 */}
             <div className="mb-6">
               <div className="flex justify-center">
@@ -824,6 +827,30 @@ const LectureList = () => {
 
                   {/* ページネーション */}
                   {paginationElements}
+
+                  {/* 広告エリア（ページ下部） */}
+                  <div className="flex justify-center mt-12 mb-8 px-4">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-100/50 w-full max-w-4xl">
+                      {/* デスクトップ用広告 */}
+                      <div className="hidden md:block">
+                        <NinjaAdMax 
+                          adId={AD_CONFIG.NINJA_ADMAX.DESKTOP_BANNER}
+                          width={728}
+                          height={90}
+                          className="mx-auto"
+                        />
+                      </div>
+                      {/* モバイル用広告 */}
+                      <div className="block md:hidden">
+                        <NinjaAdMax 
+                          adId={AD_CONFIG.NINJA_ADMAX.MOBILE_BANNER}
+                          width={320}
+                          height={50}
+                          className="mx-auto"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </>
               ) : (
                 <div className="text-center py-16">

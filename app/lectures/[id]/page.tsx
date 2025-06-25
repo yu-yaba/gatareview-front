@@ -7,6 +7,8 @@ import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine } from 'react-icons/fa';
+import NinjaAdMax from '../../_components/NinjaAdMax';
+import { AD_CONFIG } from '../../config/adConfig';
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
@@ -130,6 +132,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
             </Link>
           </div>
 
+
           {/* レビュー一覧セクション */}
           <div className="max-w-6xl mx-auto">
             {/* レビューカード */}
@@ -243,6 +246,30 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                 <p className="text-gray-400 mb-6">この授業の最初のレビューを投稿してみませんか？</p>
               </div>
             )}
+
+            {/* 広告エリア（ページ下部） */}
+            <div className="flex justify-center mt-12 mb-8 px-4">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-100/50 w-full max-w-4xl">
+                {/* デスクトップ用広告 */}
+                <div className="hidden md:block">
+                  <NinjaAdMax 
+                    adId={AD_CONFIG.NINJA_ADMAX.DESKTOP_BANNER}
+                    width={728}
+                    height={90}
+                    className="mx-auto"
+                  />
+                </div>
+                {/* モバイル用広告 */}
+                <div className="block md:hidden">
+                  <NinjaAdMax 
+                    adId={AD_CONFIG.NINJA_ADMAX.MOBILE_BANNER}
+                    width={320}
+                    height={50}
+                    className="mx-auto"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
