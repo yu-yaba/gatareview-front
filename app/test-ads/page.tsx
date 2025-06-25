@@ -1,7 +1,8 @@
 'use client'
 
-import { AD_CONFIG } from '../config/adConfig';
+import { AD_CONFIG, AD_SIZES } from '../config/adConfig';
 import NinjaAdMax from '../_components/NinjaAdMax';
+import ResponsiveAd from '../_components/ResponsiveAd';
 
 export default function TestAdsPage() {
   console.log('=== 広告設定テスト ===');
@@ -26,8 +27,8 @@ export default function TestAdsPage() {
           <div className="border-2 border-dashed border-gray-300 p-4">
             <NinjaAdMax 
               adId={AD_CONFIG.NINJA_ADMAX.DESKTOP_BANNER}
-              width={728}
-              height={90}
+              width={AD_SIZES.DESKTOP_BANNER.width}
+              height={AD_SIZES.DESKTOP_BANNER.height}
               className="mx-auto"
             />
           </div>
@@ -38,8 +39,8 @@ export default function TestAdsPage() {
           <div className="border-2 border-dashed border-gray-300 p-4">
             <NinjaAdMax 
               adId={AD_CONFIG.NINJA_ADMAX.MOBILE_BANNER}
-              width={320}
-              height={50}
+              width={AD_SIZES.MOBILE_BANNER.width}
+              height={AD_SIZES.MOBILE_BANNER.height}
               className="mx-auto"
             />
           </div>
@@ -47,30 +48,7 @@ export default function TestAdsPage() {
 
         <div>
           <h2 className="text-xl font-semibold mb-4">レスポンシブテスト（実際の配置）</h2>
-          <div className="flex justify-center mt-12 mb-8 px-4">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-100/50 w-full max-w-4xl">
-              {/* デスクトップ用広告 */}
-              <div className="hidden md:block">
-                <p className="text-sm text-gray-600 mb-2 text-center">デスクトップ表示:</p>
-                <NinjaAdMax 
-                  adId={AD_CONFIG.NINJA_ADMAX.DESKTOP_BANNER}
-                  width={728}
-                  height={90}
-                  className="mx-auto"
-                />
-              </div>
-              {/* モバイル用広告 */}
-              <div className="block md:hidden">
-                <p className="text-sm text-gray-600 mb-2 text-center">モバイル表示:</p>
-                <NinjaAdMax 
-                  adId={AD_CONFIG.NINJA_ADMAX.MOBILE_BANNER}
-                  width={320}
-                  height={50}
-                  className="mx-auto"
-                />
-              </div>
-            </div>
-          </div>
+          <ResponsiveAd aria-label="テストページ用レスポンシブ広告" />
         </div>
       </div>
     </div>

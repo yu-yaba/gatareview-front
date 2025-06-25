@@ -1,36 +1,48 @@
 'use client'
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
-interface NinjaAdMaxProps {
+export interface NinjaAdMaxProps {
   adId: string;
   width?: number;
   height?: number;
   className?: string;
+  'aria-label'?: string;
 }
 
 const NinjaAdMax: React.FC<NinjaAdMaxProps> = ({ 
   adId, 
   width = 728, 
   height = 90, 
-  className = '' 
+  className = '',
+  'aria-label': ariaLabel = '広告'
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // 広告IDが空の場合は何もしない
-    if (!adId || typeof window === 'undefined' || !adRef.current) {
-      return;
-    }
+  const loadAdScript = useCallback(() => {
+    if (!adRef.current || !adId) return;
+
+    // 既存のスクリプトをクリア
+    adRef.current.innerHTML = '';
 
     // 忍者AdMaxの広告コードを動的に挿入
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.async = true;
-    script.src = `https://www.ninja.co.jp/admax/js/admax.js?id=${adId}`;
+    script.src = `https://www.ninja.co.jp/admax/js/admax.js?id=${encodeURIComponent(adId)}`;
+    script.onerror = () => {
+      console.warn('Failed to load NinjaAdMax script');
+    };
     
-    // 広告要素をクリア
-    adRef.current.innerHTML = '';
     adRef.current.appendChild(script);
+  }, [adId]);
+
+  useEffect(() => {
+    // 広告IDが空の場合は何もしない
+    if (!adId || typeof window === 'undefined') {
+      return;
+    }
+
+    loadAdScript();
     
     return () => {
       // クリーンアップ
@@ -38,12 +50,14 @@ const NinjaAdMax: React.FC<NinjaAdMaxProps> = ({
         adRef.current.innerHTML = '';
       }
     };
-  }, [adId]);
+  }, [adId, loadAdScript]);
 
   // 広告IDが空の場合は何も表示しない
   if (!adId) {
     return null;
   }
+
+  const minWidth = Math.min(width, 320);
 
   return (
     <div 
@@ -51,7 +65,7 @@ const NinjaAdMax: React.FC<NinjaAdMaxProps> = ({
       style={{
         width: '100%',
         maxWidth: `${width}px`,
-        minWidth: `${Math.min(width, 320)}px`, // 最小幅を設定
+        minWidth: `${minWidth}px`,
         height: `${height}px`,
         margin: '0 auto',
         display: 'flex',
@@ -60,6 +74,8 @@ const NinjaAdMax: React.FC<NinjaAdMaxProps> = ({
         overflow: 'hidden',
         opacity: 0.8
       }}
+      role="banner"
+      aria-label={ariaLabel}
     >
       <div 
         ref={adRef}
