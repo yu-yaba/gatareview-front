@@ -100,7 +100,13 @@ const NewReviewPage = () => {
       setIsLoading(true);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?search=${encodeURIComponent(search.trim())}&page=${page}`,
-        { signal: abortControllerRef.current.signal }
+        { 
+          signal: abortControllerRef.current.signal,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       if (!response.ok) {
@@ -136,7 +142,20 @@ const NewReviewPage = () => {
       }
 
       console.error('Search error:', error);
-      handleAjaxError("授業の検索に失敗しました。ネットワーク接続を確認してください。");
+      
+      // より詳細なエラーハンドリング
+      if (error.message?.includes('500')) {
+        handleAjaxError("サーバーエラーが発生しました。しばらく時間をおいてから再度お試しください。");
+      } else if (error.message?.includes('404')) {
+        handleAjaxError("APIエンドポイントが見つかりません。");
+      } else if (error.message?.includes('Network') || error.name === 'TypeError') {
+        handleAjaxError("ネットワーク接続を確認してください。");
+      } else if (error.message?.includes('timeout')) {
+        handleAjaxError("リクエストがタイムアウトしました。再度お試しください。");
+      } else {
+        handleAjaxError("授業の検索に失敗しました。しばらく時間をおいてから再度お試しください。");
+      }
+      
       setFetchedLectures([]);
       setTotalPages(0);
       setTotalCount(0);
