@@ -9,6 +9,7 @@ import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity } from 'react-icons/fa';
+import ResponsiveAd from '../../../_components/ResponsiveAd';
 
 declare global {
   interface Window {
@@ -394,6 +395,9 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
           </form>
         </div>
       </div>
+
+      {/* 広告エリア（ページ下部） */}
+      <ResponsiveAd aria-label="レビュー投稿ページ下部広告" />
     </div>
   );
 };

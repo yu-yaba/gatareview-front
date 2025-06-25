@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import BasicSlider from './_components/Slider';
+import ResponsiveAd from './_components/ResponsiveAd';
 import './globals.css';
 import { FaSearch, FaUsers, FaStar, FaGraduationCap, FaChartLine, FaBookOpen, FaLightbulb, FaHeart, FaCommentAlt } from 'react-icons/fa';
 
@@ -616,6 +617,9 @@ export default function Page() {
           </div>
         </div>
       </section>
+
+      {/* 広告エリア（ページ下部） */}
+      <ResponsiveAd aria-label="ホームページ下部広告" />
     </div>
   );
 }

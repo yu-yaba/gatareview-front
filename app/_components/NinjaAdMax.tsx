@@ -28,7 +28,7 @@ const NinjaAdMax: React.FC<NinjaAdMaxProps> = ({
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.async = true;
-    script.src = `https://www.ninja.co.jp/admax/js/admax.js?id=${encodeURIComponent(adId)}`;
+    script.src = `https://adm.shinobi.jp/s/${encodeURIComponent(adId)}`;
     script.onerror = () => {
       console.warn('Failed to load NinjaAdMax script');
     };
