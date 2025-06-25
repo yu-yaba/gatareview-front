@@ -147,11 +147,13 @@ const NewReviewPage = () => {
       if (error.message?.includes('500')) {
         handleAjaxError("サーバーエラーが発生しました。しばらく時間をおいてから再度お試しください。");
       } else if (error.message?.includes('404')) {
-        handleAjaxError("API エンドポイントが見つかりません。");
-      } else if (error.message?.includes('Network')) {
+        handleAjaxError("APIエンドポイントが見つかりません。");
+      } else if (error.message?.includes('Network') || error.name === 'TypeError') {
         handleAjaxError("ネットワーク接続を確認してください。");
+      } else if (error.message?.includes('timeout')) {
+        handleAjaxError("リクエストがタイムアウトしました。再度お試しください。");
       } else {
-        handleAjaxError(`授業の検索に失敗しました: ${error.message || 'Unknown error'}`);
+        handleAjaxError("授業の検索に失敗しました。しばらく時間をおいてから再度お試しください。");
       }
       
       setFetchedLectures([]);
