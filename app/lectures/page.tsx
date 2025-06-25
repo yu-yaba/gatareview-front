@@ -7,6 +7,7 @@ import { handleAjaxError } from '../_helpers/helpers';
 import Loading from 'react-loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import ResponsiveAd from '../_components/ResponsiveAd';
 
 interface PaginationInfo {
   current_page: number;
@@ -797,6 +798,7 @@ const LectureList = () => {
               </div>
             </div>
 
+
             {/* 結果表示 */}
             <div className="mb-6">
               <div className="flex justify-center">
@@ -824,6 +826,9 @@ const LectureList = () => {
 
                   {/* ページネーション */}
                   {paginationElements}
+
+                  {/* 広告エリア（ページ下部） */}
+                  <ResponsiveAd aria-label="授業一覧ページ下部広告" />
                 </>
               ) : (
                 <div className="text-center py-16">

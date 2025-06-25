@@ -7,6 +7,7 @@ import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine } from 'react-icons/fa';
+import ResponsiveAd from '../../_components/ResponsiveAd';
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
@@ -130,6 +131,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
             </Link>
           </div>
 
+
           {/* レビュー一覧セクション */}
           <div className="max-w-6xl mx-auto">
             {/* レビューカード */}
@@ -243,6 +245,9 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                 <p className="text-gray-400 mb-6">この授業の最初のレビューを投稿してみませんか？</p>
               </div>
             )}
+
+            {/* 広告エリア（ページ下部） */}
+            <ResponsiveAd aria-label="授業詳細ページ下部広告" />
           </div>
         </div>
       </div>

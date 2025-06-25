@@ -317,6 +317,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="//www.google.com" />
       </head>
       <body className={inter.className}>
         <Header />
@@ -326,6 +327,10 @@ export default function RootLayout({
         </main>
         <Footer />
         <PWAInstall />
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   )

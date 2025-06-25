@@ -7,6 +7,7 @@ import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Loading from 'react-loading';
 import { debounce } from 'lodash';
+import ResponsiveAd from '../../_components/ResponsiveAd';
 
 const NewReviewPage = () => {
   const [searchWord, setSearchWord] = useState('');
@@ -356,6 +357,7 @@ const NewReviewPage = () => {
         />
       </div>
 
+
       {isLoading ? (
         <LoadingSpinner />
       ) : (
@@ -373,6 +375,9 @@ const NewReviewPage = () => {
           )}
         </div>
       )}
+
+      {/* 広告エリア（ページ下部） */}
+      <ResponsiveAd aria-label="レビュー投稿ページ下部広告" />
     </section>
   );
 };
