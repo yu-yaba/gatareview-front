@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 export interface NinjaAdMaxProps {
   adId: string;
@@ -18,46 +18,41 @@ const NinjaAdMax: React.FC<NinjaAdMaxProps> = ({
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
 
-  const loadAdScript = useCallback(() => {
-    if (!adRef.current || !adId) return;
-
-    // 既存のスクリプトをクリア
-    adRef.current.innerHTML = '';
-
-    // 忍者AdMaxの広告コードを動的に挿入
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
-    script.src = `https://adm.shinobi.jp/s/${encodeURIComponent(adId)}`;
-    script.onerror = () => {
-      console.warn('Failed to load NinjaAdMax script');
-    };
-    
-    adRef.current.appendChild(script);
-  }, [adId]);
-
   useEffect(() => {
-    // 広告IDが空の場合は何もしない
-    if (!adId || typeof window === 'undefined') {
+    if (!adId || typeof window === 'undefined' || !adRef.current) {
       return;
     }
 
-    loadAdScript();
-    
+    // 少し遅延させてDOMが完全に準備されてから実行
+    const timer = setTimeout(() => {
+      if (!adRef.current) return;
+
+      // 忍者AdMaxスクリプトを直接挿入（提供されたタグと同じ方式）
+      const script = document.createElement('script');
+      script.src = `https://adm.shinobi.jp/s/${adId}`;
+      script.async = true;
+      script.onload = () => {
+        console.log(`NinjaAdMax script loaded: ${adId}`);
+      };
+      script.onerror = () => {
+        console.warn(`Failed to load NinjaAdMax script: ${adId}`);
+      };
+      
+      adRef.current.appendChild(script);
+    }, 100);
+
     return () => {
+      clearTimeout(timer);
       // クリーンアップ
       if (adRef.current) {
         adRef.current.innerHTML = '';
       }
     };
-  }, [adId, loadAdScript]);
+  }, [adId]);
 
-  // 広告IDが空の場合は何も表示しない
   if (!adId) {
     return null;
   }
-
-  const minWidth = Math.min(width, 320);
 
   return (
     <div 
@@ -65,25 +60,14 @@ const NinjaAdMax: React.FC<NinjaAdMaxProps> = ({
       style={{
         width: '100%',
         maxWidth: `${width}px`,
-        minWidth: `${minWidth}px`,
         height: `${height}px`,
         margin: '0 auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        opacity: 0.8
+        textAlign: 'center'
       }}
       role="banner"
       aria-label={ariaLabel}
     >
-      <div 
-        ref={adRef}
-        className="w-full h-full"
-        style={{
-          minHeight: `${height}px`
-        }}
-      />
+      <div ref={adRef} />
     </div>
   );
 };

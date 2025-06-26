@@ -12,7 +12,7 @@ export default function TestAdsPage() {
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-2xl font-bold mb-8">忍者AdMax 広告テストページ</h1>
-      
+
       <div className="space-y-8">
         <div>
           <h2 className="text-xl font-semibold mb-4">設定確認</h2>
@@ -25,7 +25,7 @@ export default function TestAdsPage() {
         <div>
           <h2 className="text-xl font-semibold mb-4">デスクトップ用バナー (728x90)</h2>
           <div className="border-2 border-dashed border-gray-300 p-4">
-            <NinjaAdMax 
+            <NinjaAdMax
               adId={AD_CONFIG.NINJA_ADMAX.DESKTOP_BANNER}
               width={AD_SIZES.DESKTOP_BANNER.width}
               height={AD_SIZES.DESKTOP_BANNER.height}
@@ -37,7 +37,7 @@ export default function TestAdsPage() {
         <div>
           <h2 className="text-xl font-semibold mb-4">モバイル用バナー (320x50)</h2>
           <div className="border-2 border-dashed border-gray-300 p-4">
-            <NinjaAdMax 
+            <NinjaAdMax
               adId={AD_CONFIG.NINJA_ADMAX.MOBILE_BANNER}
               width={AD_SIZES.MOBILE_BANNER.width}
               height={AD_SIZES.MOBILE_BANNER.height}
@@ -50,6 +50,9 @@ export default function TestAdsPage() {
           <h2 className="text-xl font-semibold mb-4">レスポンシブテスト（実際の配置）</h2>
           <ResponsiveAd aria-label="テストページ用レスポンシブ広告" />
         </div>
+
+        <script src="https://adm.shinobi.jp/s/ce477fad9b9f4586dab04db33f985a46"></script>
+        <script src="https://adm.shinobi.jp/s/6bea42fbd2a8dbd807b3bebe1692bd83"></script>
       </div>
     </div>
   );
