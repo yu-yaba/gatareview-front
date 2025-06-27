@@ -294,6 +294,14 @@ const LectureList = () => {
     });
   }, [tempSearchWord, tempSelectedFaculty, tempSortType, tempPeriodYear, tempPeriodTerm, tempTextbook, tempAttendance, tempGradingType, tempContentDifficulty, tempContentQuality, updateURL]);
 
+  // エンターキー押下時のハンドラー
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSearch();
+    }
+  }, [handleSearch]);
+
   // 検索実行時のAPI呼び出し（初期化完了後のみ）
   useEffect(() => {
     if (isInitialized) {
@@ -513,6 +521,7 @@ const LectureList = () => {
                                   ref={searchInput}
                                   value={tempSearchWord}
                                   onChange={handleSearchWordChange}
+                                  onKeyDown={handleKeyDown}
                                   aria-describedby="search-help"
                                 />
                                 <p id="search-help" className="sr-only">授業名または教授名で検索できます</p>
