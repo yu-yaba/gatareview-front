@@ -453,19 +453,39 @@ const LectureList = () => {
                 {/* 評価セクション */}
                 <div className="w-full sm:w-5/12 lg:w-5/12 flex flex-col items-center sm:items-end">
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-xl text-yellow-500 font-bold">
-                      {lecture.avg_rating}
-                    </h2>
-                    <ReactStars
-                      value={lecture.avg_rating}
-                      size={16}
-                      edit={false}
-                      half={true}
-                      className="flex"
-                    />
-                    <span className="text-sm text-gray-500 font-medium">
-                      ({lecture.reviews?.length || 0}件)
-                    </span>
+                    {lecture.review_count > 0 ? (
+                      <>
+                        <h2 className="text-xl text-yellow-500 font-bold">
+                          {lecture.avg_rating.toFixed(1)}
+                        </h2>
+                        <ReactStars
+                          value={lecture.avg_rating}
+                          size={16}
+                          edit={false}
+                          half={true}
+                          className="flex"
+                        />
+                        <span className="text-sm text-gray-500 font-medium">
+                          ({lecture.review_count}件)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <h2 className="text-lg text-gray-400 font-medium">
+                          未評価
+                        </h2>
+                        <ReactStars
+                          value={0}
+                          size={16}
+                          edit={false}
+                          half={true}
+                          className="flex"
+                        />
+                        <span className="text-sm text-gray-500 font-medium">
+                          (0件)
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
