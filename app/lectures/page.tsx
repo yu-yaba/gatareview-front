@@ -152,25 +152,48 @@ const LectureList = () => {
   }, [searchParams]);
 
   // API呼び出し関数（確定済みの状態のみ使用）
-  const fetchLectures = useCallback(async (page = 1) => {
+  const fetchLectures = useCallback(async (page = 1, searchParams?: {
+    searchWord?: string;
+    selectedFaculty?: string;
+    sortType?: string;
+    periodYear?: string;
+    periodTerm?: string;
+    textbook?: string;
+    attendance?: string;
+    gradingType?: string;
+    contentDifficulty?: string;
+    contentQuality?: string;
+  }) => {
     try {
       setIsLoading(true);
 
       const params = new URLSearchParams();
       params.append('page', page.toString());
 
-      if (confirmedSearchWord) params.append('search', confirmedSearchWord);
-      if (confirmedSelectedFaculty) params.append('faculty', confirmedSelectedFaculty);
-      if (confirmedSortType) params.append('sort', confirmedSortType);
+      // パラメータが渡された場合はそれを使用、そうでなければ確定済み状態を使用
+      const searchWord = searchParams?.searchWord ?? confirmedSearchWord;
+      const selectedFaculty = searchParams?.selectedFaculty ?? confirmedSelectedFaculty;
+      const sortType = searchParams?.sortType ?? confirmedSortType;
+      const periodYear = searchParams?.periodYear ?? confirmedPeriodYear;
+      const periodTerm = searchParams?.periodTerm ?? confirmedPeriodTerm;
+      const textbook = searchParams?.textbook ?? confirmedTextbook;
+      const attendance = searchParams?.attendance ?? confirmedAttendance;
+      const gradingType = searchParams?.gradingType ?? confirmedGradingType;
+      const contentDifficulty = searchParams?.contentDifficulty ?? confirmedContentDifficulty;
+      const contentQuality = searchParams?.contentQuality ?? confirmedContentQuality;
 
-      // 確定済みの詳細検索パラメータ
-      if (confirmedPeriodYear) params.append('period_year', confirmedPeriodYear);
-      if (confirmedPeriodTerm) params.append('period_term', confirmedPeriodTerm);
-      if (confirmedTextbook) params.append('textbook', confirmedTextbook);
-      if (confirmedAttendance) params.append('attendance', confirmedAttendance);
-      if (confirmedGradingType) params.append('grading_type', confirmedGradingType);
-      if (confirmedContentDifficulty) params.append('content_difficulty', confirmedContentDifficulty);
-      if (confirmedContentQuality) params.append('content_quality', confirmedContentQuality);
+      if (searchWord) params.append('search', searchWord);
+      if (selectedFaculty) params.append('faculty', selectedFaculty);
+      if (sortType) params.append('sort', sortType);
+
+      // 詳細検索パラメータ
+      if (periodYear) params.append('period_year', periodYear);
+      if (periodTerm) params.append('period_term', periodTerm);
+      if (textbook) params.append('textbook', textbook);
+      if (attendance) params.append('attendance', attendance);
+      if (gradingType) params.append('grading_type', gradingType);
+      if (contentDifficulty) params.append('content_difficulty', contentDifficulty);
+      if (contentQuality) params.append('content_quality', contentQuality);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?${params.toString()}`, {
         next: { revalidate: 60 }
@@ -238,7 +261,18 @@ const LectureList = () => {
 
     // 初回のデータ取得
     setTimeout(() => {
-      fetchLectures(initialState.currentPage);
+      fetchLectures(initialState.currentPage, {
+        searchWord: initialState.searchWord,
+        selectedFaculty: initialState.selectedFaculty,
+        sortType: initialState.sortType,
+        periodYear: initialState.periodYear,
+        periodTerm: initialState.periodTerm,
+        textbook: initialState.textbook,
+        attendance: initialState.attendance,
+        gradingType: initialState.gradingType,
+        contentDifficulty: initialState.contentDifficulty,
+        contentQuality: initialState.contentQuality
+      });
       setIsInitialized(true);
     }, 0);
 
@@ -276,6 +310,20 @@ const LectureList = () => {
     setCurrentPage(1);
     setShowDetailedSearch(false);
 
+    // 直接API呼び出し
+    fetchLectures(1, {
+      searchWord: tempSearchWord,
+      selectedFaculty: tempSelectedFaculty,
+      sortType: tempSortType,
+      periodYear: tempPeriodYear,
+      periodTerm: tempPeriodTerm,
+      textbook: tempTextbook,
+      attendance: tempAttendance,
+      gradingType: tempGradingType,
+      contentDifficulty: tempContentDifficulty,
+      contentQuality: tempContentQuality
+    });
+
     // URLパラメータを更新
     updateURL({
       search: tempSearchWord,
@@ -291,7 +339,7 @@ const LectureList = () => {
       content_quality: tempContentQuality,
       detailed: 'false'
     });
-  }, [tempSearchWord, tempSelectedFaculty, tempSortType, tempPeriodYear, tempPeriodTerm, tempTextbook, tempAttendance, tempGradingType, tempContentDifficulty, tempContentQuality, updateURL]);
+  }, [tempSearchWord, tempSelectedFaculty, tempSortType, tempPeriodYear, tempPeriodTerm, tempTextbook, tempAttendance, tempGradingType, tempContentDifficulty, tempContentQuality, updateURL, fetchLectures]);
 
   // エンターキー押下時のハンドラー
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -301,13 +349,6 @@ const LectureList = () => {
     }
   }, [handleSearch]);
 
-  // 検索実行時のAPI呼び出し（初期化完了後のみ）
-  useEffect(() => {
-    if (isInitialized) {
-      fetchLectures(1);
-      setCurrentPage(1);
-    }
-  }, [isInitialized, confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, fetchLectures]);
 
   // ページ変更ハンドラー（確定済み状態を使用）
   const handlePageChange = useCallback((page: number) => {
