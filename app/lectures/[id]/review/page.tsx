@@ -8,7 +8,8 @@ import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity } from 'react-icons/fa';
+import Loading from 'react-loading';
+import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
 
 declare global {
   interface Window {
@@ -260,10 +261,8 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="mb-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
-          </div>
-          <p className="text-gray-600">授業を読み込み中...</p>
+          <Loading type={"bubbles"} width={200} height={200} color={"#1DBE67"} />
+          <p className="text-gray-600 mt-4">授業を読み込み中...</p>
         </div>
       </div>
     );
@@ -310,14 +309,25 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
                     必須
                   </span>
                 </p>
-                <div className="flex justify-center p-8 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl shadow-lg border border-yellow-100">
-                  <ReactStars
-                    onChange={starOnChange}
-                    size={36}
-                    value={ratingValue}
-                    edit={true}
-                    color2="#EAB308"
-                  />
+                <div className="flex flex-col items-center justify-center p-8 rounded-3xl shadow-lg border border-yellow-200/50 backdrop-blur-sm">
+                  <div className="flex items-center space-x-2 mb-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => starOnChange(star)}
+                        className={`p-2 transition-all duration-300 transform hover:scale-125 focus:outline-none focus:scale-125 ${star <= ratingValue ? 'text-yellow-300' : 'text-gray-300'
+                          }`}
+                        aria-label={`${star}つ星を選択`}
+                      >
+                        <FaStar className="w-8 h-8 drop-shadow-sm" />
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-center ">
+                    <span className="text-2xl font-bold text-yellow-400">{ratingValue}</span>
+                    <span className="text-lg text-gray-600 ml-1">/ 5</span>
+                  </div>
                 </div>
               </label>
             </div>
