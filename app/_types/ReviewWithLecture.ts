@@ -6,6 +6,7 @@ export type ReviewWithLecture = {
     id: number;
     title: string;
     lecturer: string;
+    faculty: string;
     avg_rating?: number;
   };
 }
