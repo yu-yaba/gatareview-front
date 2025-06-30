@@ -57,6 +57,36 @@ body {
   }
 }
 
+/* Enhanced responsive utilities for tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet\:flex-col {
+    flex-direction: column;
+  }
+  
+  .tablet\:text-center {
+    text-align: center;
+  }
+  
+  .tablet\:space-y-4 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+  }
+}
+
+/* Improved card scaling for different screen sizes */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .animate-card-hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+@media (min-width: 1024px) {
+  .animate-card-hover-lift:hover {
+    transform: translateY(-12px) scale(1.03);
+  }
+}
+
 /* Swiper slide image fix for specific webkit browsers */
 _::-webkit-full-page-media, 
 _:future, 
@@ -764,7 +794,9 @@ _:future,
   }
 }
 
-/* Animation Classes */
+/* ========================================
+   Animation Classes
+======================================== */
 .animate-fade-in {
   animation: fade-in 0.8s ease-out forwards;
 }
@@ -795,6 +827,302 @@ _:future,
 
 .animate-pulse-gentle {
   animation: pulse-gentle 3s infinite;
+}
+
+/* ========================================
+   Revolutionary Cyberpunk Design System
+======================================== */
+
+/* Cyberpunk Gradients */
+.gradient-cyberpunk {
+  background: linear-gradient(135deg, 
+    #0a0a0a 0%, 
+    #1a1a2e 25%, 
+    #16213e 50%, 
+    #0f3460 75%, 
+    #533483 100%);
+  background-size: 400% 400%;
+  animation: gradient-flow 15s ease infinite;
+}
+
+.gradient-plasma {
+  background: linear-gradient(45deg, 
+    #ff006e, 
+    #8338ec, 
+    #3a86ff, 
+    #06ffa5);
+  background-size: 400% 400%;
+  animation: gradient-flow 8s ease infinite;
+}
+
+.gradient-aurora {
+  background: linear-gradient(90deg, 
+    #00f5ff, 
+    #ff00aa, 
+    #00ff88, 
+    #ff4081, 
+    #40e0d0);
+  background-size: 300% 300%;
+  animation: gradient-flow 10s ease infinite;
+}
+
+/* Neon Text Effects */
+.text-neon-blue {
+  color: #00ffff;
+  text-shadow: 
+    0 0 5px #00ffff,
+    0 0 10px #00ffff,
+    0 0 20px #00ffff,
+    0 0 40px #00ffff;
+}
+
+.text-neon-cyan {
+  color: #40e0d0;
+  text-shadow: 
+    0 0 5px #40e0d0,
+    0 0 10px #40e0d0,
+    0 0 20px #40e0d0;
+}
+
+.text-neon-green {
+  color: #39ff14;
+  text-shadow: 
+    0 0 5px #39ff14,
+    0 0 10px #39ff14,
+    0 0 20px #39ff14;
+}
+
+.text-holographic {
+  background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-flow 4s ease infinite;
+  filter: drop-shadow(0 0 10px rgba(131, 56, 236, 0.5));
+}
+
+/* Advanced Card Effects */
+.card-futuristic {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-futuristic:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(0, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.hologram-card {
+  background: linear-gradient(45deg, 
+    rgba(0, 255, 255, 0.1), 
+    rgba(255, 0, 170, 0.1), 
+    rgba(0, 255, 136, 0.1));
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 
+    0 0 30px rgba(0, 255, 255, 0.3),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  animation: hologram-flicker 3s ease infinite;
+}
+
+.glass-morphism-next {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.neumorphism-next {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1));
+  box-shadow: 
+    20px 20px 60px rgba(0, 0, 0, 0.3),
+    -20px -20px 60px rgba(255, 255, 255, 0.05),
+    inset 5px 5px 10px rgba(0, 0, 0, 0.2),
+    inset -5px -5px 10px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Advanced Animation Effects */
+.magnetic-field {
+  animation: magnetic-pulse 4s ease infinite;
+}
+
+.animate-float-complex {
+  animation: float-complex 6s ease-in-out infinite;
+}
+
+.animate-pulse-3d {
+  animation: pulse-3d 2s ease infinite;
+}
+
+.particle-system {
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #00ffff, transparent),
+    radial-gradient(2px 2px at 40px 70px, #ff00aa, transparent),
+    radial-gradient(1px 1px at 90px 40px, #00ff88, transparent),
+    radial-gradient(1px 1px at 130px 80px, #ff4081, transparent),
+    radial-gradient(2px 2px at 160px 30px, #40e0d0, transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: particle-drift 15s linear infinite;
+}
+
+.particle-field-next {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(0, 255, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 0, 170, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 50% 10%, rgba(0, 255, 136, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(255, 64, 129, 0.2) 0%, transparent 50%);
+  animation: particle-field-shift 20s ease infinite;
+}
+
+.cyber-grid {
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: grid-shift 10s linear infinite;
+}
+
+.hologram-scan {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: hologram-scan-move 8s ease infinite;
+}
+
+/* Advanced Keyframes */
+@keyframes gradient-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes hologram-flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  75% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes magnetic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 0, 170, 0.4);
+  }
+}
+
+@keyframes float-complex {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(5px) rotate(-1deg);
+  }
+}
+
+@keyframes pulse-3d {
+  0%, 100% {
+    transform: scale(1) rotateX(0deg);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.05) rotateX(5deg);
+    box-shadow: 0 10px 40px rgba(255, 0, 170, 0.5);
+  }
+}
+
+@keyframes particle-drift {
+  0% {
+    background-position: 0px 0px, 0px 0px, 0px 0px, 0px 0px, 0px 0px;
+  }
+  100% {
+    background-position: 500px 0px, -200px 0px, 300px 0px, -400px 0px, 200px 0px;
+  }
+}
+
+@keyframes particle-field-shift {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(50px) translateY(-30px);
+  }
+  50% {
+    transform: translateX(-30px) translateY(20px);
+  }
+  75% {
+    transform: translateX(20px) translateY(-10px);
+  }
+}
+
+@keyframes grid-shift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+@keyframes hologram-scan-move {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
 }
 
 /* Delay utilities */
@@ -943,4 +1271,506 @@ _:future,
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   次世代デザインシステム - 革新的エフェクト
+======================================== */
+
+/* 高度なグラデーション効果 */
+.gradient-cosmic {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+  background-size: 400% 400%;
+  animation: cosmic-gradient 15s ease infinite;
+}
+
+.gradient-aurora {
+  background: linear-gradient(45deg, #00c6ff, #0072ff, #a8edea, #fed6e3, #ff9a9e);
+  background-size: 300% 300%;
+  animation: aurora-flow 12s ease infinite;
+}
+
+.gradient-plasma {
+  background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+  background-size: 400% 400%;
+  animation: plasma-wave 10s ease infinite;
+}
+
+/* 次世代グラスモーフィズム */
+.glass-morphism-next {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.glass-morphism-next::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent, rgba(255, 255, 255, 0.1));
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* 革新的ニューモーフィズム */
+.neumorphism-next {
+  background: linear-gradient(145deg, #f0f4f8, #e2e8f0);
+  box-shadow: 
+    20px 20px 60px #d1d9e6,
+    -20px -20px 60px #ffffff,
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+
+.neumorphism-next::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  bottom: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.02));
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* 3D ホログラム効果 */
+.hologram-card {
+  position: relative;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  background-size: 200% 200%;
+  animation: hologram-sweep 3s ease-in-out infinite;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.hologram-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+  opacity: 0.1;
+  border-radius: inherit;
+  animation: rainbow-shift 8s ease infinite;
+  z-index: -1;
+}
+
+.hologram-card:hover {
+  transform: rotateY(15deg) rotateX(5deg) scale(1.05);
+  box-shadow: 
+    0 50px 100px -20px rgba(0, 0, 0, 0.3),
+    0 0 50px rgba(255, 255, 255, 0.2);
+}
+
+/* マグネティック・インタラクション */
+.magnetic-field {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  cursor: pointer;
+}
+
+.magnetic-field::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.magnetic-field:hover::before {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.magnetic-field:hover {
+  transform: translate3d(0, -12px, 20px) scale(1.02);
+  filter: drop-shadow(0 25px 50px rgba(16, 185, 129, 0.2));
+}
+
+/* パーティクル効果システム */
+.particle-system {
+  position: relative;
+  overflow: hidden;
+}
+
+.particle-system::before,
+.particle-system::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #4facfe, transparent);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.particle-system::before {
+  top: 20%;
+  left: 20%;
+  animation: float-particle-complex-1 8s ease-in-out infinite;
+}
+
+.particle-system::after {
+  top: 70%;
+  right: 30%;
+  animation: float-particle-complex-2 12s ease-in-out infinite;
+  background: radial-gradient(circle, #f093fb, transparent);
+}
+
+/* 液体アニメーション効果 */
+.liquid-border-advanced {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+}
+
+.liquid-border-advanced::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #ff6b6b);
+  animation: liquid-rotate-complex 6s linear infinite;
+  z-index: -2;
+}
+
+.liquid-border-advanced::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+  backdrop-filter: blur(20px);
+}
+
+/* 高度なテキストエフェクト */
+.text-cosmic {
+  background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: cosmic-text 8s ease infinite;
+  position: relative;
+}
+
+.text-cosmic::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: blur(2px);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.text-holographic {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: holographic-text 6s ease infinite;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  position: relative;
+}
+
+/* 浮遊効果の強化 */
+.float-complex {
+  animation: float-complex 8s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.float-complex:nth-child(2n) {
+  animation-delay: -2s;
+  animation-duration: 10s;
+}
+
+.float-complex:nth-child(3n) {
+  animation-delay: -4s;
+  animation-duration: 12s;
+}
+
+/* インタラクティブ光る境界線 */
+.glow-border-interactive {
+  position: relative;
+  background: linear-gradient(45deg, transparent, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.glow-border-interactive::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff6b6b);
+  background-size: 300% 300%;
+  border-radius: inherit;
+  animation: glow-border-rotate 4s linear infinite;
+  z-index: -1;
+}
+
+/* キーフレーム定義 */
+@keyframes cosmic-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}
+
+@keyframes aurora-flow {
+  0%, 100% { background-position: 0% 50%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
+}
+
+@keyframes plasma-wave {
+  0%, 100% { background-position: 0% 50%; }
+  20% { background-position: 100% 50%; }
+  40% { background-position: 100% 100%; }
+  60% { background-position: 0% 100%; }
+  80% { background-position: 50% 0%; }
+}
+
+@keyframes hologram-sweep {
+  0% { background-position: -200% -200%; }
+  100% { background-position: 200% 200%; }
+}
+
+@keyframes rainbow-shift {
+  0%, 100% { filter: hue-rotate(0deg) saturate(100%); }
+  25% { filter: hue-rotate(90deg) saturate(150%); }
+  50% { filter: hue-rotate(180deg) saturate(100%); }
+  75% { filter: hue-rotate(270deg) saturate(150%); }
+}
+
+@keyframes float-particle-complex-1 {
+  0%, 100% { 
+    transform: translate(0, 0) rotate(0deg) scale(1); 
+    opacity: 0.3; 
+  }
+  25% { 
+    transform: translate(20px, -20px) rotate(90deg) scale(1.2); 
+    opacity: 0.8; 
+  }
+  50% { 
+    transform: translate(-10px, -40px) rotate(180deg) scale(0.8); 
+    opacity: 1; 
+  }
+  75% { 
+    transform: translate(30px, -10px) rotate(270deg) scale(1.1); 
+    opacity: 0.6; 
+  }
+}
+
+@keyframes float-particle-complex-2 {
+  0%, 100% { 
+    transform: translate(0, 0) rotate(0deg) scale(1); 
+    opacity: 0.4; 
+  }
+  33% { 
+    transform: translate(-25px, 15px) rotate(120deg) scale(1.3); 
+    opacity: 0.9; 
+  }
+  66% { 
+    transform: translate(15px, 25px) rotate(240deg) scale(0.7); 
+    opacity: 1; 
+  }
+}
+
+@keyframes liquid-rotate-complex {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes cosmic-text {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}
+
+@keyframes holographic-text {
+  0%, 100% { 
+    background-position: 0% 50%; 
+    filter: hue-rotate(0deg) brightness(100%);
+  }
+  33% { 
+    background-position: 100% 50%; 
+    filter: hue-rotate(120deg) brightness(120%);
+  }
+  66% { 
+    background-position: 50% 100%; 
+    filter: hue-rotate(240deg) brightness(110%);
+  }
+}
+
+@keyframes float-complex {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px) rotateZ(0deg); 
+  }
+  25% { 
+    transform: translateY(-15px) translateX(10px) rotateZ(2deg); 
+  }
+  50% { 
+    transform: translateY(-8px) translateX(-5px) rotateZ(-1deg); 
+  }
+  75% { 
+    transform: translateY(-20px) translateX(8px) rotateZ(1deg); 
+  }
+}
+
+@keyframes glow-border-rotate {
+  0% { 
+    background-position: 0% 50%; 
+    filter: brightness(100%) saturate(100%);
+  }
+  25% { 
+    background-position: 100% 50%; 
+    filter: brightness(120%) saturate(150%);
+  }
+  50% { 
+    background-position: 100% 100%; 
+    filter: brightness(100%) saturate(100%);
+  }
+  75% { 
+    background-position: 0% 100%; 
+    filter: brightness(110%) saturate(130%);
+  }
+  100% { 
+    background-position: 0% 50%; 
+    filter: brightness(100%) saturate(100%);
+  }
+}
+
+/* 次世代カード効果 */
+.card-futuristic {
+  position: relative;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.card-futuristic:hover {
+  transform: translateY(-25px) rotateX(10deg) rotateY(5deg) scale(1.05);
+  box-shadow: 
+    0 60px 120px -20px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.card-futuristic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent, rgba(255, 255, 255, 0.1));
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.card-futuristic:hover::before {
+  opacity: 1;
+}
+
+/* 高度なボタンエフェクト */
+.btn-cosmic {
+  position: relative;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border: none;
+  padding: 12px 24px;
+  color: white;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-style: preserve-3d;
+}
+
+.btn-cosmic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-cosmic:hover::before {
+  left: 100%;
+}
+
+.btn-cosmic:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(45deg, #764ba2, #667eea);
+}
+
+.btn-cosmic:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* レスポンシブな効果無効化 */
+@media (prefers-reduced-motion: reduce) {
+  .gradient-cosmic,
+  .gradient-aurora,
+  .gradient-plasma,
+  .hologram-card,
+  .particle-system::before,
+  .particle-system::after,
+  .liquid-border-advanced::before,
+  .text-cosmic,
+  .text-holographic,
+  .float-complex,
+  .glow-border-interactive::before {
+    animation: none;
+  }
+  
+  .magnetic-field:hover,
+  .card-futuristic:hover,
+  .btn-cosmic:hover {
+    transform: none;
+  }
 }
