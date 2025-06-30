@@ -9,6 +9,7 @@ import ReactStars from "react-stars";
 import { handleAjaxError } from '../_helpers/helpers';
 import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { ReviewWithLecture } from "../_types/ReviewWithLecture";
+import { FaUser, FaUniversity, FaStar, FaCommentAlt } from 'react-icons/fa';
 import React from "react";
 
 // ========================================
@@ -156,30 +157,47 @@ const ReviewSlide = memo<ReviewSlideProps>(({ review, reviewIndex }) => {
       <div className="w-full max-w-xs mx-auto mb-9">
         <Link
           href={`/lectures/${review.lecture.id}`}
-          className="block w-full bg-white rounded-3xl border border-gray-200 shadow-lg hover:shadow-xl p-5 transition-all duration-300 hover:scale-[1.03] hover:border-green-400 hover:bg-gradient-to-br hover:from-green-50 hover:to-white"
+          className="block w-full bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
         >
-          <div className="text-center space-y-3">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">
+          <div className="space-y-4 h-full flex flex-col">
+            <div className="space-y-2 flex-grow">
+              <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
                 {review.lecture.title}
               </h3>
-              <p className="text-xs text-gray-600">{review.lecture.lecturer}</p>
+              <div className="space-y-1">
+                <div className="flex items-center">
+                  <FaUser className="text-blue-500 mr-2 text-sm" />
+                  <p className="text-xs text-gray-700 font-medium">
+                    {review.lecture.lecturer}
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <FaUniversity className="text-purple-500 mr-2 text-sm" />
+                  <p className="text-xs font-semibold text-green-600">
+                    {review.lecture.faculty}
+                  </p>
+                </div>
+              </div>
             </div>
-
-            <div className="flex justify-center">
-              <ReactStars
-                value={review.rating}
-                size={RATING_CONFIG.SIZE}
-                edit={RATING_CONFIG.EDIT}
-                half={RATING_CONFIG.HALF}
-                color1={RATING_CONFIG.INACTIVE_COLOR}
-                color2={RATING_CONFIG.ACTIVE_COLOR}
-              />
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-1">
+                  <FaStar className="text-yellow-400 text-sm" />
+                  <span className="text-xs font-bold text-gray-800">
+                    {review.rating.toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2 bg-green-100 rounded-full px-3 py-1">
+                  <FaCommentAlt className="text-green-500 text-sm" />
+                  <span className="text-xs font-bold text-gray-800">レビュー</span>
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg">
+                {review.content}
+              </p>
             </div>
-
-            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
-              {review.content}
-            </p>
           </div>
         </Link>
       </div>
