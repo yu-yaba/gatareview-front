@@ -56,15 +56,15 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     <div className="min-h-screen bg-white">
       {/* ヘッダーセクション */}
       <div className="relative py-8 px-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl xl:max-w-8xl 2xl:max-w-9xl 3xl:max-w-full mx-auto">
           {/* メイン講義情報カード */}
           <div className="flex justify-center mb-8">
-            <div className="w-full max-w-6xl">
-              <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300">
+            <div className="w-full max-w-6xl xl:max-w-7xl 2xl:max-w-8xl 3xl:max-w-9xl">
+              <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 xl:p-10 2xl:p-12 3xl:p-16 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                   {/* 講義タイトル */}
                   <div className="flex-1 lg:flex-[2]">
-                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 text-center lg:text-left leading-tight">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl 3xl:text-7xl font-bold text-gray-800 text-center lg:text-left leading-tight">
                       {lecture?.title}
                     </h1>
                   </div>
@@ -115,7 +115,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
             <Link href={`/lectures/${params.id}/review`}>
               <button
                 type="button"
-                className="px-10 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group"
+                className="px-10 py-4 xl:px-12 xl:py-5 2xl:px-14 2xl:py-6 3xl:px-16 3xl:py-8 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-base xl:text-lg 2xl:text-xl 3xl:text-2xl rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group"
               >
                 <FaHeart className="mr-3 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300 animate-heartbeat" />
                 <span className="relative z-10">レビューを投稿する</span>
@@ -132,7 +132,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
 
 
           {/* レビュー一覧セクション */}
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-6xl xl:max-w-7xl 2xl:max-w-8xl 3xl:max-w-9xl mx-auto">
             {/* レビューカード */}
             <div className="space-y-6">
               {reviews.reviews && reviews.reviews.map((review: ReviewSchema, index: number) => (
