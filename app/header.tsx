@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import AuthButton from "./_components/AuthButton";
 
 export default function Header() {
   return (
@@ -34,17 +35,8 @@ export default function Header() {
             </button>
           </Link>
 
-          {/* ログインボタン */}
-          <Link href="/login">
-            <button disabled className="flex items-center px-3 py-2 sm:px-4 sm:py-2.5 md:px-4 md:py-2.5 lg:px-6 lg:py-3 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl shadow-lg border border-white/30 transition-all duration-300 hover:bg-white/20 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50">
-              {/* アイコン */}
-              <svg className="w-5 h-5 sm:w-5 sm:h-5 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              {/* テキスト（md以上で表示） */}
-              <span className="hidden md:inline ml-2 text-sm lg:text-base">ログイン</span>
-            </button>
-          </Link>
+          {/* 認証ボタン */}
+          <AuthButton />
         </div>
       </header>
     </>
