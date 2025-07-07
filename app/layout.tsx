@@ -6,6 +6,7 @@ import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
 import ScriptGa from './_components/ScriptGa'
 import PWAInstall from './_components/PWAInstall'
+import ClientProviders from './_components/ClientProviders'
 import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] })
@@ -320,13 +321,15 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//www.google.com" />
       </head>
       <body className={inter.className}>
-        <Header />
-        <ToastContainer />
-        <main>
-          {children}
-        </main>
-        <Footer />
-        <PWAInstall />
+        <ClientProviders>
+          <Header />
+          <ToastContainer />
+          <main>
+            {children}
+          </main>
+          <Footer />
+          <PWAInstall />
+        </ClientProviders>
         <Script
           src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
           strategy="lazyOnload"
