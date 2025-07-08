@@ -6,11 +6,21 @@ import { notFound } from 'next/navigation';
 import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine } from 'react-icons/fa';
+import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit, FaTrash } from 'react-icons/fa';
+import BookmarkButton from '../../_components/BookmarkButton';
+import ThanksButton from '../../_components/ThanksButton';
+import ReviewEditModal from '../../_components/ReviewEditModal';
+import { useSession } from 'next-auth/react';
+import { useAuth } from '../../_hooks/useAuth';
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
   const [lecture, setLecture] = useState<LectureSchema | null>(null)
+  const [editingReview, setEditingReview] = useState<ReviewSchema | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  const { data: session } = useSession();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchLectureDetail = async () => {
@@ -47,6 +57,57 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     };
     fetchReviews();
   }, [params.id]);
+
+  // レビュー削除機能
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!confirm('このレビューを削除しますか？')) return;
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session?.backendToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // レビューリストを更新
+        const updatedReviews = reviews.reviews.filter((review: ReviewSchema) => review.id !== reviewId);
+        let avgRating = "0.0";
+        if (updatedReviews.length > 0) {
+          avgRating = (updatedReviews.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / updatedReviews.length).toFixed(1);
+        }
+        setReviews({ reviews: updatedReviews, avgRating });
+        alert('レビューが削除されました');
+      } else {
+        throw new Error('削除に失敗しました');
+      }
+    } catch (error) {
+      console.error('削除エラー:', error);
+      alert('レビューの削除に失敗しました');
+    }
+  };
+
+  // レビュー編集機能
+  const handleEditReview = (review: ReviewSchema) => {
+    setEditingReview(review);
+    setIsEditModalOpen(true);
+  };
+
+  // 編集後のレビュー更新
+  const handleReviewUpdated = (updatedReview: ReviewSchema) => {
+    const updatedReviews = reviews.reviews.map((review: ReviewSchema) => 
+      review.id === updatedReview.id ? updatedReview : review
+    );
+    let avgRating = "0.0";
+    if (updatedReviews.length > 0) {
+      avgRating = (updatedReviews.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / updatedReviews.length).toFixed(1);
+    }
+    setReviews({ reviews: updatedReviews, avgRating });
+    setIsEditModalOpen(false);
+    setEditingReview(null);
+  };
 
 
 
@@ -103,6 +164,13 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       <p className="text-sm text-gray-500 mt-1">
                         ({reviews.reviews.length}件のレビュー)
                       </p>
+                      
+                      {/* ブックマークボタン */}
+                      {session && lecture && (
+                        <div className="mt-4">
+                          <BookmarkButton lectureId={lecture.id} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -230,6 +298,36 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       </div>
                     </div>
                   )}
+
+                  {/* アクションボタン */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-3">
+                      {/* ありがとうボタン */}
+                      {session && (
+                        <ThanksButton reviewId={review.id} />
+                      )}
+                    </div>
+                    
+                    {/* 編集・削除ボタン（自分のレビューの場合のみ） */}
+                    {session && user && review.user_id === user.id && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEditReview(review)}
+                          className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200 flex items-center gap-1 text-sm"
+                        >
+                          <FaEdit className="text-xs" />
+                          編集
+                        </button>
+                        <button
+                          onClick={() => handleDeleteReview(review.id)}
+                          className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200 flex items-center gap-1 text-sm"
+                        >
+                          <FaTrash className="text-xs" />
+                          削除
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -248,6 +346,19 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           </div>
         </div>
       </div>
+
+      {/* レビュー編集モーダル */}
+      {isEditModalOpen && editingReview && (
+        <ReviewEditModal
+          review={editingReview}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingReview(null);
+          }}
+          onReviewUpdated={handleReviewUpdated}
+        />
+      )}
     </div>
   );
 };
