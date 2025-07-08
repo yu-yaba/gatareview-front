@@ -4,6 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { mypageApi } from '../_helpers/api'
 
 interface MypageData {
   user: {
@@ -52,6 +53,13 @@ export default function MyPage() {
   useEffect(() => {
     // 認証済みの場合にマイページデータを取得
     if (session && status === 'authenticated') {
+      console.log('=== SESSION DEBUG ===')
+      console.log('Full session object:', JSON.stringify(session, null, 2))
+      console.log('Session backendToken:', session.backendToken)
+      console.log('Session accessToken:', session.accessToken)
+      console.log('Session user:', session.user)
+      console.log('Status:', status)
+      console.log('====================')
       fetchMypageData()
     }
   }, [session, status])
@@ -61,21 +69,24 @@ export default function MyPage() {
       setLoading(true)
       setError(null)
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/mypage`, {
-        headers: {
-          'Authorization': `Bearer ${session?.backendToken}`,
-        },
-      })
+      console.log('Fetching mypage data...')
+      console.log('Token:', session?.backendToken ? 'Token present' : 'Token missing')
       
-      if (res.ok) {
-        const data = await res.json()
-        setMypageData(data)
-      } else {
-        throw new Error('データの取得に失敗しました')
-      }
-    } catch (error) {
+      const response = await mypageApi.getMypage()
+      console.log('Mypage data received:', response.data)
+      setMypageData(response.data)
+    } catch (error: any) {
       console.error('マイページデータの取得に失敗:', error)
-      setError('データの取得に失敗しました。時間をおいて再度お試しください。')
+      
+      if (error.response?.status === 401) {
+        setError('認証が必要です。ログインしてください。')
+        // オプション: 自動的にログインページにリダイレクト
+        // router.push('/auth/signin')
+      } else if (error.response?.status === 403) {
+        setError('アクセスが拒否されました。権限を確認してください。')
+      } else {
+        setError('データの取得に失敗しました。時間をおいて再度お試しください。')
+      }
     } finally {
       setLoading(false)
     }

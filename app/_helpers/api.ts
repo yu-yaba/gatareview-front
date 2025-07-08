@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { getSession } from 'next-auth/react'
 
 // API ベースURL
-const API_BASE_URL = process.env.NEXT_PUBLIC_ENV || 'http://localhost:3001/api/v1'
+const API_BASE_URL = process.env.NEXT_PUBLIC_ENV ? `${process.env.NEXT_PUBLIC_ENV}/api/v1` : 'http://localhost:3001/api/v1'
 
 // Axios インスタンスを作成
 const apiClient: AxiosInstance = axios.create({
@@ -112,6 +112,12 @@ export const reviewApi = {
 
   // ユーザーのレビュー一覧を取得（認証必須）
   getUserReviews: () => apiRequest.get('/users/reviews'),
+}
+
+// マイページ関連のAPI関数
+export const mypageApi = {
+  // マイページデータを取得（認証必須）
+  getMypage: () => apiRequest.get('/mypage'),
 }
 
 export default apiClient

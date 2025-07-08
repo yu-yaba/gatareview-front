@@ -11,11 +11,30 @@ const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, account, user }) {
+      console.log('🚀 JWT CALLBACK EXECUTED!')
+      console.log('Account exists:', !!account)
+      console.log('User exists:', !!user)
+      
       // Google認証成功時
       if (account && user) {
+        console.log('=== NextAuth JWT Callback START ===')
+        console.log('Account provider:', account.provider)
+        console.log('Account type:', account.type)
+        console.log('ID Token present:', !!account.id_token)
+        console.log('ID Token length:', account.id_token?.length || 0)
+        console.log('User info:', { name: user.name, email: user.email })
+        console.log('Environment:', process.env.NEXT_PUBLIC_ENV)
+        console.log('Backend API URL:', `${process.env.NEXT_PUBLIC_ENV}/api/v1/auth/google`)
+        
         try {
+          console.log('🔄 Calling backend API...')
+          
+          // Docker内部通信用のURL（サーバーサイド）
+          const backendUrl = process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV
+          console.log('Using backend URL:', backendUrl)
+          
           // バックエンドのGoogle認証APIを呼び出し
-          const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/auth/google`, {
+          const fetchOptions = {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -23,24 +42,59 @@ const authOptions: NextAuthOptions = {
             body: JSON.stringify({
               token: account.id_token,
             }),
+          }
+          
+          console.log('Request options:', {
+            method: fetchOptions.method,
+            headers: fetchOptions.headers,
+            bodyTokenLength: account.id_token?.length || 0
           })
+          
+          const response = await fetch(`${backendUrl}/api/v1/auth/google`, fetchOptions)
 
+          console.log('✅ Backend response received')
+          console.log('Response status:', response.status)
+          console.log('Response ok:', response.ok)
+          console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+          
           if (response.ok) {
             const data = await response.json()
-            // バックエンドからのJWTトークンとユーザー情報を保存
-            token.backendToken = data.token
-            token.user = data.user
+            console.log('✅ Backend response data:', data)
+            
+            if (data.token) {
+              // バックエンドからのJWTトークンとユーザー情報を保存
+              token.backendToken = data.token
+              token.user = data.user
+              console.log('✅ JWT token saved successfully:', data.token.substring(0, 20) + '...')
+            } else {
+              console.error('❌ No token in backend response')
+            }
           } else {
-            console.error('Backend authentication failed')
+            const errorText = await response.text()
+            console.error('❌ Backend authentication failed')
+            console.error('Status:', response.status)
+            console.error('Error text:', errorText)
+            console.error('Full response:', response)
           }
         } catch (error) {
-          console.error('Error authenticating with backend:', error)
+          console.error('❌ Network error calling backend:', error)
+          console.error('Error name:', error.name)
+          console.error('Error message:', error.message)
+          console.error('Error stack:', error.stack)
         }
+        
+        console.log('=== NextAuth JWT Callback END ===')
+        console.log('Final token backendToken:', !!token.backendToken)
+      } else {
+        console.log('NextAuth JWT Callback: No new account/user data')
       }
 
       return token
     },
     async session({ session, token }) {
+      console.log('🎯 SESSION CALLBACK EXECUTED!')
+      console.log('Token backendToken:', token.backendToken)
+      
       // セッションにバックエンドのトークンとユーザー情報を含める
       session.backendToken = token.backendToken || null
       if (token.user) {
