@@ -31,7 +31,7 @@ export default function ThanksButton({
 
   const fetchThanksStatus = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/reviews/${reviewId}/thanks`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${reviewId}/thanks`, {
         headers: {
           'Authorization': `Bearer ${session?.backendToken}`,
         },
@@ -56,7 +56,7 @@ export default function ThanksButton({
     setIsLoading(true)
     
     try {
-      const url = `${process.env.NEXT_PUBLIC_ENV}/reviews/${reviewId}/thanks`
+      const url = `${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${reviewId}/thanks`
       const method = thanked ? 'DELETE' : 'POST'
       
       const res = await fetch(url, {

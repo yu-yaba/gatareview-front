@@ -28,7 +28,7 @@ export default function BookmarkButton({
 
   const fetchBookmarkStatus = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/lectures/${lectureId}/bookmarks`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lectureId}/bookmarks`, {
         headers: {
           'Authorization': `Bearer ${session?.backendToken}`,
         },
@@ -52,7 +52,7 @@ export default function BookmarkButton({
     setIsLoading(true)
     
     try {
-      const url = `${process.env.NEXT_PUBLIC_ENV}/lectures/${lectureId}/bookmarks`
+      const url = `${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lectureId}/bookmarks`
       const method = bookmarked ? 'DELETE' : 'POST'
       
       const res = await fetch(url, {
