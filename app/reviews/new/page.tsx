@@ -401,26 +401,20 @@ const NewReviewPage = () => {
     );
   }
 
-  // 未認証の場合は認証プロンプトを表示
-  if (!isAuthenticated) {
-    return (
-      <section className="flex flex-col items-center p-4 md:p-8">
-        <h2 className="text-2xl font-bold mb-4 2xl:text-4xl">レビューする授業を選択</h2>
-        <AuthPrompt />
-      </section>
-    );
-  }
+  // 認証制限を削除: 全ユーザーがレビュー投稿可能
 
   return (
     <section className="flex flex-col items-center p-4 md:p-8">
       <h2 className="text-2xl font-bold mb-4 2xl:text-4xl">レビューする授業を選択</h2>
       
-      {/* ログインユーザー情報表示 */}
-      <div className="mb-4 text-center">
-        <p className="text-sm text-gray-600">
-          ログイン中: <span className="font-medium text-green-600">{user?.name}</span>
-        </p>
-      </div>
+      {/* ユーザー情報表示 */}
+      {isAuthenticated && user && (
+        <div className="mb-4 text-center">
+          <p className="text-sm text-gray-600">
+            ログイン中: <span className="font-medium text-green-600">{user?.name}</span>
+          </p>
+        </div>
+      )}
 
       <div className="w-10/12 md:w-8/12 2xl:w-6/12 mb-6">
         <input
