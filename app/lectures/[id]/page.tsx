@@ -304,9 +304,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-3">
                       {/* ありがとうボタン */}
-                      {session && (
-                        <ThanksButton reviewId={review.id} />
-                      )}
+                      <ThanksButton reviewId={review.id} />
                       
                       {/* 報告ボタン（全ユーザーに表示） */}
                       <ReportButton reviewId={review.id} />
