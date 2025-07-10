@@ -6,10 +6,11 @@ import { notFound } from 'next/navigation';
 import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit, FaTrash, FaFlag } from 'react-icons/fa';
 import BookmarkButton from '../../_components/BookmarkButton';
 import ThanksButton from '../../_components/ThanksButton';
 import ReviewEditModal from '../../_components/ReviewEditModal';
+import ReportButton from '../../_components/ReportButton';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
 
@@ -166,8 +167,8 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       </p>
                       
                       {/* ブックマークボタン */}
-                      {session && lecture && (
-                        <div className="mt-4">
+                      {lecture && (
+                        <div className="mt-4 flex justify-end">
                           <BookmarkButton lectureId={lecture.id} />
                         </div>
                       )}
@@ -306,6 +307,9 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       {session && (
                         <ThanksButton reviewId={review.id} />
                       )}
+                      
+                      {/* 報告ボタン（全ユーザーに表示） */}
+                      <ReportButton reviewId={review.id} />
                     </div>
                     
                     {/* 編集・削除ボタン（自分のレビューの場合のみ） */}
@@ -313,17 +317,21 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleEditReview(review)}
-                          className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200 flex items-center gap-1 text-sm"
+                          className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                         >
-                          <FaEdit className="text-xs" />
-                          編集
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                          <FaEdit className="w-3.5 h-3.5 transform group-hover:scale-110 transition-transform duration-200 relative" />
+                          <span className="text-sm relative">編集</span>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </button>
                         <button
                           onClick={() => handleDeleteReview(review.id)}
-                          className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200 flex items-center gap-1 text-sm"
+                          className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                         >
-                          <FaTrash className="text-xs" />
-                          削除
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                          <FaTrash className="w-3.5 h-3.5 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-200 relative" />
+                          <span className="text-sm relative">削除</span>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-400/10 to-rose-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </button>
                       </div>
                     )}
