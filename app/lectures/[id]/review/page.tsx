@@ -232,7 +232,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!review || isLoading) return;
+    if (!review) return;
 
     const errors = validateReview(review);
     if (!isEmptyObject(errors)) {
@@ -251,7 +251,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
         setFormErrors({ recaptcha: 'reCAPTCHAの検証に失敗しました。' });
       }
     }
-  }, [review, addReview, isLoading]);
+  }, [review, addReview]);
 
   const handleBack = useCallback(() => {
     router.push(`/lectures/${params.id}`);
