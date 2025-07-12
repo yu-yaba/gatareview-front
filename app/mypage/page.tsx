@@ -331,30 +331,6 @@ export default function MyPage() {
 
           {/* メインコンテンツ */}
           <div className="lg:col-span-2 space-y-8">
-            {/* アカウント詳細 */}
-            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300">
-              <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
-                <FaUser className="w-6 h-6 mr-3 text-green-500" />
-                アカウント詳細
-              </h3>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between py-4 px-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50">
-                  <span className="text-gray-600 font-medium">表示名</span>
-                  <span className="font-bold text-gray-900">{mypageData?.user?.name || '未設定'}</span>
-                </div>
-                <div className="flex items-center justify-between py-4 px-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100/50">
-                  <span className="text-gray-600 font-medium">メールアドレス</span>
-                  <span className="font-bold text-gray-900">{mypageData?.user?.email || '未設定'}</span>
-                </div>
-                <div className="flex items-center justify-between py-4 px-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl border border-orange-100/50">
-                  <span className="text-gray-600 font-medium">認証プロバイダー</span>
-                  <div className="flex items-center">
-                    <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
-                    <span className="font-bold text-gray-900">{mypageData?.user?.provider || 'Google'}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* 統計情報 */}
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300">
@@ -650,7 +626,8 @@ export default function MyPage() {
             setIsEditModalOpen(false)
             setEditingReview(null)
           }}
-          onReviewUpdated={handleReviewUpdated}
+          onSave={handleReviewUpdated}
+          onDelete={handleDeleteReview}
         />
       )}
     </div>

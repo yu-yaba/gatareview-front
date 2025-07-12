@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Modal from 'react-modal'
 import ReactStars from 'react-stars'
-import { FaTimes, FaSave } from 'react-icons/fa'
+import { FaTimes, FaSave, FaTrash } from 'react-icons/fa'
 
 interface ReviewEditModalProps {
   isOpen: boolean
@@ -22,11 +22,13 @@ interface ReviewEditModalProps {
     period_term: string
   }
   onSave: (updatedReview: any) => void
+  onDelete?: (reviewId: number) => void
 }
 
-export default function ReviewEditModal({ isOpen, onClose, review, onSave }: ReviewEditModalProps) {
+export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDelete }: ReviewEditModalProps) {
   const { data: session } = useSession()
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [formData, setFormData] = useState({
     rating: review.rating,
     content: review.content,
@@ -50,8 +52,8 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave }: Rev
     setIsLoading(true)
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/reviews/${review.id}`, {
-        method: 'PATCH',
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${review.id}`, {
+        method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.backendToken}`,
           'Content-Type': 'application/json',
@@ -80,6 +82,45 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave }: Rev
       ...prev,
       [field]: value
     }))
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('このレビューを削除しますか？この操作は取り消せません。')) {
+      return
+    }
+
+    if (!session) {
+      alert('ログインが必要です')
+      return
+    }
+
+    setIsDeleting(true)
+    
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${review.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.backendToken}`,
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      if (res.ok) {
+        if (onDelete) {
+          onDelete(review.id)
+        }
+        onClose()
+        alert('レビューが削除されました')
+      } else {
+        const errorData = await res.json()
+        alert(errorData.message || 'レビューの削除に失敗しました')
+      }
+    } catch (error) {
+      console.error('レビューの削除に失敗:', error)
+      alert('エラーが発生しました')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -239,13 +280,31 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave }: Rev
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            className="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
           >
             キャンセル
           </button>
+          
+          {/* 削除ボタン（onDeleteが提供されている場合のみ表示） */}
+          {onDelete && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting || isLoading}
+              className="px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center"
+            >
+              {isDeleting ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              ) : (
+                <FaTrash className="w-4 h-4 mr-2" />
+              )}
+              {isDeleting ? '削除中...' : '削除'}
+            </button>
+          )}
+          
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isDeleting}
             className="flex-1 flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {isLoading ? (

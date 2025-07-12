@@ -362,7 +362,8 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
             setIsEditModalOpen(false);
             setEditingReview(null);
           }}
-          onReviewUpdated={handleReviewUpdated}
+          onSave={handleReviewUpdated}
+          onDelete={handleDeleteReview}
         />
       )}
     </div>
