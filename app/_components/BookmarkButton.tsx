@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { FaBookmark, FaRegBookmark, FaSpinner } from 'react-icons/fa'
+import LoginPromptModal from './LoginPromptModal'
 
 interface BookmarkButtonProps {
   lectureId: number
@@ -18,6 +19,7 @@ export default function BookmarkButton({
   const { data: session } = useSession()
   const [bookmarked, setBookmarked] = useState(initialBookmarked)
   const [isLoading, setIsLoading] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   useEffect(() => {
     // ログイン時に現在の状態を取得
@@ -45,7 +47,7 @@ export default function BookmarkButton({
 
   const handleBookmarkToggle = async () => {
     if (!session) {
-      alert('ログインが必要です')
+      setShowLoginModal(true)
       return
     }
 
@@ -81,10 +83,21 @@ export default function BookmarkButton({
 
   if (!session) {
     return (
-      <div className="group flex items-center justify-center px-4 py-3 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 text-gray-500 cursor-not-allowed shadow-sm border border-gray-200/50 backdrop-blur-sm">
-        <FaRegBookmark className="w-4 h-4 mr-2 opacity-60" />
-        <span className="text-sm font-medium">ブックマーク</span>
-      </div>
+      <>
+        <button
+          onClick={handleBookmarkToggle}
+          className="group flex items-center justify-center px-4 py-3 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 text-gray-500 hover:from-gray-100 hover:to-gray-200 shadow-sm border border-gray-200/50 backdrop-blur-sm transition-all duration-200 hover:scale-105"
+        >
+          <FaRegBookmark className="w-4 h-4 mr-2 opacity-60 group-hover:opacity-80" />
+          <span className="text-sm font-medium">ブックマーク</span>
+        </button>
+        
+        <LoginPromptModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          featureType="bookmark"
+        />
+      </>
     )
   }
 

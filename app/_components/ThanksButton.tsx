@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { FaHeart, FaRegHeart, FaSpinner } from 'react-icons/fa'
+import LoginPromptModal from './LoginPromptModal'
 
 interface ThanksButtonProps {
   reviewId: number
@@ -21,6 +22,7 @@ export default function ThanksButton({
   const [thanked, setThanked] = useState(initialThanked)
   const [thanksCount, setThanksCount] = useState(initialThanksCount)
   const [isLoading, setIsLoading] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   useEffect(() => {
     // ログイン時に現在の状態を取得
@@ -49,7 +51,7 @@ export default function ThanksButton({
 
   const handleThanksToggle = async () => {
     if (!session) {
-      alert('ログインが必要です')
+      setShowLoginModal(true)
       return
     }
 
@@ -90,13 +92,24 @@ export default function ThanksButton({
 
   if (!session) {
     return (
-      <div className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-gray-50 to-slate-50 text-gray-500 shadow-sm border border-gray-200/50 backdrop-blur-sm">
-        <FaRegHeart className="w-4 h-4 opacity-60" />
-        <span className="text-sm font-medium min-w-[20px] text-center">
-          {thanksCount}
-        </span>
-        <span className="text-xs hidden sm:inline font-medium">ありがとう</span>
-      </div>
+      <>
+        <button
+          onClick={handleThanksToggle}
+          className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-gray-50 to-slate-50 text-gray-500 hover:from-gray-100 hover:to-slate-100 shadow-sm border border-gray-200/50 backdrop-blur-sm transition-all duration-200 hover:scale-105"
+        >
+          <FaRegHeart className="w-4 h-4 opacity-60 group-hover:opacity-80" />
+          <span className="text-sm font-medium min-w-[20px] text-center">
+            {thanksCount}
+          </span>
+          <span className="text-xs hidden sm:inline font-medium">ありがとう</span>
+        </button>
+        
+        <LoginPromptModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          featureType="thanks"
+        />
+      </>
     )
   }
 
