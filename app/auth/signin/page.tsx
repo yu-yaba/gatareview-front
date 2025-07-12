@@ -34,8 +34,6 @@ export default function SignInPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 relative overflow-hidden">
       {/* 背景エフェクト */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-green-100 to-green-200 rounded-full opacity-20 animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-green-200 to-green-300 rounded-full opacity-15 animate-float" style={{ animationDelay: '2s' }}></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full">
           <div className="w-full h-full bg-gradient-to-br from-green-50/20 via-transparent to-green-100/20"></div>
         </div>

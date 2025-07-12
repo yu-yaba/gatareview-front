@@ -8,7 +8,7 @@ export default function AuthButton() {
 
   if (status === 'loading') {
     return (
-      <div className="flex items-center justify-center px-4 py-2 sm:px-4 sm:py-2.5 md:px-4 md:py-2.5 lg:px-6 lg:py-3">
+      <div className="flex items-center justify-center px-5 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5">
         <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
@@ -17,28 +17,27 @@ export default function AuthButton() {
   if (session) {
     return (
       <Link href="/mypage">
-        <div className="flex items-center px-2 py-1.5 sm:px-6 sm:py-2.5 md:px-6 md:py-2.5 lg:px-6 lg:py-3 bg-white/10 backdrop-blur-md border border-white/30 rounded-xl shadow-lg transition-all duration-300 hover:bg-white/20 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50">
-          {/* ユーザーアバター */}
-          {session.user?.avatar_url && (
-            <img
-              src={session.user.avatar_url}
-              alt={session.user.name || 'ユーザー'}
-              className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-green-500"
-            />
-          )}
+        <div className="group relative flex items-center px-5 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg border border-green-400/50 transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400/50 backdrop-blur-sm overflow-hidden min-w-0">
+          {/* 光沢エフェクト */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+          
+          {/* ユーザーアイコン */}
+          <svg className="w-5 h-5 lg:w-6 lg:h-6 text-white relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
 
           {/* ユーザー情報 */}
-          <div className="flex flex-col">
-            <span className="text-sm lg:text-base font-bold text-white hidden sm:inline">
+          <div className="flex flex-col ml-2">
+            <span className="text-sm lg:text-base font-bold text-white hidden sm:inline relative">
               {session.user?.name}
             </span>
-            <span className="text-xs text-green-200 hidden sm:inline">
+            <span className="text-xs text-green-200 hidden sm:inline relative">
               マイページ
             </span>
           </div>
 
           {/* アイコン */}
-          <svg className="w-5 h-5 lg:w-5 lg:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 lg:w-5 lg:h-5 text-white ml-2 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
           </svg>
         </div>
@@ -48,7 +47,7 @@ export default function AuthButton() {
 
   return (
     <Link href="/auth/signin">
-      <button className="group relative flex items-center space-x-2 px-4 py-2.5 sm:px-4 sm:py-2.5 md:px-4 md:py-2.5 lg:px-6 lg:py-3 text-sm lg:text-base font-bold text-white bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg border border-green-400/50 transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400/50 backdrop-blur-sm overflow-hidden">
+      <button className="group relative flex items-center space-x-2 px-5 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5 text-sm lg:text-base font-bold text-white bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg border border-green-400/50 transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400/50 backdrop-blur-sm overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
         <svg className="w-4 h-4 lg:w-5 lg:h-5 relative" viewBox="0 0 24 24">
           <path
