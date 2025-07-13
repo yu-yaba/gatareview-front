@@ -29,9 +29,11 @@ const authOptions: NextAuthOptions = {
         try {
           console.log('🔄 Calling backend API...')
           
-          // Docker内部通信用のURL（サーバーサイド）
+          // Docker環境では内部通信URLを使用、外部からはNEXT_PUBLIC_ENVを使用
           const backendUrl = process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV
           console.log('Using backend URL:', backendUrl)
+          console.log('DOCKER_BACKEND_URL:', process.env.DOCKER_BACKEND_URL)
+          console.log('NEXT_PUBLIC_ENV:', process.env.NEXT_PUBLIC_ENV)
           
           // バックエンドのGoogle認証APIを呼び出し
           const fetchOptions = {
@@ -78,9 +80,13 @@ const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('❌ Network error calling backend:', error)
-          console.error('Error name:', error.name)
-          console.error('Error message:', error.message)
-          console.error('Error stack:', error.stack)
+          if (error instanceof Error) {
+            console.error('Error name:', error.name)
+            console.error('Error message:', error.message)
+            console.error('Error stack:', error.stack)
+          } else {
+            console.error('Unknown error type:', typeof error)
+          }
         }
         
         console.log('=== NextAuth JWT Callback END ===')
