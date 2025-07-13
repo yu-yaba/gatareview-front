@@ -15,7 +15,7 @@ import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
-  const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
+  const [reviews, setReviews] = useState<{ reviews: ReviewSchema[], avgRating: string }>({ reviews: [], avgRating: "" });
   const [lecture, setLecture] = useState<LectureSchema | null>(null)
   const [editingReview, setEditingReview] = useState<ReviewSchema | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -274,7 +274,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-3">
                       {/* ありがとうボタン */}
-                      <ThanksButton reviewId={review.id} />
+                      <ThanksButton reviewId={review.id} initialThanksCount={review.thanks_count} />
                       
                       {/* 報告ボタン（全ユーザーに表示） */}
                       <ReportButton reviewId={review.id} />

@@ -172,13 +172,10 @@ const NewReviewPage = () => {
   }, []);
 
   // 最適化されたdebounce（1つのみ）
-  const debouncedFetchLectures = useCallback(
-    (search: string) => {
-      const debouncedFunction = debounce(() => {
-        fetchLectures(search, 1);
-      }, 300);
-      debouncedFunction();
-    },
+  const debouncedFetchLectures = useMemo(
+    () => debounce((search: string) => {
+      fetchLectures(search, 1);
+    }, 300),
     [fetchLectures]
   );
 
