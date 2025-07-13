@@ -7,7 +7,7 @@ import { success } from '@/app/_helpers/notifications';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import { reviewApi } from '../../../_helpers/api';
 import Loading from 'react-loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
 
@@ -208,13 +208,9 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
     if (!lecture) return;
     try {
       setIsLoading(true);
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lecture.id}/reviews`, {
+      const res = await reviewApi.createReview(lecture.id.toString(), {
         review: newReview,
         token,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
       if (res.data.success) {
@@ -223,8 +219,15 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
       } else {
         handleAjaxError(res.data.message || "reCAPTCHA認証に失敗しました");
       }
-    } catch (error) {
-      handleAjaxError("レビューの登録に失敗しました");
+    } catch (error: any) {
+      console.error('Review creation error:', error);
+      if (error.response?.status === 401) {
+        handleAjaxError("ログインが必要です");
+      } else if (error.response?.status === 403) {
+        handleAjaxError("権限がありません");
+      } else {
+        handleAjaxError("レビューの登録に失敗しました");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -232,7 +235,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!review || isLoading) return;
+    if (!review) return;
 
     const errors = validateReview(review);
     if (!isEmptyObject(errors)) {
@@ -251,7 +254,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
         setFormErrors({ recaptcha: 'reCAPTCHAの検証に失敗しました。' });
       }
     }
-  }, [review, addReview, isLoading]);
+  }, [review, addReview]);
 
   const handleBack = useCallback(() => {
     router.push(`/lectures/${params.id}`);

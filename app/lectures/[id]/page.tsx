@@ -6,11 +6,22 @@ import { notFound } from 'next/navigation';
 import type { ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine } from 'react-icons/fa';
+import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit, FaTrash, FaFlag } from 'react-icons/fa';
+import BookmarkButton from '../../_components/BookmarkButton';
+import ThanksButton from '../../_components/ThanksButton';
+import ReviewEditModal from '../../_components/ReviewEditModal';
+import ReportButton from '../../_components/ReportButton';
+import { useSession } from 'next-auth/react';
+import { useAuth } from '../../_hooks/useAuth';
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
-  const [reviews, setReviews] = useState({ reviews: [], avgRating: "" });
+  const [reviews, setReviews] = useState<{ reviews: ReviewSchema[], avgRating: string }>({ reviews: [], avgRating: "" });
   const [lecture, setLecture] = useState<LectureSchema | null>(null)
+  const [editingReview, setEditingReview] = useState<ReviewSchema | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  const { data: session } = useSession();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchLectureDetail = async () => {
@@ -47,6 +58,27 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     };
     fetchReviews();
   }, [params.id]);
+
+
+  // レビュー編集機能
+  const handleEditReview = (review: ReviewSchema) => {
+    setEditingReview(review);
+    setIsEditModalOpen(true);
+  };
+
+  // 編集後のレビュー更新
+  const handleReviewUpdated = (updatedReview: ReviewSchema) => {
+    const updatedReviews = reviews.reviews.map((review: ReviewSchema) => 
+      review.id === updatedReview.id ? updatedReview : review
+    );
+    let avgRating = "0.0";
+    if (updatedReviews.length > 0) {
+      avgRating = (updatedReviews.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / updatedReviews.length).toFixed(1);
+    }
+    setReviews({ reviews: updatedReviews, avgRating });
+    setIsEditModalOpen(false);
+    setEditingReview(null);
+  };
 
 
 
@@ -103,6 +135,13 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       <p className="text-sm text-gray-500 mt-1">
                         ({reviews.reviews.length}件のレビュー)
                       </p>
+                      
+                      {/* ブックマークボタン */}
+                      {lecture && (
+                        <div className="mt-4 flex justify-end">
+                          <BookmarkButton lectureId={lecture.id} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -230,6 +269,30 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       </div>
                     </div>
                   )}
+
+                  {/* アクションボタン */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-3">
+                      {/* ありがとうボタン */}
+                      <ThanksButton reviewId={review.id} initialThanksCount={review.thanks_count} />
+                      
+                      {/* 報告ボタン（全ユーザーに表示） */}
+                      <ReportButton reviewId={review.id} />
+                    </div>
+                    
+                    {/* 編集ボタン（自分のレビューの場合のみ） */}
+                    {session && user && review.user_id && Number(review.user_id) === Number(user.id) && (
+                      <button
+                        onClick={() => handleEditReview(review)}
+                        className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                        <FaEdit className="w-3.5 h-3.5 transform group-hover:scale-110 transition-transform duration-200 relative" />
+                        <span className="text-sm relative">編集</span>
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -248,6 +311,19 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           </div>
         </div>
       </div>
+
+      {/* レビュー編集モーダル */}
+      {isEditModalOpen && editingReview && (
+        <ReviewEditModal
+          review={editingReview}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingReview(null);
+          }}
+          onSave={handleReviewUpdated}
+        />
+      )}
     </div>
   );
 };

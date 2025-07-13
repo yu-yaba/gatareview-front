@@ -121,7 +121,7 @@ const nextConfig = {
 
   // 画像最適化設定
   images: {
-    domains: ['localhost', 'gatareview.com'],
+    domains: ['localhost', 'gatareview.com', 'lh3.googleusercontent.com'],
     formats: ['image/webp', 'image/avif'],
   },
 };
