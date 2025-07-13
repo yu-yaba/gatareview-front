@@ -78,7 +78,7 @@ export default function MyReviewsPage() {
     if (session && status === 'authenticated') {
       fetchReviews(currentPage)
     }
-  }, [session, status])
+  }, [session, status, currentPage])
 
   // レビュー編集機能
   const handleEditReview = (review: UserReviewData) => {

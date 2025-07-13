@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { FaBookmark, FaRegBookmark, FaSpinner } from 'react-icons/fa'
 import LoginPromptModal from './LoginPromptModal'
@@ -21,14 +21,7 @@ export default function BookmarkButton({
   const [isLoading, setIsLoading] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
 
-  useEffect(() => {
-    // ログイン時に現在の状態を取得
-    if (session) {
-      fetchBookmarkStatus()
-    }
-  }, [session, lectureId])
-
-  const fetchBookmarkStatus = async () => {
+  const fetchBookmarkStatus = useCallback(async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lectureId}/bookmarks`, {
         headers: {
@@ -43,7 +36,14 @@ export default function BookmarkButton({
     } catch (error) {
       console.error('ブックマーク状態の取得に失敗:', error)
     }
-  }
+  }, [lectureId, session])
+
+  useEffect(() => {
+    // ログイン時に現在の状態を取得
+    if (session) {
+      fetchBookmarkStatus()
+    }
+  }, [session, fetchBookmarkStatus])
 
   const handleBookmarkToggle = async () => {
     if (!session) {

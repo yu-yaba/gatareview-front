@@ -70,7 +70,7 @@ export default function MyBookmarksPage() {
     if (session && status === 'authenticated') {
       fetchBookmarks(currentPage)
     }
-  }, [session, status])
+  }, [session, status, currentPage])
 
   // ブックマーク削除機能
   const handleBookmarkRemoved = (lectureId: number) => {

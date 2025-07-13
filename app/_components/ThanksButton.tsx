@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { FaHeart, FaRegHeart, FaSpinner } from 'react-icons/fa'
 import LoginPromptModal from './LoginPromptModal'
@@ -24,14 +24,7 @@ export default function ThanksButton({
   const [isLoading, setIsLoading] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
 
-  useEffect(() => {
-    // ログイン時に現在の状態を取得
-    if (session) {
-      fetchThanksStatus()
-    }
-  }, [session, reviewId])
-
-  const fetchThanksStatus = async () => {
+  const fetchThanksStatus = useCallback(async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${reviewId}/thanks`, {
         headers: {
@@ -47,7 +40,14 @@ export default function ThanksButton({
     } catch (error) {
       console.error('ありがとう状態の取得に失敗:', error)
     }
-  }
+  }, [reviewId, session])
+
+  useEffect(() => {
+    // ログイン時に現在の状態を取得
+    if (session) {
+      fetchThanksStatus()
+    }
+  }, [session, fetchThanksStatus])
 
   const handleThanksToggle = async () => {
     if (!session) {

@@ -2,8 +2,9 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, memo } from 'react'
+import { useEffect, useState, memo, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import Loading from 'react-loading'
 import { mypageApi } from '../_helpers/api'
 import {
@@ -112,21 +113,7 @@ export default function MyPage() {
     }
   }, [status, router])
 
-  useEffect(() => {
-    // 認証済みの場合にマイページデータを取得
-    if (session && status === 'authenticated') {
-      console.log('=== SESSION DEBUG ===')
-      console.log('Full session object:', JSON.stringify(session, null, 2))
-      console.log('Session backendToken:', session.backendToken)
-      console.log('Session accessToken:', session.accessToken)
-      console.log('Session user:', session.user)
-      console.log('Status:', status)
-      console.log('====================')
-      fetchMypageData()
-    }
-  }, [session, status])
-
-  const fetchMypageData = async () => {
+  const fetchMypageData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -150,7 +137,21 @@ export default function MyPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [session?.backendToken])
+
+  useEffect(() => {
+    // 認証済みの場合にマイページデータを取得
+    if (session && status === 'authenticated') {
+      console.log('=== SESSION DEBUG ===')
+      console.log('Full session object:', JSON.stringify(session, null, 2))
+      console.log('Session backendToken:', session.backendToken)
+      console.log('Session accessToken:', session.accessToken)
+      console.log('Session user:', session.user)
+      console.log('Status:', status)
+      console.log('====================')
+      fetchMypageData()
+    }
+  }, [session, status, fetchMypageData])
 
   const handleSignOut = async () => {
     setIsLoggingOut(true)
@@ -263,9 +264,11 @@ export default function MyPage() {
                 <div className="mb-8 relative">
                   {mypageData?.user?.avatar_url ? (
                     <div className="relative">
-                      <img
+                      <Image
                         src={mypageData.user.avatar_url}
                         alt={mypageData.user.name || 'ユーザー'}
+                        width={112}
+                        height={112}
                         className="w-28 h-28 rounded-full mx-auto border-4 border-green-400 shadow-lg transform hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 w-28 h-28 rounded-full mx-auto bg-gradient-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>

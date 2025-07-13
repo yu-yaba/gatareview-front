@@ -57,6 +57,7 @@ const NewReviewPage = () => {
       // URLパラメータで授業IDが指定されている場合、その授業のレビューページに遷移
       fetchSpecificLecture(lectureId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, router]);
 
   // 最適化された授業検索関数
@@ -167,13 +168,17 @@ const NewReviewPage = () => {
       setIsLoading(false);
       abortControllerRef.current = null;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 最適化されたdebounce（1つのみ）
   const debouncedFetchLectures = useCallback(
-    debounce((search: string) => {
-      fetchLectures(search, 1);
-    }, 300), // 300msに短縮
+    (search: string) => {
+      const debouncedFunction = debounce(() => {
+        fetchLectures(search, 1);
+      }, 300);
+      debouncedFunction();
+    },
     [fetchLectures]
   );
 
@@ -256,7 +261,8 @@ const NewReviewPage = () => {
   const LectureList = memo(() => {
     const visibleLectures = useMemo(
       () => fetchedLectures.slice(visibleRange.start, visibleRange.end),
-      [visibleRange.start, visibleRange.end]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [fetchedLectures, visibleRange.start, visibleRange.end]
     );
 
     return (
