@@ -12,5 +12,5 @@ export type ReviewSchema = {
   period_term: string;
   created_at: Date;
   updated_at: Date;
-  user_id?: number;
+  user_id?: number | null;
 }

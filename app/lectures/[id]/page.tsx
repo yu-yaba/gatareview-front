@@ -59,36 +59,6 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     fetchReviews();
   }, [params.id]);
 
-  // レビュー削除機能
-  const handleDeleteReview = async (reviewId: number) => {
-    if (!confirm('このレビューを削除しますか？')) return;
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${session?.backendToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // レビューリストを更新
-        const updatedReviews = reviews.reviews.filter((review: ReviewSchema) => review.id !== reviewId);
-        let avgRating = "0.0";
-        if (updatedReviews.length > 0) {
-          avgRating = (updatedReviews.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / updatedReviews.length).toFixed(1);
-        }
-        setReviews({ reviews: updatedReviews, avgRating });
-        alert('レビューが削除されました');
-      } else {
-        throw new Error('削除に失敗しました');
-      }
-    } catch (error) {
-      console.error('削除エラー:', error);
-      alert('レビューの削除に失敗しました');
-    }
-  };
 
   // レビュー編集機能
   const handleEditReview = (review: ReviewSchema) => {
@@ -310,28 +280,17 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       <ReportButton reviewId={review.id} />
                     </div>
                     
-                    {/* 編集・削除ボタン（自分のレビューの場合のみ） */}
-                    {session && user && review.user_id === user.id && (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEditReview(review)}
-                          className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-                          <FaEdit className="w-3.5 h-3.5 transform group-hover:scale-110 transition-transform duration-200 relative" />
-                          <span className="text-sm relative">編集</span>
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteReview(review.id)}
-                          className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-                          <FaTrash className="w-3.5 h-3.5 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-200 relative" />
-                          <span className="text-sm relative">削除</span>
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-400/10 to-rose-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </button>
-                      </div>
+                    {/* 編集ボタン（自分のレビューの場合のみ） */}
+                    {session && user && review.user_id && Number(review.user_id) === Number(user.id) && (
+                      <button
+                        onClick={() => handleEditReview(review)}
+                        className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                        <FaEdit className="w-3.5 h-3.5 transform group-hover:scale-110 transition-transform duration-200 relative" />
+                        <span className="text-sm relative">編集</span>
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -363,7 +322,6 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
             setEditingReview(null);
           }}
           onSave={handleReviewUpdated}
-          onDelete={handleDeleteReview}
         />
       )}
     </div>
