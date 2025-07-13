@@ -221,9 +221,9 @@ export default function MyBookmarksPage() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-1">
-                          <FaStar className="text-yellow-400 text-sm" />
+                          <FaStar className={lecture.avg_rating > 0 ? "text-yellow-400 text-sm" : "text-gray-400 text-sm"} />
                           <span className="text-xs font-bold text-gray-800">
-                            {lecture.avg_rating > 0 ? lecture.avg_rating.toFixed(1) : 'N/A'}
+                            {lecture.avg_rating > 0 ? lecture.avg_rating.toFixed(1) : '未評価'}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2 bg-green-100 rounded-full px-3 py-1">
