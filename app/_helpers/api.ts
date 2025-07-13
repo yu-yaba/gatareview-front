@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { getSession } from 'next-auth/react'
+import { CreateReviewResponse } from '../_types/ReviewSchema'
 
 // API ベースURL
 const API_BASE_URL = process.env.NEXT_PUBLIC_ENV ? `${process.env.NEXT_PUBLIC_ENV}/api/v1` : 'http://localhost:3001/api/v1'
@@ -79,19 +80,19 @@ export interface ApiResponse<T = any> {
 
 // 汎用API呼び出し関数
 export const apiRequest = {
-  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.get(url, config),
 
-  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.post(url, data, config),
 
-  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.put(url, data, config),
 
-  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.patch(url, data, config),
 
-  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<ApiResponse<T>>> =>
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.delete(url, config),
 }
 
@@ -108,7 +109,7 @@ export const authApi = {
 export const reviewApi = {
   // レビューを作成（認証必須）
   createReview: (lectureId: string, reviewData: any) =>
-    apiRequest.post(`/lectures/${lectureId}/reviews`, reviewData),
+    apiRequest.post<CreateReviewResponse>(`/lectures/${lectureId}/reviews`, reviewData),
 
   // ユーザーのレビュー一覧を取得（認証必須）
   getUserReviews: () => apiRequest.get('/users/reviews'),
