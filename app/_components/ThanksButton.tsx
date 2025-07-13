@@ -26,10 +26,12 @@ export default function ThanksButton({
 
   const fetchThanksStatus = useCallback(async () => {
     try {
+      const headers: { [key: string]: string } = {};
+      if (session?.backendToken) {
+        headers['Authorization'] = `Bearer ${session.backendToken}`;
+      }
       const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${reviewId}/thanks`, {
-        headers: {
-          'Authorization': `Bearer ${session?.backendToken}`,
-        },
+        headers,
       })
       
       if (res.ok) {
@@ -43,7 +45,6 @@ export default function ThanksButton({
   }, [reviewId, session])
 
   useEffect(() => {
-    // ログイン時に現在の状態を取得
     if (session) {
       fetchThanksStatus()
     }

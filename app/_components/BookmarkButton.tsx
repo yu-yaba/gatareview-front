@@ -51,6 +51,13 @@ export default function BookmarkButton({
       return
     }
 
+    // ブックマーク解除時に確認ダイアログを表示
+    if (bookmarked) {
+      if (!window.confirm('この授業のブックマークを解除しますか？')) {
+        return;
+      }
+    }
+
     setIsLoading(true)
     
     try {
