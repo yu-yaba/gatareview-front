@@ -2,15 +2,15 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import Link from 'next/link'
+import Loading from 'react-loading'
 import { mypageApi } from '../_helpers/api'
 import {
   FaUser,
   FaEnvelope,
   FaGoogle,
   FaSignOutAlt,
-  FaSpinner,
   FaExclamationTriangle,
   FaArrowLeft,
   FaHeart,
@@ -32,7 +32,9 @@ import {
   FaMedal,
   FaTrash,
   FaEye,
-  FaCommentAlt
+  FaCommentAlt,
+  FaList,
+  FaSpinner
 } from 'react-icons/fa'
 import ReactStars from 'react-stars'
 import ReviewEditModal from '../_components/ReviewEditModal'
@@ -85,6 +87,13 @@ interface MypageData {
     user_reviews_count: number
   }
 }
+
+const LoadingSpinner = memo(() => (
+  <div className="flex justify-center items-center h-64">
+    <Loading type={"bubbles"} width={100} height={100} color={"#1DBE67"} />
+  </div>
+));
+LoadingSpinner.displayName = 'LoadingSpinner';
 
 export default function MyPage() {
   const { data: session, status } = useSession()
@@ -153,41 +162,6 @@ export default function MyPage() {
     }
   }
 
-  // レビュー削除機能
-  const handleDeleteReview = async (reviewId: number) => {
-    if (!confirm('このレビューを削除しますか？')) return
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${session?.backendToken}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        // レビューリストを更新
-        if (mypageData) {
-          const updatedReviews = mypageData.user_reviews.filter(review => review.id !== reviewId)
-          setMypageData({
-            ...mypageData,
-            user_reviews: updatedReviews,
-            statistics: {
-              ...mypageData.statistics,
-              reviews_count: mypageData.statistics.reviews_count - 1
-            }
-          })
-        }
-        alert('レビューが削除されました')
-      } else {
-        throw new Error('削除に失敗しました')
-      }
-    } catch (error) {
-      console.error('削除エラー:', error)
-      alert('レビューの削除に失敗しました')
-    }
-  }
 
   // レビュー編集機能
   const handleEditReview = (review: any) => {
@@ -210,18 +184,27 @@ export default function MyPage() {
     setEditingReview(null)
   }
 
+  // レビュー削除機能
+  const handleDeleteReview = (reviewId: number) => {
+    if (mypageData) {
+      const updatedReviews = mypageData.user_reviews.filter(review => review.id !== reviewId)
+      setMypageData({
+        ...mypageData,
+        user_reviews: updatedReviews,
+        statistics: {
+          ...mypageData.statistics,
+          reviews_count: mypageData.statistics.reviews_count - 1
+        }
+      })
+    }
+    setIsEditModalOpen(false)
+    setEditingReview(null)
+  }
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-green-100/50">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="relative">
-              <FaSpinner className="w-12 h-12 text-green-500 animate-spin" />
-              <div className="absolute inset-0 w-12 h-12 border-4 border-green-200 rounded-full animate-pulse"></div>
-            </div>
-            <span className="text-lg font-medium text-gray-700">読み込み中...</span>
-          </div>
-        </div>
+        <LoadingSpinner />
       </div>
     )
   }
@@ -336,7 +319,7 @@ export default function MyPage() {
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300">
               <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
                 <FaChartLine className="w-6 h-6 mr-3 text-green-500" />
-                あなたの貢献
+                ユーザー情報
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                 <div className="group bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 text-center border border-green-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
@@ -400,96 +383,83 @@ export default function MyPage() {
               </h3>
               {mypageData?.user_reviews?.length > 0 ? (
                 <div className="space-y-4">
-                  {mypageData.user_reviews.map((review, index) => (
-                    <div
-                      key={review.id}
-                      className="group p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl border border-gray-100/50 hover:from-slate-100 hover:to-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                          <Link
-                            href={`/lectures/${review.lecture.id}`}
-                            className="font-bold text-gray-900 mb-2 text-lg group-hover:text-green-600 transition-colors duration-200 hover:underline"
-                          >
-                            {review.lecture.title}
-                          </Link>
-                          <div className="flex items-center mb-3 text-gray-600">
-                            <FaUser className="w-4 h-4 mr-2" />
-                            <span className="mr-4">{review.lecture.lecturer}</span>
-                            <FaUniversity className="w-4 h-4 mr-2" />
-                            <span>{review.lecture.faculty}</span>
-                          </div>
-                          <div className="flex items-center gap-4 mb-3">
-                            <div className="flex items-center">
-                              <ReactStars
-                                value={review.rating}
-                                edit={false}
-                                size={18}
-                                className="flex"
-                                half={true}
-                              />
-                              <span className="ml-2 font-bold text-yellow-600">{review.rating}</span>
-                            </div>
-                            <div className="flex items-center text-sm text-gray-500">
-                              <FaCalendarAlt className="w-3 h-3 mr-1" />
-                              {new Date(review.created_at).toLocaleDateString('ja-JP')}
-                            </div>
-                            <div className="flex items-center">
-                              <div className="flex items-center justify-center min-w-[28px] h-6 px-2 rounded-lg text-xs font-bold bg-rose-100 text-rose-700">
-                                <FaHeart className="w-3 h-3 mr-1" />
-                                {review.thanks_count}
+                  {mypageData.user_reviews.slice(0, 4).map((review, index) => {
+                    const handleEditClick = (e: React.MouseEvent) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleEditReview(review)
+                    }
+
+                    return (
+                      <Link
+                        key={review.id}
+                        href={`/lectures/${review.lecture.id}`}
+                        className="block bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        {/* 編集ボタン（右上） */}
+                        <button
+                          onClick={handleEditClick}
+                          className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-medium z-10"
+                        >
+                          <FaEdit className="w-4 h-4" />
+                          <span className="text-sm">編集</span>
+                        </button>
+
+                        <div className="space-y-4 h-full flex flex-col">
+                          <div className="space-y-2 flex-grow pr-16">
+                            <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
+                              {review.lecture.title}
+                            </h3>
+                            <div className="space-y-1">
+                              <div className="flex items-center">
+                                <FaUser className="text-blue-500 mr-2 text-sm" />
+                                <p className="text-xs text-gray-700 font-medium">
+                                  {review.lecture.lecturer}
+                                </p>
+                              </div>
+                              <div className="flex items-center">
+                                <FaUniversity className="text-purple-500 mr-2 text-sm" />
+                                <p className="text-xs font-semibold text-green-600">
+                                  {review.lecture.faculty}
+                                </p>
                               </div>
                             </div>
                           </div>
-                          {review.content && (
-                            <p className="text-gray-700 text-sm line-clamp-2 mb-3">
-                              {review.content}
-                            </p>
-                          )}
-                          {(review.period_year || review.period_term) && (
-                            <div className="flex items-center text-xs text-gray-500">
-                              <FaCalendarAlt className="w-3 h-3 mr-1" />
-                              {review.period_year && `${review.period_year}年`}
-                              {review.period_year && review.period_term && ' '}
-                              {review.period_term}
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-1">
+                              <FaStar className="text-yellow-400 text-sm" />
+                              <span className="text-xs font-bold text-gray-800">
+                                {review.rating}
+                              </span>
                             </div>
-                          )}
+                            <div className="flex items-center space-x-2 bg-rose-100 rounded-full px-3 py-1">
+                              <FaHeart className="text-rose-500 text-sm" />
+                              <span className="text-xs font-bold text-gray-800">
+                                {review.thanks_count}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-2 ml-4">
-                          <Link
-                            href={`/lectures/${review.lecture.id}`}
-                            className="group/view relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 border-gray-200/50 hover:from-slate-100 hover:to-gray-100 hover:shadow-gray-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover/view:translate-x-full transition-transform duration-700 ease-out" />
-                            <FaEye className="w-3.5 h-3.5 transform group-hover/view:scale-110 transition-transform duration-200 relative" />
-                            <span className="text-sm relative">詳細</span>
-                          </Link>
-                          <button
-                            onClick={() => handleEditReview(review)}
-                            className="group/edit relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover/edit:translate-x-full transition-transform duration-700 ease-out" />
-                            <FaEdit className="w-3.5 h-3.5 transform group-hover/edit:scale-110 transition-transform duration-200 relative" />
-                            <span className="text-sm relative">編集</span>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteReview(review.id)}
-                            className="group/delete relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover/delete:translate-x-full transition-transform duration-700 ease-out" />
-                            <FaTrash className="w-3.5 h-3.5 transform group-hover/delete:scale-110 group-hover/delete:rotate-12 transition-all duration-200 relative" />
-                            <span className="text-sm relative">削除</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {mypageData.user_reviews.length >= 10 && (
+                      </Link>
+                    )
+                  })}
+                  {mypageData.user_reviews.length > 4 && (
                     <div className="text-center pt-6">
-                      <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
-                        すべてのレビューを表示するには講義詳細ページをご確認ください
+                      <div className="mb-4">
+                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
+                          他 {mypageData.user_reviews.length - 4} 件の投稿レビュー
+                        </div>
                       </div>
+                      <Link
+                        href="/mypage/reviews"
+                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                        <FaList className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
+                        <span className="relative">すべてのレビューを見る</span>
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -517,84 +487,66 @@ export default function MyPage() {
               </h3>
               {mypageData?.bookmarked_lectures?.length > 0 ? (
                 <div className="space-y-4">
-                  {mypageData.bookmarked_lectures.slice(0, 5).map((lecture, index) => (
+                  {mypageData.bookmarked_lectures.slice(0, 4).map((lecture, index) => (
                     <Link
                       key={lecture.id}
                       href={`/lectures/${lecture.id}`}
-                      className="group block p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl border border-gray-100/50 hover:from-slate-100 hover:to-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                      className="block bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
-                      {/* デスクトップレイアウト */}
-                      <div className="hidden sm:flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-bold text-gray-900 mb-2 text-lg group-hover:text-green-600 transition-colors duration-200">{lecture.title}</h4>
-                          <div className="flex items-center mb-3 text-gray-600">
-                            <FaUser className="w-4 h-4 mr-2" />
-                            <span className="mr-4">{lecture.lecturer}</span>
-                            <FaUniversity className="w-4 h-4 mr-2" />
-                            <span>{lecture.faculty}</span>
-                          </div>
-                          <div className="flex items-center space-x-6 text-sm text-gray-500">
+                      <div className="space-y-4 h-full flex flex-col">
+                        <div className="space-y-2 flex-grow">
+                          <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
+                            {lecture.title}
+                          </h3>
+                          <div className="space-y-1">
                             <div className="flex items-center">
-                              <FaEdit className="w-3 h-3 mr-1" />
-                              <span>レビュー数: {lecture.review_count}</span>
+                              <FaUser className="text-blue-500 mr-2 text-sm" />
+                              <p className="text-xs text-gray-700 font-medium">
+                                {lecture.lecturer}
+                              </p>
                             </div>
                             <div className="flex items-center">
-                              <FaStar className="w-3 h-3 mr-1 text-yellow-500" />
-                              <span>平均評価: {lecture.avg_rating}</span>
+                              <FaUniversity className="text-purple-500 mr-2 text-sm" />
+                              <p className="text-xs font-semibold text-green-600">
+                                {lecture.faculty}
+                              </p>
                             </div>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end">
-                          <div className="flex items-center text-xs text-gray-400 mb-2">
-                            <FaCalendarAlt className="w-3 h-3 mr-1" />
-                            {new Date(lecture.bookmarked_at).toLocaleDateString('ja-JP')}
-                          </div>
-                          <FaChevronRight className="w-4 h-4 text-gray-400 group-hover:text-green-500 group-hover:translate-x-1 transition-all duration-200" />
-                        </div>
-                      </div>
 
-                      {/* スマホレイアウト */}
-                      <div className="sm:hidden">
-                        <div className="flex justify-between items-start mb-3">
-                          <h4 className="font-bold text-gray-900 text-base group-hover:text-green-600 transition-colors duration-200 flex-1 pr-2 leading-tight">{lecture.title}</h4>
-                          <FaChevronRight className="w-4 h-4 text-gray-400 group-hover:text-green-500 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0 mt-0.5" />
-                        </div>
-
-                        <div className="space-y-2 mb-3">
-                          <div className="flex items-center text-gray-600 text-sm">
-                            <FaUser className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                            <span className="truncate">{lecture.lecturer}</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-1">
+                            <FaStar className="text-yellow-400 text-sm" />
+                            <span className="text-xs font-bold text-gray-800">
+                              {lecture.avg_rating > 0 ? lecture.avg_rating.toFixed(1) : 'N/A'}
+                            </span>
                           </div>
-                          <div className="flex items-center text-gray-600 text-sm">
-                            <FaUniversity className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                            <span className="truncate">{lecture.faculty}</span>
+                          <div className="flex items-center space-x-2 bg-green-100 rounded-full px-3 py-1">
+                            <FaCommentAlt className="text-green-500 text-sm" />
+                            <span className="text-xs font-bold text-gray-800">
+                              {lecture.review_count}件
+                            </span>
                           </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-2">
-                          <div className="flex items-center">
-                            <FaEdit className="w-3 h-3 mr-1" />
-                            <span>レビュー数: {lecture.review_count}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <FaStar className="w-3 h-3 mr-1 text-yellow-500" />
-                            <span>平均評価: {lecture.avg_rating}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center text-xs text-gray-400">
-                          <FaCalendarAlt className="w-3 h-3 mr-1" />
-                          <span>{new Date(lecture.bookmarked_at).toLocaleDateString('ja-JP')}</span>
                         </div>
                       </div>
                     </Link>
                   ))}
-                  {mypageData.bookmarked_lectures.length > 5 && (
+                  {mypageData.bookmarked_lectures.length > 4 && (
                     <div className="text-center pt-6">
-                      <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
-                        他 {mypageData.bookmarked_lectures.length - 5} 件のブックマーク
+                      <div className="mb-4">
+                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
+                          他 {mypageData.bookmarked_lectures.length - 4} 件のブックマーク
+                        </div>
                       </div>
+                      <Link
+                        href="/mypage/bookmarks"
+                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-indigo-200/50 hover:from-indigo-100 hover:to-purple-100 hover:shadow-indigo-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                        <FaBookmark className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
+                        <span className="relative">すべてのブックマークを見る</span>
+                      </Link>
                     </div>
                   )}
                 </div>
