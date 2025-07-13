@@ -7,18 +7,18 @@ import Link from 'next/link'
 import Loading from 'react-loading'
 import ReactStars from 'react-stars'
 import { mypageApi } from '../../_helpers/api'
-import { 
-  FaArrowLeft, 
-  FaComments, 
-  FaUser, 
-  FaUniversity, 
-  FaStar, 
-  FaCalendar, 
-  FaBookOpen, 
-  FaClipboardList, 
-  FaGraduationCap, 
-  FaChartLine, 
-  FaEdit, 
+import {
+  FaArrowLeft,
+  FaComments,
+  FaUser,
+  FaUniversity,
+  FaStar,
+  FaCalendar,
+  FaBookOpen,
+  FaClipboardList,
+  FaGraduationCap,
+  FaChartLine,
+  FaEdit,
   FaHeart,
   FaExclamationTriangle,
   FaChevronLeft,
@@ -55,13 +55,13 @@ export default function MyReviewsPage() {
     try {
       setLoading(true)
       setError(null)
-      
+
       const response = await mypageApi.getReviews(page, 10)
       setReviewsData(response.data)
       setCurrentPage(page)
     } catch (error: any) {
       console.error('レビューデータの取得に失敗:', error)
-      
+
       if (error.response?.status === 401) {
         setError('認証が必要です。ログインしてください。')
       } else if (error.response?.status === 403) {
@@ -117,7 +117,7 @@ export default function MyReviewsPage() {
           total_reviews: reviewsData.statistics.total_reviews - 1
         }
       })
-      
+
       // 現在のページにレビューがなくなった場合、前のページに戻る
       if (updatedReviews.length === 0 && currentPage > 1) {
         fetchReviews(currentPage - 1)
@@ -197,11 +197,6 @@ export default function MyReviewsPage() {
                 <div className="text-3xl font-bold text-green-700 mb-2">{reviewsData.statistics.total_reviews}</div>
                 <div className="text-sm text-gray-600 font-medium">総レビュー数</div>
               </div>
-              <div className="group bg-gradient-to-br from-yellow-50 to-amber-100 rounded-2xl p-6 text-center border border-yellow-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-                <FaStar className="w-8 h-8 mx-auto mb-3 text-yellow-600 group-hover:scale-110 transition-transform duration-200" />
-                <div className="text-3xl font-bold text-yellow-700 mb-2">{reviewsData.statistics.average_rating.toFixed(1)}</div>
-                <div className="text-sm text-gray-600 font-medium">平均評価</div>
-              </div>
             </div>
           </div>
         )}
@@ -218,7 +213,7 @@ export default function MyReviewsPage() {
                 {/* レビューヘッダー */}
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 pb-4 border-b border-gray-100">
                   <div className="mb-4 lg:mb-0">
-                    <Link 
+                    <Link
                       href={`/lectures/${review.lecture.id}`}
                       className="block hover:text-green-600 transition-colors duration-300"
                     >
@@ -237,7 +232,7 @@ export default function MyReviewsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between lg:flex-col lg:items-end gap-4">
                     <div className="flex items-center gap-3">
                       <ReactStars
@@ -322,7 +317,9 @@ export default function MyReviewsPage() {
                       <FaComments className="text-green-500 mt-1 flex-shrink-0" />
                       <div className="flex-1">
                         <span className="text-sm text-gray-500 block mb-2">コメント</span>
-                        <p className="text-gray-800 leading-relaxed break-words">{review.content}</p>
+                        <p className="text-gray-800 leading-relaxed break-words">{review.content && review.content.length > 80
+                          ? `${review.content.substring(0, 80)}...`
+                          : review.content || 'コメントなし'}</p>
                       </div>
                     </div>
                   </div>
@@ -341,7 +338,7 @@ export default function MyReviewsPage() {
                       {new Date(review.created_at).toLocaleDateString('ja-JP')}
                     </div>
                   </div>
-                  
+
                   <button
                     onClick={() => handleEditReview(review)}
                     className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
@@ -383,21 +380,20 @@ export default function MyReviewsPage() {
                 <FaChevronLeft className="w-4 h-4" />
                 <span className="hidden sm:inline">前へ</span>
               </button>
-              
+
               {Array.from({ length: reviewsData.pagination.total_pages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 rounded-xl font-medium transition-colors ${
-                    page === currentPage
+                  className={`px-4 py-2 rounded-xl font-medium transition-colors ${page === currentPage
                       ? 'bg-green-500 text-white'
                       : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {page}
                 </button>
               ))}
-              
+
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === reviewsData.pagination.total_pages}

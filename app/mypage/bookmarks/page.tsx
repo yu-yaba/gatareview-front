@@ -75,24 +75,7 @@ export default function MyBookmarksPage() {
   // ブックマーク削除機能
   const handleBookmarkRemoved = (lectureId: number) => {
     if (bookmarksData) {
-      const updatedBookmarks = bookmarksData.bookmarks.filter(bookmark => bookmark.id !== lectureId)
-      setBookmarksData({
-        ...bookmarksData,
-        bookmarks: updatedBookmarks,
-        pagination: {
-          ...bookmarksData.pagination,
-          total_count: bookmarksData.pagination.total_count - 1
-        },
-        statistics: {
-          ...bookmarksData.statistics,
-          total_bookmarks: bookmarksData.statistics.total_bookmarks - 1
-        }
-      })
-
-      // 現在のページにブックマークがなくなった場合、前のページに戻る
-      if (updatedBookmarks.length === 0 && currentPage > 1) {
-        fetchBookmarks(currentPage - 1)
-      }
+      // ページを遷移するまでリストからは消さない
     }
   }
 
@@ -184,7 +167,7 @@ export default function MyBookmarksPage() {
                   <div className="absolute top-4 right-4 z-10">
                     <BookmarkButton
                       lectureId={lecture.id}
-                      onBookmarkChanged={(isBookmarked) => {
+                      onBookmarkChange={(isBookmarked) => {
                         if (!isBookmarked) {
                           handleBookmarkRemoved(lecture.id);
                         }

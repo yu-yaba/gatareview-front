@@ -145,7 +145,6 @@ export default function MyPage() {
       console.log('=== SESSION DEBUG ===')
       console.log('Full session object:', JSON.stringify(session, null, 2))
       console.log('Session backendToken:', session.backendToken)
-      console.log('Session accessToken:', session.accessToken)
       console.log('Session user:', session.user)
       console.log('Status:', status)
       console.log('====================')
@@ -384,9 +383,9 @@ export default function MyPage() {
                 <FaCommentAlt className="w-6 h-6 mr-3 text-green-500" />
                 投稿したレビュー
               </h3>
-              {mypageData?.user_reviews?.length > 0 ? (
+              {(mypageData?.user_reviews?.length ?? 0) > 0 ? (
                 <div className="space-y-4">
-                  {mypageData.user_reviews.slice(0, 4).map((review, index) => {
+                  {mypageData?.user_reviews?.slice(0, 4).map((review, index) => {
                     const handleEditClick = (e: React.MouseEvent) => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -444,15 +443,22 @@ export default function MyPage() {
                               </span>
                             </div>
                           </div>
+                          <div className="space-y-3">
+                            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg">
+                              {review.content && review.content.length > 80
+                                ? `${review.content.substring(0, 80)}...`
+                                : review.content || 'コメントなし'}
+                            </p>
+                          </div>
                         </div>
                       </Link>
                     )
                   })}
-                  {mypageData.user_reviews.length > 4 && (
+                  {(mypageData?.user_reviews?.length ?? 0) > 4 && (
                     <div className="text-center pt-6">
                       <div className="mb-4">
                         <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
-                          他 {mypageData.user_reviews.length - 4} 件の投稿レビュー
+                          他 {(mypageData?.user_reviews?.length ?? 0) - 4} 件の投稿レビュー
                         </div>
                       </div>
                       <Link
@@ -488,9 +494,9 @@ export default function MyPage() {
                 <FaBookmark className="w-6 h-6 mr-3 text-green-500" />
                 ブックマークした授業
               </h3>
-              {mypageData?.bookmarked_lectures?.length > 0 ? (
+              {(mypageData?.bookmarked_lectures?.length ?? 0) > 0 ? (
                 <div className="space-y-4">
-                  {mypageData.bookmarked_lectures.slice(0, 4).map((lecture, index) => (
+                  {mypageData?.bookmarked_lectures?.slice(0, 4).map((lecture, index) => (
                     <Link
                       key={lecture.id}
                       href={`/lectures/${lecture.id}`}
@@ -535,11 +541,11 @@ export default function MyPage() {
                       </div>
                     </Link>
                   ))}
-                  {mypageData.bookmarked_lectures.length > 4 && (
+                  {(mypageData?.bookmarked_lectures?.length ?? 0) > 4 && (
                     <div className="text-center pt-6">
                       <div className="mb-4">
                         <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
-                          他 {mypageData.bookmarked_lectures.length - 4} 件のブックマーク
+                          他 {(mypageData?.bookmarked_lectures?.length ?? 0) - 4} 件のブックマーク
                         </div>
                       </div>
                       <Link
