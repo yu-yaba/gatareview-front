@@ -15,7 +15,7 @@ const apiClient: AxiosInstance = axios.create({
 
 // リクエストインターセプター: 認証トークンを自動付与
 apiClient.interceptors.request.use(
-  async (config: AxiosRequestConfig) => {
+  async (config: any) => {
     try {
       // NextAuthセッションから認証トークンを取得
       const session = await getSession()
@@ -118,6 +118,14 @@ export const reviewApi = {
 export const mypageApi = {
   // マイページデータを取得（認証必須）
   getMypage: () => apiRequest.get('/mypage'),
+  
+  // ユーザーのレビュー一覧を取得（認証必須、ページネーション付き）
+  getReviews: (page = 1, perPage = 10) => 
+    apiRequest.get(`/mypage/reviews?page=${page}&per_page=${perPage}`),
+    
+  // ユーザーのブックマーク一覧を取得（認証必須、ページネーション付き）
+  getBookmarks: (page = 1, perPage = 10) => 
+    apiRequest.get(`/mypage/bookmarks?page=${page}&per_page=${perPage}`),
 }
 
 export default apiClient
