@@ -13,4 +13,13 @@ export type ReviewSchema = {
   created_at: Date;
   updated_at: Date;
   user_id?: number | null;
+  thanks_count?: number;
+}
+
+// APIレスポンス型
+export interface CreateReviewResponse {
+  success: boolean;
+  review?: ReviewSchema;
+  errors?: string[];
+  message?: string;
 }

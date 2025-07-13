@@ -37,6 +37,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@types/minimatch": "^6.0.0",
     "@types/react-modal": "^3.16.0",
     "@types/react-stars": "^2.2.1",
     "react-loading": "2.0.3",
