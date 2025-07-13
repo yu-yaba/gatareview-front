@@ -463,7 +463,7 @@ export default function MyPage() {
                       </div>
                       <Link
                         href="/mypage/reviews"
-                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                         <FaList className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
@@ -550,7 +550,7 @@ export default function MyPage() {
                       </div>
                       <Link
                         href="/mypage/bookmarks"
-                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-indigo-200/50 hover:from-indigo-100 hover:to-purple-100 hover:shadow-indigo-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                         <FaBookmark className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
