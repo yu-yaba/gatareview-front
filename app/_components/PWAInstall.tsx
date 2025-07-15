@@ -244,7 +244,6 @@ export default function PWAInstall() {
               <div className="mb-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
                 <div className="flex items-center space-x-3 text-sm text-gray-700 mb-3">
                   <span className="flex items-center justify-center w-7 h-7 bg-green-600 text-white rounded-full text-xs font-bold">1</span>
-                  <span className="font-medium">画面下部の</span>
                   <div className="flex items-center justify-center w-10 h-7 bg-green-600 text-white rounded-md text-xs font-bold shadow-sm">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V10c0-1.1.9-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .9 2 2z" />
@@ -267,14 +266,6 @@ export default function PWAInstall() {
                   </div>
                 </div>
               </div>
-
-              {/* ボタン */}
-              <button
-                onClick={handleDismiss}
-                className="w-full px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-medium transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-              >
-                理解しました
-              </button>
             </div>
           </div>
         </div>
