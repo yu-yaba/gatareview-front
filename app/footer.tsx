@@ -43,12 +43,12 @@ export default function Footer() {
         {/* Brand section */}
         <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 py-4">
           <Image
-            src="/green-title.svg"
+            src="/green-footer-title.png"
             alt="ガタレビュ - 新潟大学授業レビューサイト"
-            width={128}
-            height={40}
-            className="w-24 h-8 md:w-32 md:h-10 transition-opacity duration-200 hover:opacity-80"
-            sizes="(max-width: 768px) 96px, 128px"
+            width={140}
+            height={44}
+            className="w-28 h-auto xs:w-32 sm:w-36 md:w-40 lg:w-44 xl:w-[140px] transition-opacity duration-200 hover:opacity-80"
+            sizes="(max-width: 475px) 112px, (max-width: 640px) 128px, (max-width: 768px) 144px, (max-width: 1024px) 160px, (max-width: 1280px) 176px, 140px"
           />
 
           <div className="text-center md:text-left">

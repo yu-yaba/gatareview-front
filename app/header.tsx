@@ -10,13 +10,13 @@ export default function Header() {
         <Link href="/" className="flex items-center group">
           <div className="pl-5 sm:pl-8 md:pl-7 lg:pl-10 flex">
             <Image
-              src="/white-title.svg"
+              src="/white-header-title.png"
               alt="ガタレビュ - 新潟大学授業レビューサイト"
-              width={200}
-              height={60}
-              className="w-[150px] sm:w-[170px] md:w-[180px] lg:w-[200px] h-auto transition-transform duration-200 group-hover:scale-105"
+              width={220}
+              height={66}
+              className="w-[160px] xs:w-[170px] sm:w-[180px] md:w-[190px] lg:w-[200px] xl:w-[220px] h-auto transition-transform duration-200 group-hover:scale-105"
               priority
-              sizes="(max-width: 640px) 170px, (max-width: 768px) 180px, (max-width: 1024px) 180px, 200px"
+              sizes="(max-width: 475px) 160px, (max-width: 640px) 180px, (max-width: 768px) 190px, (max-width: 1024px) 200px, 220px"
             />
           </div>
         </Link>
