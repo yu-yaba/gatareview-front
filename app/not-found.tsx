@@ -1,17 +1,5 @@
-'use client'
-
 import Link from 'next/link'
 import { FaHome, FaSearch, FaQuestionCircle, FaExclamationTriangle, FaArrowLeft } from 'react-icons/fa'
-import type { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'ページが見つかりません - ガタレビュ！',
-  description: 'お探しのページは見つかりませんでした。ガタレビュ！で新潟大学の授業レビューを検索してみてください。',
-  robots: {
-    index: false,
-    follow: true,
-  },
-}
 
 export default function NotFound() {
   return (

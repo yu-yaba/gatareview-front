@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { FaChevronDown, FaChevronUp, FaQuestionCircle } from 'react-icons/fa'
-import type { Metadata } from 'next'
 
 interface FAQItem {
   question: string
