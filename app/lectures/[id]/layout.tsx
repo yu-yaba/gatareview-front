@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 
 async function fetchLectureData(id: string) {
   try {
+    // Docker環境ではコンテナ間通信を使用
     const apiUrl = process.env.NODE_ENV === 'production' 
       ? 'https://gatareview.com' 
-      : process.env.NEXT_PUBLIC_ENV || 'http://localhost:3000';
+      : 'http://back:3000';
     
     const response = await fetch(`${apiUrl}/api/v1/lectures/${id}`, {
       headers: {
