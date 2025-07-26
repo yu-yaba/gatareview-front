@@ -32,23 +32,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return new Response('Lecture not found', { status: 404 });
     }
 
-    // 外部フォントサービスを使用（Edge Runtime対応）
-    const fontRegular = await fetch(
-      'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap'
-    ).then(() => null).catch(() => null);
+    // フォントを使用しない（システムフォント使用）
 
-    const fontBold = fontRegular;
-
-    // 評価の星を生成
-    const generateStars = (rating: number) => {
-      const fullStars = Math.floor(rating);
-      const hasHalfStar = rating % 1 >= 0.5;
-      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-      
-      return '★'.repeat(fullStars) + (hasHalfStar ? '☆' : '') + '☆'.repeat(emptyStars);
-    };
-
-    const stars = generateStars(lecture.avg_rating || 0);
+    // 評価表示（星マークではなくテキスト表示）
     const rating = lecture.avg_rating ? lecture.avg_rating.toFixed(1) : '0.0';
 
     return new ImageResponse(
@@ -176,18 +162,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
                   fontFamily: 'sans-serif',
                 }}
               >
-                {stars}
-              </div>
-              <div
-                style={{
-                  color: 'white',
-                  fontSize: '32px',
-                  fontWeight: 'bold',
-                  marginRight: '30px',
-                  fontFamily: 'sans-serif',
-                }}
-              >
-                {rating}
+                評価 {rating}
               </div>
               <div
                 style={{
