@@ -5,9 +5,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FaBookOpen, FaStar, FaHeart, FaUsers, FaCheckCircle, FaBolt, FaShieldAlt, FaRocket, FaBookmark, FaEdit } from 'react-icons/fa'
+import Cookies from 'js-cookie'
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -22,6 +24,7 @@ export default function SignInPage() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     try {
+      Cookies.set('remember_me', rememberMe ? 'true' : 'false', { expires: 1 }) // Cookieに1日間保存
       await signIn('google', { callbackUrl: '/' })
     } catch (error) {
       console.error('ログインエラー:', error)
@@ -78,6 +81,19 @@ export default function SignInPage() {
                 </div>
 
                 <div>
+                  <div className="mb-4 flex items-center">
+                    <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                      ログイン状態を記憶する
+                    </label>
+                  </div>
                   <button
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}

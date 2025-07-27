@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { NextAuthOptions } from "next-auth"
+import { cookies } from 'next/headers'
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -17,6 +18,7 @@ const authOptions: NextAuthOptions = {
       
       // Google認証成功時
       if (account && user) {
+        const rememberMe = cookies().get('remember_me')?.value === 'true'
         console.log('=== NextAuth JWT Callback START ===')
         console.log('Account provider:', account.provider)
         console.log('Account type:', account.type)
@@ -43,6 +45,7 @@ const authOptions: NextAuthOptions = {
             },
             body: JSON.stringify({
               token: account.id_token,
+              remember: rememberMe, // rememberMeフラグを送信
             }),
           }
           
@@ -122,10 +125,10 @@ const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   jwt: {
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET,
 }
