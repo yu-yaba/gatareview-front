@@ -224,37 +224,19 @@ export default function MyPage() {
               <div className="mb-6">
                 <FaExclamationTriangle className="w-16 h-16 mx-auto text-red-500" />
               </div>
-              <h3 className="text-xl font-bold text-red-800 mb-4">エラーが発生しました</h3>
-              <p className="text-red-600 mb-6 leading-relaxed">{error}</p>
+              <h3 className="text-xl font-bold text-red-800 mb-4">認証エラーが発生しました</h3>
+              <p className="text-red-600 mb-6 leading-relaxed">再度ログインしてください。</p>
               
-              <div className="space-y-3">
-                <button
-                  onClick={fetchMypageData}
-                  className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-                  <span className="relative">再試行</span>
-                </button>
-                
-                <button
-                  onClick={handleSignOut}
-                  disabled={isLoggingOut}
-                  className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 border-gray-200/50 hover:from-gray-100 hover:to-slate-100 hover:shadow-gray-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-                  {isLoggingOut ? (
-                    <div className="flex items-center relative">
-                      <FaSpinner className="w-4 h-4 mr-2 animate-spin" />
-                      ログアウト中...
-                    </div>
-                  ) : (
-                    <div className="flex items-center relative">
-                      <FaSignOutAlt className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200" />
-                      ログアウト
-                    </div>
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={() => router.push('/auth/signin')}
+                className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                <div className="flex items-center relative">
+                  <FaSignOutAlt className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200" />
+                  再度ログインする
+                </div>
+              </button>
             </div>
           </div>
         </div>
