@@ -128,7 +128,9 @@ export default function MyPage() {
       console.error('マイページデータの取得に失敗:', error)
 
       if (error.response?.status === 401) {
-        setError('認証が必要です。ログインしてください。')
+        setError('セッションの有効期限が切れました。再度ログインしてください。')
+        // 認証エラー時に自動的にログアウトし、サインインページにリダイレクト
+        signOut({ callbackUrl: '/auth/signin' })
       } else if (error.response?.status === 403) {
         setError('アクセスが拒否されました。権限を確認してください。')
       } else {
