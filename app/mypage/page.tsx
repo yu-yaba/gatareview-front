@@ -118,6 +118,9 @@ export default function MyPage() {
       setLoading(true)
       setError(null)
 
+      // 🔥 一時的なエラーテスト用 - 削除する前にコメントアウトしてください
+      // throw new Error('認証エラーのテスト')
+
       console.log('Fetching mypage data...')
       console.log('Token:', session?.backendToken ? 'Token present' : 'Token missing')
 
@@ -226,9 +229,12 @@ export default function MyPage() {
               </div>
               <h3 className="text-xl font-bold text-red-800 mb-4">認証エラーが発生しました</h3>
               <p className="text-red-600 mb-6 leading-relaxed">再度ログインしてください。</p>
-              
+
               <button
-                onClick={() => router.push('/auth/signin')}
+                onClick={async () => {
+                  await signOut({ redirect: false })
+                  router.push('/auth/signin')
+                }}
                 className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
