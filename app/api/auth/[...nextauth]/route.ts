@@ -3,6 +3,11 @@ import GoogleProvider from "next-auth/providers/google"
 import { NextAuthOptions } from "next-auth"
 import { cookies } from 'next/headers'
 
+// セキュリティ: NEXTAUTH_SECRET の必須化チェック
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET環境変数が設定されていません。セキュリティのため必須です。')
+}
+
 const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
