@@ -359,9 +359,9 @@ export default function MyPage() {
                     <div className="text-4xl font-bold text-amber-800 mb-1">
                       {mypageData.ranking_position.position}位
                     </div>
-                    <div className="text-sm text-gray-600">
+                    {/* <div className="text-sm text-gray-600">
                       全{mypageData.ranking_position.total_users}人中
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               )}
