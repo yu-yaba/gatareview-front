@@ -51,23 +51,74 @@ export default function MyReviewsPage() {
     }
   }, [status, router])
 
+  const validateReviewsResponse = (data: any): data is ReviewsApiResponse => {
+    return data &&
+           typeof data === 'object' &&
+           Array.isArray(data.reviews) &&
+           data.pagination &&
+           typeof data.pagination.current_page === 'number' &&
+           typeof data.pagination.total_pages === 'number' &&
+           data.statistics &&
+           typeof data.statistics.total_reviews === 'number'
+  }
+
   const fetchReviews = async (page = 1) => {
     try {
       setLoading(true)
       setError(null)
 
       const response = await mypageApi.getReviews(page, 10)
+      
+      // レスポンス構造の検証
+      if (!validateReviewsResponse(response.data)) {
+        console.error('無効なレスポンス構造:', response.data)
+        throw new Error('INVALID_RESPONSE_STRUCTURE')
+      }
+
       setReviewsData(response.data)
       setCurrentPage(page)
     } catch (error: any) {
       console.error('レビューデータの取得に失敗:', error)
 
-      if (error.response?.status === 401) {
-        setError('認証が必要です。ログインしてください。')
-      } else if (error.response?.status === 403) {
-        setError('アクセスが拒否されました。権限を確認してください。')
+      // ネットワークエラーの詳細分類
+      if (!error.response) {
+        // ネットワーク接続エラー
+        if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
+          setError('ネットワーク接続に問題があります。インターネット接続を確認してください。')
+        } else if (error.message === 'INVALID_RESPONSE_STRUCTURE') {
+          setError('サーバーからの無効な応答です。管理者にお問い合わせください。')
+        } else {
+          setError('接続がタイムアウトしました。しばらく待ってから再度お試しください。')
+        }
       } else {
-        setError('データの取得に失敗しました。時間をおいて再度お試しください。')
+        // HTTPエラーレスポンス
+        const status = error.response.status
+        const errorData = error.response.data
+        
+        switch (status) {
+          case 401:
+            setError('セッションの有効期限が切れました。再度ログインしてください。')
+            break
+          case 403:
+            setError('アクセスが拒否されました。権限を確認してください。')
+            break
+          case 404:
+            setError('レビューデータが見つかりません。')
+            break
+          case 422:
+            setError(`入力エラー: ${errorData?.message || 'パラメータを確認してください。'}`)
+            break
+          case 429:
+            setError('リクエストが多すぎます。しばらく待ってから再度お試しください。')
+            break
+          case 500:
+          case 502:
+          case 503:
+            setError('サーバーでエラーが発生しました。時間をおいて再度お試しください。')
+            break
+          default:
+            setError(`予期しないエラーが発生しました (${status})。管理者にお問い合わせください。`)
+        }
       }
     } finally {
       setLoading(false)
@@ -129,7 +180,7 @@ export default function MyReviewsPage() {
 
   // ページネーション
   const handlePageChange = (page: number) => {
-    if (page >= 1 && reviewsData && page <= reviewsData.pagination.total_pages) {
+    if (page >= 1 && reviewsData && reviewsData.pagination && page <= (reviewsData.pagination.total_pages || 0)) {
       fetchReviews(page)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
@@ -189,12 +240,12 @@ export default function MyReviewsPage() {
         </div>
 
         {/* 統計情報 */}
-        {reviewsData && (
+        {reviewsData && reviewsData.statistics && (
           <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300 mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="group bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 text-center border border-green-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
                 <FaComments className="w-8 h-8 mx-auto mb-3 text-green-600 group-hover:scale-110 transition-transform duration-200" />
-                <div className="text-3xl font-bold text-green-700 mb-2">{reviewsData.statistics.total_reviews}</div>
+                <div className="text-3xl font-bold text-green-700 mb-2">{reviewsData.statistics?.total_reviews || 0}</div>
                 <div className="text-sm text-gray-600 font-medium">総レビュー数</div>
               </div>
             </div>
@@ -202,7 +253,7 @@ export default function MyReviewsPage() {
         )}
 
         {/* レビュー一覧 */}
-        {reviewsData && reviewsData.reviews.length > 0 ? (
+        {reviewsData && reviewsData.reviews && Array.isArray(reviewsData.reviews) && reviewsData.reviews.length > 0 ? (
           <div className="space-y-6">
             {reviewsData.reviews.map((review, index) => (
               <div
@@ -369,7 +420,7 @@ export default function MyReviewsPage() {
         )}
 
         {/* ページネーション */}
-        {reviewsData && reviewsData.pagination.total_pages > 1 && (
+        {reviewsData && reviewsData.pagination && (reviewsData.pagination.total_pages || 0) > 1 && (
           <div className="flex justify-center mt-12">
             <div className="flex items-center gap-2">
               <button
@@ -381,7 +432,7 @@ export default function MyReviewsPage() {
                 <span className="hidden sm:inline">前へ</span>
               </button>
 
-              {Array.from({ length: reviewsData.pagination.total_pages }, (_, i) => i + 1).map((page) => (
+              {Array.from({ length: reviewsData.pagination?.total_pages || 0 }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
@@ -396,7 +447,7 @@ export default function MyReviewsPage() {
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === reviewsData.pagination.total_pages}
+                disabled={currentPage === (reviewsData.pagination?.total_pages || 0)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="hidden sm:inline">次へ</span>

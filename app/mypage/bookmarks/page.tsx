@@ -43,23 +43,74 @@ export default function MyBookmarksPage() {
     }
   }, [status, router])
 
+  const validateBookmarksResponse = (data: any): data is BookmarksApiResponse => {
+    return data &&
+           typeof data === 'object' &&
+           Array.isArray(data.bookmarks) &&
+           data.pagination &&
+           typeof data.pagination.current_page === 'number' &&
+           typeof data.pagination.total_pages === 'number' &&
+           data.statistics &&
+           typeof data.statistics.total_bookmarks === 'number'
+  }
+
   const fetchBookmarks = async (page = 1) => {
     try {
       setLoading(true)
       setError(null)
 
       const response = await mypageApi.getBookmarks(page, 10)
+      
+      // レスポンス構造の検証
+      if (!validateBookmarksResponse(response.data)) {
+        console.error('無効なレスポンス構造:', response.data)
+        throw new Error('INVALID_RESPONSE_STRUCTURE')
+      }
+
       setBookmarksData(response.data)
       setCurrentPage(page)
     } catch (error: any) {
       console.error('ブックマークデータの取得に失敗:', error)
 
-      if (error.response?.status === 401) {
-        setError('認証が必要です。ログインしてください。')
-      } else if (error.response?.status === 403) {
-        setError('アクセスが拒否されました。権限を確認してください。')
+      // ネットワークエラーの詳細分類
+      if (!error.response) {
+        // ネットワーク接続エラー
+        if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
+          setError('ネットワーク接続に問題があります。インターネット接続を確認してください。')
+        } else if (error.message === 'INVALID_RESPONSE_STRUCTURE') {
+          setError('サーバーからの無効な応答です。管理者にお問い合わせください。')
+        } else {
+          setError('接続がタイムアウトしました。しばらく待ってから再度お試しください。')
+        }
       } else {
-        setError('データの取得に失敗しました。時間をおいて再度お試しください。')
+        // HTTPエラーレスポンス
+        const status = error.response.status
+        const errorData = error.response.data
+        
+        switch (status) {
+          case 401:
+            setError('セッションの有効期限が切れました。再度ログインしてください。')
+            break
+          case 403:
+            setError('アクセスが拒否されました。権限を確認してください。')
+            break
+          case 404:
+            setError('ブックマークデータが見つかりません。')
+            break
+          case 422:
+            setError(`入力エラー: ${errorData?.message || 'パラメータを確認してください。'}`)
+            break
+          case 429:
+            setError('リクエストが多すぎます。しばらく待ってから再度お試しください。')
+            break
+          case 500:
+          case 502:
+          case 503:
+            setError('サーバーでエラーが発生しました。時間をおいて再度お試しください。')
+            break
+          default:
+            setError(`予期しないエラーが発生しました (${status})。管理者にお問い合わせください。`)
+        }
       }
     } finally {
       setLoading(false)
@@ -81,7 +132,7 @@ export default function MyBookmarksPage() {
 
   // ページネーション
   const handlePageChange = (page: number) => {
-    if (page >= 1 && bookmarksData && page <= bookmarksData.pagination.total_pages) {
+    if (page >= 1 && bookmarksData && bookmarksData.pagination && page <= (bookmarksData.pagination.total_pages || 0)) {
       fetchBookmarks(page)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
@@ -141,12 +192,12 @@ export default function MyBookmarksPage() {
         </div>
 
         {/* 統計情報 */}
-        {bookmarksData && (
+        {bookmarksData && bookmarksData.statistics && (
           <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300 mb-8">
             <div className="flex justify-center">
               <div className="group bg-gradient-to-br from-yellow-50 to-amber-100 rounded-2xl p-6 text-center border border-yellow-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] w-full max-w-sm">
                 <FaBookmark className="w-8 h-8 mx-auto mb-3 text-yellow-600 group-hover:scale-110 transition-transform duration-200" />
-                <div className="text-3xl font-bold text-yellow-700 mb-2">{bookmarksData.statistics.total_bookmarks}</div>
+                <div className="text-3xl font-bold text-yellow-700 mb-2">{bookmarksData.statistics?.total_bookmarks || 0}</div>
                 <div className="text-sm text-gray-600 font-medium">総ブックマーク数</div>
               </div>
             </div>
@@ -154,7 +205,7 @@ export default function MyBookmarksPage() {
         )}
 
         {/* ブックマーク一覧 */}
-        {bookmarksData && bookmarksData.bookmarks.length > 0 ? (
+        {bookmarksData && bookmarksData.bookmarks && Array.isArray(bookmarksData.bookmarks) && bookmarksData.bookmarks.length > 0 ? (
           <div className="space-y-6">
             {bookmarksData.bookmarks.map((lecture, index) => (
               <div
@@ -244,7 +295,7 @@ export default function MyBookmarksPage() {
         )}
 
         {/* ページネーション */}
-        {bookmarksData && bookmarksData.pagination.total_pages > 1 && (
+        {bookmarksData && bookmarksData.pagination && (bookmarksData.pagination.total_pages || 0) > 1 && (
           <div className="flex justify-center mt-12">
             <div className="flex items-center gap-2">
               <button
@@ -256,7 +307,7 @@ export default function MyBookmarksPage() {
                 <span className="hidden sm:inline">前へ</span>
               </button>
 
-              {Array.from({ length: bookmarksData.pagination.total_pages }, (_, i) => i + 1).map((page) => (
+              {Array.from({ length: bookmarksData.pagination?.total_pages || 0 }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
@@ -271,7 +322,7 @@ export default function MyBookmarksPage() {
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === bookmarksData.pagination.total_pages}
+                disabled={currentPage === (bookmarksData.pagination?.total_pages || 0)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="hidden sm:inline">次へ</span>
