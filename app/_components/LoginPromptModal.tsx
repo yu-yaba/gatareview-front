@@ -56,8 +56,13 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
 
         {/* 閉じるボタン */}
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 z-10"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Close button clicked'); // デバッグ用ログ
+            onClose();
+          }}
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 z-20 pointer-events-auto"
         >
           <FaTimes className="text-gray-400 hover:text-gray-600" />
         </button>
