@@ -126,6 +126,76 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
     updateReview(name, value);
   }, [updateReview]);
 
+  // カスタムドロップダウン用のstate管理
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const handleDropdownToggle = useCallback((fieldName: string) => {
+    setOpenDropdown(openDropdown === fieldName ? null : fieldName);
+    setFocusedIndex(-1);
+  }, [openDropdown]);
+
+  const handleOptionSelect = useCallback((fieldName: string, value: string) => {
+    updateReview(fieldName, value);
+    setOpenDropdown(null);
+  }, [updateReview]);
+
+  // キーボードナビゲーション用のstate
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+
+  // ドロップダウン外クリックで閉じる
+  const handleOutsideClick = useCallback((e: MouseEvent) => {
+    if (openDropdown) {
+      const target = e.target as Element;
+      if (!target.closest('[data-dropdown]')) {
+        setOpenDropdown(null);
+        setFocusedIndex(-1);
+      }
+    }
+  }, [openDropdown]);
+
+  // キーボード操作の処理
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!openDropdown) return;
+    
+    const currentFieldConfig = selectFieldConfigs.find(config => config.name === openDropdown);
+    if (!currentFieldConfig) return;
+    
+    const totalOptions = currentFieldConfig.options.length + 1; // +1 for "選択してください"
+    
+    switch (e.key) {
+      case 'Escape':
+        setOpenDropdown(null);
+        setFocusedIndex(-1);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        setFocusedIndex(prev => (prev + 1) % totalOptions);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setFocusedIndex(prev => (prev - 1 + totalOptions) % totalOptions);
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        if (focusedIndex === 0) {
+          handleOptionSelect(openDropdown, '');
+        } else if (focusedIndex > 0) {
+          handleOptionSelect(openDropdown, currentFieldConfig.options[focusedIndex - 1]);
+        }
+        break;
+    }
+  }, [openDropdown, focusedIndex, selectFieldConfigs, handleOptionSelect]);
+
+  useEffect(() => {
+    document.addEventListener('click', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleOutsideClick, handleKeyDown]);
+
   const starOnChange = useCallback((newValue: number) => {
     setRatingValue(newValue);
     updateReview('rating', newValue);
@@ -148,11 +218,11 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   // フィールドのボーダー色を決定する関数（メモ化）
   const getFieldBorderClass = useCallback((fieldName: string) => {
-    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl";
+    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-md border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-colors duration-200 scroll-margin-0 overscroll-behavior-y-none";
     if (formErrors[fieldName]) {
-      return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
+      return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200`;
     }
-    return `${baseClasses} focus:border-green-500 focus:ring-green-200 hover:border-green-300`;
+    return `${baseClasses} focus:border-green-500 focus:ring-green-200`;
   }, [formErrors]);
 
   // textareaのクラス取得関数（メモ化）
@@ -174,34 +244,79 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
   ));
   DropdownIcon.displayName = 'DropdownIcon';
 
-  // SelectFieldコンポーネント（メモ化）
-  const SelectField = memo<SelectFieldConfig>(({ id, name, label, options }) => (
-    <div className="mb-6">
-      <label className="block">
-        <p className="font-bold mb-3 text-gray-800">
-          {label}
-          <span className="ml-2 text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-            任意
-          </span>
-        </p>
-        <div className="relative">
-          <select
-            id={id}
-            name={name}
-            value={(review as any)?.[name] || ''}
-            onChange={handleInputChange}
-            className={getFieldBorderClass(name)}>
-            <option value="">選択してください</option>
-            {options.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-          <DropdownIcon />
-        </div>
-        {renderFieldError(name)}
-      </label>
-    </div>
-  ));
+  // カスタムSelectFieldコンポーネント（メモ化）
+  const SelectField = memo<SelectFieldConfig>(({ id, name, label, options }) => {
+    const isOpen = openDropdown === name;
+    const currentValue = (review as any)?.[name] || '';
+    const displayValue = currentValue || '選択してください';
+    
+    return (
+      <div className="mb-6" data-dropdown>
+        <label className="block">
+          <p className="font-bold mb-3 text-gray-800">
+            {label}
+            <span className="ml-2 text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              任意
+            </span>
+          </p>
+          <div className="relative">
+            <button
+              type="button"
+              id={id}
+              onClick={() => handleDropdownToggle(name)}
+              className={getFieldBorderClass(name)}
+              style={{ 
+                textAlign: 'left',
+                justifyContent: 'space-between',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <span className={currentValue ? 'text-gray-800' : 'text-gray-500'}>
+                {displayValue}
+              </span>
+              <svg 
+                className={`fill-current h-5 w-5 text-green-600 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+              </svg>
+            </button>
+            
+            {isOpen && (
+              <div className="absolute z-50 w-full mt-1 bg-white border border-green-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                <button
+                  type="button"
+                  onClick={() => handleOptionSelect(name, '')}
+                  className={`w-full px-4 py-3 text-left focus:outline-none text-gray-500 border-b border-gray-100 transition-colors ${
+                    focusedIndex === 0 ? 'bg-green-100' : 'hover:bg-green-50'
+                  }`}
+                >
+                  選択してください
+                </button>
+                {options.map((option, index) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => handleOptionSelect(name, option)}
+                    className={`w-full px-4 py-3 text-left focus:outline-none transition-colors ${
+                      currentValue === option ? 'bg-green-100 text-green-800 font-medium' : 'text-gray-700'
+                    } ${focusedIndex === index + 1 ? 'bg-green-50' : 'hover:bg-green-50'} ${
+                      option === options[options.length - 1] ? '' : 'border-b border-gray-100'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {renderFieldError(name)}
+        </label>
+      </div>
+    );
+  });
   SelectField.displayName = 'SelectField';
 
   const addReview = useCallback(async (newReview: ReviewData, token: string) => {
