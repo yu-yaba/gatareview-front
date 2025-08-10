@@ -75,9 +75,9 @@ export default function SignInPage() {
                   <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">
                     ガタレビュにログイン
                   </h2>
-                  <p className="text-gray-600 font-medium">
-                    Googleアカウントで安全にログイン
-                  </p>
+                  <h4 className="text-lg lg:text-xl text-green-500 font-medium">
+                    5秒で完了します
+                  </h4>
                 </div>
 
                 <div>
