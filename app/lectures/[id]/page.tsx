@@ -11,6 +11,8 @@ import BookmarkButton from '../../_components/BookmarkButton';
 import ThanksButton from '../../_components/ThanksButton';
 import ReviewEditModal from '../../_components/ReviewEditModal';
 import ReportButton from '../../_components/ReportButton';
+import ReviewAccessBlur, { PartialComment } from '../../_components/ReviewAccessBlur';
+import ReviewPromptModal from '../../_components/ReviewPromptModal';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
 
@@ -19,9 +21,13 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [lecture, setLecture] = useState<LectureSchema | null>(null)
   const [editingReview, setEditingReview] = useState<ReviewSchema | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  
+  const [isReviewPromptModalOpen, setIsReviewPromptModalOpen] = useState(false);
+
   const { data: session } = useSession();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+
+  // レビュー閲覧権限をチェック
+  const canViewReviews = isAuthenticated && user && (user.reviews_count || 0) >= 1;
 
   useEffect(() => {
     const fetchLectureDetail = async () => {
@@ -68,7 +74,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
 
   // 編集後のレビュー更新
   const handleReviewUpdated = (updatedReview: ReviewSchema) => {
-    const updatedReviews = reviews.reviews.map((review: ReviewSchema) => 
+    const updatedReviews = reviews.reviews.map((review: ReviewSchema) =>
       review.id === updatedReview.id ? updatedReview : review
     );
     let avgRating = "0.0";
@@ -135,7 +141,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                       <p className="text-sm text-gray-500 mt-1">
                         ({reviews.reviews.length}件のレビュー)
                       </p>
-                      
+
                       {/* ブックマークボタン */}
                       {lecture && (
                         <div className="mt-4 flex justify-end">
@@ -171,7 +177,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
 
 
           {/* レビュー一覧セクション */}
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto relative">
             {/* レビューカード */}
             <div className="space-y-6">
               {reviews.reviews && reviews.reviews.map((review: ReviewSchema, index: number) => (
@@ -259,12 +265,38 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
 
                   {/* コメントセクション */}
                   {review.content && (
-                    <div className="bg-gray-50/80 rounded-2xl p-4 border border-gray-100">
+                    <div className="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 relative">
                       <div className="flex items-start gap-3">
                         <FaComments className="text-green-500 mt-1 flex-shrink-0" />
                         <div className="flex-1">
                           <span className="text-sm text-gray-500 block mb-2">コメント</span>
-                          <p className="text-gray-800 leading-relaxed break-words">{review.content}</p>
+                          {canViewReviews ? (
+                            <p className="text-gray-800 leading-relaxed break-words">{review.content}</p>
+                          ) : (
+                            <>
+                              <PartialComment content={review.content} />
+                              {/* コメント内オーバーレイボタン */}
+                              <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-2xl">
+                                <button
+                                  onClick={() => setIsReviewPromptModalOpen(true)}
+                                  className="px-3 py-2 md:px-4 md:py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-green-500/25 flex items-center gap-1 md:gap-2 text-xs md:text-sm group"
+                                >
+                                  <FaHeart className="group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
+                                  <span className="truncate">
+                                    {!isAuthenticated ? (
+                                      <>
+                                        <span className="">ログイン&1レビューして閲覧する</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span className="">1レビューを投稿して閲覧する</span>
+                                      </>
+                                    )}
+                                  </span>
+                                </button>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -275,11 +307,11 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                     <div className="flex items-center gap-3">
                       {/* ありがとうボタン */}
                       <ThanksButton reviewId={review.id} initialThanksCount={review.thanks_count} />
-                      
+
                       {/* 報告ボタン（全ユーザーに表示） */}
                       <ReportButton reviewId={review.id} />
                     </div>
-                    
+
                     {/* 編集ボタン（自分のレビューの場合のみ） */}
                     {session && user && review.user_id && Number(review.user_id) === Number(user.id) && (
                       <button
@@ -324,6 +356,13 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
           onSave={handleReviewUpdated}
         />
       )}
+
+      {/* レビュー促進モーダル */}
+      <ReviewPromptModal
+        isOpen={isReviewPromptModalOpen}
+        onClose={() => setIsReviewPromptModalOpen(false)}
+        lectureId={params.id}
+      />
     </div>
   );
 };
