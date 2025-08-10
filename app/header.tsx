@@ -24,7 +24,7 @@ export default function Header() {
         {/* Action buttons section */}
         <div className="flex items-center space-x-2 sm:space-x-2.5 md:space-x-3 pr-5 sm:pr-8 md:pr-7 lg:pr-10">
           {/* レビューするボタン */}
-          <Link href="/reviews/new">
+          <Link href="/lectures/">
             <button className="group relative flex items-center px-5 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5 bg-white/95 backdrop-blur-md text-green-600 font-bold rounded-xl shadow-lg border border-white/30 transition-all duration-300 hover:bg-white hover:text-green-700 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
               {/* アイコン */}
