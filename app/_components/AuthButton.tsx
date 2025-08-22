@@ -1,12 +1,27 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function AuthButton() {
   const { data: session, status } = useSession()
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  if (status === 'loading') {
+  useEffect(() => {
+    if (status !== 'loading') {
+      setIsInitialized(true)
+    }
+  }, [status])
+
+  // デバッグ用（本番では削除可能）
+  useEffect(() => {
+    console.log('AuthButton state:', { status, isInitialized, hasSession: !!session })
+  }, [status, isInitialized, session])
+
+  // 初期ロード完了まではスピナーを表示しない（点滅防止）
+  // セッションが既にある場合は、ロード中でも該当のUIを表示
+  if (!isInitialized || (status === 'loading' && !session)) {
     return (
       <div className="flex items-center justify-center px-5 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5">
         <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
