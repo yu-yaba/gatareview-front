@@ -2,7 +2,7 @@
 
 import { signIn, getSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { FaBookOpen, FaStar, FaHeart, FaUsers, FaCheckCircle, FaBolt, FaShieldAlt, FaRocket, FaBookmark, FaEdit } from 'react-icons/fa'
 import Cookies from 'js-cookie'
@@ -11,15 +11,21 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    // 既にログイン済みの場合はホームページにリダイレクト
-    getSession().then((session) => {
-      if (session) {
-        router.push('/')
-      }
-    })
-  }, [router])
+    // 強制ログインフラグをチェック（複数アカウントログイン対応）
+    const forceLogin = searchParams.get('force') === 'true'
+    
+    if (!forceLogin) {
+      // 既にログイン済みの場合はホームページにリダイレクト
+      getSession().then((session) => {
+        if (session) {
+          router.push('/')
+        }
+      })
+    }
+  }, [router, searchParams])
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
@@ -75,9 +81,9 @@ export default function SignInPage() {
                   <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">
                     ガタレビュにログイン
                   </h2>
-                  <p className="text-gray-600 font-medium">
-                    Googleアカウントで安全にログイン
-                  </p>
+                  <h4 className="text-lg lg:text-xl text-green-500 font-medium">
+                    5秒で完了します
+                  </h4>
                 </div>
 
                 <div>
@@ -139,7 +145,7 @@ export default function SignInPage() {
                   </div>
                 </div>
 
-                <div className="text-center">
+                <div className="text-center space-y-3">
                   <Link
                     href="/"
                     className="inline-flex items-center text-green-600 hover:text-green-500 font-semibold transition-colors duration-200 group"
@@ -147,6 +153,18 @@ export default function SignInPage() {
                     <FaRocket className="mr-2 text-sm group-hover:animate-bounce" />
                     ホームページに戻る
                   </Link>
+                  
+                  {/* 別アカウントでのログイン用リンク */}
+                  {!searchParams.get('force') && (
+                    <div>
+                      <Link
+                        href="/auth/signin?force=true"
+                        className="inline-flex items-center text-blue-600 hover:text-blue-500 font-medium transition-colors duration-200 text-sm"
+                      >
+                        別のGoogleアカウントでログイン
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
