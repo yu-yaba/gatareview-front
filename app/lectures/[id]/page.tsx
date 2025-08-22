@@ -24,7 +24,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReviewPromptModalOpen, setIsReviewPromptModalOpen] = useState(false);
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { user, isAuthenticated } = useAuth();
 
   // レビュー閲覧権限をチェック（期間ベースAPI優先、フォールバックでセッション認証またはローカルストレージの権限）
@@ -48,6 +48,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
 
 
   useEffect(() => {
+    if (status === 'loading') return;
     const fetchReviews = async () => {
       try {
         // 認証ヘッダーを含めてレビューAPIを呼び出し
@@ -77,7 +78,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
       }
     };
     fetchReviews();
-  }, [params.id, session?.backendToken]);
+  }, [params.id, session?.backendToken, status]);
 
 
   // レビュー編集機能
