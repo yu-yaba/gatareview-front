@@ -13,6 +13,13 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "select_account",  // 常にアカウント選択画面を表示
+          access_type: "offline",    // リフレッシュトークン取得
+          response_type: "code"
+        }
+      }
     }),
   ],
   callbacks: {
