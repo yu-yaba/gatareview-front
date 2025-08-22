@@ -21,14 +21,18 @@ apiClient.interceptors.request.use(
       // NextAuthセッションから認証トークンを取得
       const session = await getSession()
       
-      if (session?.backendToken) {
+      // セッションがあり、有効なトークンがある場合のみAuthorizationヘッダーを付与
+      if (session?.backendToken && session.backendToken.trim() !== '') {
         config.headers = {
           ...config.headers,
           Authorization: `Bearer ${session.backendToken}`,
         }
       }
+      // セッションがない場合やトークンが無効な場合は、Authorizationヘッダーを付与しない
+      // これにより匿名リクエストとして送信される
     } catch (error) {
       console.error('Failed to get session:', error)
+      // エラーが発生した場合も認証ヘッダーを付与しない（匿名として扱う）
     }
     
     return config
@@ -105,9 +109,9 @@ export const authApi = {
   logout: () => apiRequest.post('/auth/logout'),
 }
 
-// レビュー関連のAPI関数（認証が必要な場合）
+// レビュー関連のAPI関数
 export const reviewApi = {
-  // レビューを作成（認証必須）
+  // レビューを作成（匿名投稿可能、ログイン時は自動的にユーザーに紐付け）
   createReview: (lectureId: string, reviewData: any) =>
     apiRequest.post<CreateReviewResponse>(`/lectures/${lectureId}/reviews`, reviewData),
 
