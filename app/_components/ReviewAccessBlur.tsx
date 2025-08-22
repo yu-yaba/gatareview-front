@@ -21,7 +21,7 @@ export const PartialComment = ({ content }: { content: string }) => {
     const visibleLength = Math.floor(content.length * 0.3)
     const visibleText = content.substring(0, visibleLength)
     const hiddenText = content.substring(visibleLength)
-    
+
     return (
       <div className="min-h-24 flex items-start">
         <p className="text-gray-800 leading-relaxed break-words">
@@ -74,7 +74,7 @@ export default function ReviewAccessBlur({ children, lectureId, reviewsData }: R
       </div>
 
       {/* コメントセクションにオーバーレイを適用 */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: 'linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.3) 80%, rgba(255,255,255,0.6) 90%, rgba(255,255,255,0.9) 100%)'
@@ -89,7 +89,7 @@ export default function ReviewAccessBlur({ children, lectureId, reviewsData }: R
               <FaLock className="text-white text-lg" />
             </div>
           </div>
-          
+
           <h3 className="text-lg font-bold text-gray-800 mb-2">
             続きを見るには
           </h3>

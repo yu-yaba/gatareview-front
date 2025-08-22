@@ -65,7 +65,7 @@ export const useAuth = (): AuthState => {
   const authState = useMemo((): AuthState => {
     const isLoading = status === 'loading'
     const isAuthenticated = !!session?.user && !!session?.backendToken
-    
+
     const user = userWithReviewsCount || (session?.user ? {
       id: session.user.id,
       email: session.user.email,
@@ -73,7 +73,7 @@ export const useAuth = (): AuthState => {
       avatar_url: session.user.avatar_url || null,
       reviews_count: undefined // 初期状態では不明扱いにして、ローカルストレージ判定を有効にする
     } : null)
-    
+
     const backendToken = session?.backendToken || null
 
     return {
@@ -90,7 +90,7 @@ export const useAuth = (): AuthState => {
 // 認証が必要なページでのガード用フック
 export const useRequireAuth = () => {
   const { isAuthenticated, isLoading } = useAuth()
-  
+
   return {
     isAuthenticated,
     isLoading,
