@@ -7,6 +7,7 @@ export interface CustomUser {
   email: string
   name: string
   avatar_url?: string | null
+  reviews_count?: number
 }
 
 declare module "next-auth" {
