@@ -21,7 +21,7 @@ export default function SignInPage() {
       // 既にログイン済みの場合はホームページにリダイレクト
       getSession().then((session) => {
         if (session) {
-          router.push('/')
+          router.push('/mypage')
         }
       })
     }
@@ -31,7 +31,7 @@ export default function SignInPage() {
     setIsLoading(true)
     try {
       Cookies.set('remember_me', rememberMe ? 'true' : 'false', { expires: 1 }) // Cookieに1日間保存
-      await signIn('google', { callbackUrl: '/' })
+      await signIn('google', { callbackUrl: '/mypage' })
     } catch (error) {
       console.error('ログインエラー:', error)
     } finally {
