@@ -219,7 +219,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   // フィールドのボーダー色を決定する関数（メモ化）
   const getFieldBorderClass = useCallback((fieldName: string) => {
-    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-md border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-colors duration-200 scroll-margin-0 overscroll-behavior-y-none";
+    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-md border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-colors duration-200 scroll-margin-0";
     if (formErrors[fieldName]) {
       return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200`;
     }
@@ -228,7 +228,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   // textareaのクラス取得関数（メモ化）
   const getTextareaClass = useCallback((fieldName: string) => {
-    const baseClasses = "p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-none text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl";
+    const baseClasses = "p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl";
     if (formErrors[fieldName]) {
       return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200 hover:border-red-400`;
     }
