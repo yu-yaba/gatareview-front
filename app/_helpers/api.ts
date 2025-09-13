@@ -133,4 +133,33 @@ export const mypageApi = {
     apiRequest.get(`/mypage/bookmarks?page=${page}&per_page=${perPage}`),
 }
 
+// 講義関連のAPI関数 (主にサーバーサイドでのデータ取得)
+export const lectureApi = {
+  getLecture: async (id: string) => {
+    try {
+      // Docker環境ではコンテナ間通信を使用
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://gatareview.com' 
+        : 'http://gatareview-back:3000';
+      
+      const response = await fetch(`${apiUrl}/api/v1/lectures/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // ISR的なキャッシュ設定
+        cache: 'no-store', // キャッシュを一時的に無効化
+      });
+  
+      if (!response.ok) {
+        return null;
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching lecture data:', error);
+      return null;
+    }
+  }
+};
+
 export default apiClient

@@ -12,7 +12,7 @@ import Script from 'next/script';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://gatareview.com'),
+  metadataBase: new URL(process.env.NODE_ENV === 'production' ? 'https://gatareview.com' : 'http://localhost:3000'),
   title: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
   description: '新潟大学生のための授業レビューサイトです。シラバスではわからないリアルな授業情報を共有しましょう。履修選択に役立つ学生の生の声をお届けします。',
   keywords: [
@@ -125,6 +125,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
+        type: 'image/png',
       }
     ],
     locale: 'ja_JP',
@@ -135,7 +136,12 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
     description: '新潟大学生のための授業レビューサイト。履修選択に役立つリアルな授業情報を共有。',
-    images: ['/ogp.png'],
+    images: {
+      url: '/ogp.png',
+      width: 1200,
+      height: 630,
+      alt: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
+    },
     creator: '@gatareview',
     site: '@gatareview',
   },
@@ -314,6 +320,11 @@ export default function RootLayout({
             ])
           }}
         />
+        {/* Facebook OGP Requirements */}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
