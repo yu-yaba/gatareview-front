@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/server';
 import { lectureApi } from '@/app/_helpers/api';
-
-export const runtime = 'edge';
+import { readFileSync } from 'fs';
+import path from 'path';
 
 async function loadFont(subset: string) {
   const fontResponse = await fetch(
@@ -32,32 +32,58 @@ export default async function Image({ params }: { params: { id: string } }) {
   const textSubset = `${lecture.title}${lecture.lecturer}${lecture.faculty}平均評価ガタレビュ！${lecture.avg_rating?.toFixed(1) || 'N/A'}`;
   const fontData = await loadFont(textSubset);
 
+  // ロゴファイルを直接読み込む
+  const logoPath = path.join(process.cwd(), 'public', 'green-footer-title.png');
+  const logoData = readFileSync(logoPath);
+
   return new ImageResponse(
     (
-      <div
+      <div // ルート: 緑色の背景 (枠として機能)
         style={{
+          width: '100%',
+          height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          width: '1200px',
-          height: '630px',
-          padding: '60px',
-          backgroundColor: '#f0fdf4',
-          color: '#14532d',
-          fontFamily: 'Noto Sans JP',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#22c55e', // 緑色
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: '28px', marginBottom: '20px' }}>{lecture.faculty}</div>
-          <div style={{ fontSize: '60px', fontWeight: 700, marginBottom: '20px' }}>{lecture.title}</div>
-          <div style={{ fontSize: '36px' }}>{lecture.lecturer}</div>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ fontSize: '28px', marginRight: '10px' }}>平均評価</div>
-            <div style={{ fontSize: '48px', fontWeight: 700 }}>{lecture.avg_rating?.toFixed(1) || 'N/A'}</div>
+        <div // 内側の白いコンテンツエリア
+          style={{
+            width: '1130px',
+            height: '560px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            backgroundColor: '#fff',
+            borderRadius: '30px',
+            padding: '60px',
+            color: '#14532d',
+            fontFamily: 'Noto Sans JP',
+          }}
+        >
+          {/* 上部: 講義情報 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '36px', color: '#16a34a' }}>{lecture.faculty}</div>
+            <div style={{ fontSize: '72px', fontWeight: 700, lineHeight: 1.1 }}>{lecture.title}</div>
+            <div style={{ fontSize: '48px', color: '#166534', marginTop: '20px' }}>{lecture.lecturer}</div>
           </div>
-          <div style={{ fontSize: '40px', fontWeight: 700 }}>ガタレビュ！</div>
+
+          {/* 下部: 評価とロゴ */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div style={{ fontSize: '32px' }}>平均評価</div>
+              <div style={{ fontSize: '60px', fontWeight: 700, color: '#f59e0b' }}>
+                {lecture.avg_rating?.toFixed(1) || 'N/A'}
+              </div>
+            </div>
+            <img 
+              // @ts-ignore
+              src={logoData.buffer} 
+              width="250"
+              alt="ガタレビュ！" 
+            />
+          </div>
         </div>
       </div>
     ),

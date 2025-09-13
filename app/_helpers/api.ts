@@ -143,7 +143,7 @@ export const lectureApi = {
           'Content-Type': 'application/json',
         },
         // ISR的なキャッシュ設定
-        next: { revalidate: 3600 }, // 1時間キャッシュ
+        cache: 'no-store', // キャッシュを一時的に無効化
       });
   
       if (!response.ok) {
