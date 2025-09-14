@@ -138,13 +138,16 @@ export const lectureApi = {
   getLecture: async (id: string) => {
     try {
       // Docker環境ではコンテナ間通信を使用
-      const apiUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://gatareview.com' 
+      // 本番環境でCloudflareをバイパスするため内部URLを使用
+      const apiUrl = process.env.NODE_ENV === 'production'
+        ? (process.env.NEXT_PUBLIC_ENV || 'https://gatareview.com')
         : 'http://gatareview-back:3000';
       
       const response = await fetch(`${apiUrl}/api/v1/lectures/${id}`, {
         headers: {
           'Content-Type': 'application/json',
+          'User-Agent': 'GataReview-NextJS-SSR/1.0',
+          'Accept': 'application/json',
         },
         // ISR的なキャッシュ設定
         cache: 'no-store', // キャッシュを一時的に無効化
