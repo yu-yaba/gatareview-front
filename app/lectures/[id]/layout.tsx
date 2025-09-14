@@ -1,33 +1,8 @@
 import type { Metadata } from 'next';
-
-async function fetchLectureData(id: string) {
-  try {
-    // Docker環境ではコンテナ間通信を使用
-    const apiUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://gatareview.com' 
-      : 'http://back:3000';
-    
-    const response = await fetch(`${apiUrl}/api/v1/lectures/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      // ISR的なキャッシュ設定
-      next: { revalidate: 3600 }, // 1時間キャッシュ
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching lecture data for metadata:', error);
-    return null;
-  }
-}
+import { lectureApi } from '@/app/_helpers/api';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const lecture = await fetchLectureData(params.id);
+  const lecture = await lectureApi.getLecture(params.id);
 
   if (!lecture) {
     return {
@@ -59,28 +34,21 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       description,
       url: `${baseUrl}/lectures/${params.id}`,
       siteName: 'ガタレビュ！',
-      images: [
-        {
-          url: `${baseUrl}/api/og/lectures/${params.id}`,
-          width: 1200,
-          height: 630,
-          alt: `${lecture.title} - ${lecture.lecturer} 先生の授業レビュー`,
-          type: 'image/png',
-        }
-      ],
       locale: 'ja_JP',
       type: 'article',
+      images: [
+        {
+          url: `${baseUrl}/lectures/${params.id}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: {
-        url: `${baseUrl}/api/og/lectures/${params.id}`,
-        width: 1200,
-        height: 630,
-        alt: `${lecture.title} - ${lecture.lecturer} 先生の授業レビュー`,
-      },
       creator: '@gatareview',
       site: '@gatareview',
     },
