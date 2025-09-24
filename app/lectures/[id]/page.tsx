@@ -288,10 +288,10 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                           {canViewReviews ? (
                             <p className="text-gray-800 leading-relaxed break-words">{review.content}</p>
                           ) : (
-                            <>
+                            <div className="relative">
                               <PartialComment content={review.content} />
                               {/* コメント内オーバーレイボタン */}
-                              <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-2xl">
+                              <div className="absolute inset-0 flex items-end justify-center pb-4 bg-gradient-to-r from-transparent via-transparent to-white/90 rounded-2xl">
                                 <button
                                   onClick={() => setIsReviewPromptModalOpen(true)}
                                   className="px-3 py-2 md:px-4 md:py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-green-500/25 flex items-center gap-1 md:gap-2 text-xs md:text-sm group"
@@ -310,7 +310,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                                   </span>
                                 </button>
                               </div>
-                            </>
+                            </div>
                           )}
                         </div>
                       </div>

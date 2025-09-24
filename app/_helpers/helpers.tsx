@@ -56,10 +56,10 @@ export const validateReview = (review: ReviewData) => {
   // コメントのみ必須
   if (review.content === '') {
     ReviewErrors.content = 'コメントを入力してください';
-  } else if (review.content.length < 20) {
-    ReviewErrors.content = 'コメントは20文字以上400文字以内で入力してください';
-  } else if (review.content.length > 400) {
-    ReviewErrors.content = 'コメントは20文字以上400文字以内で入力してください';
+  } else if (review.content.length < 30) {
+    ReviewErrors.content = 'コメントは30文字以上1000文字以内で入力してください';
+  } else if (review.content.length > 1000) {
+    ReviewErrors.content = 'コメントは30文字以上1000文字以内で入力してください';
   }
 
   return ReviewErrors;

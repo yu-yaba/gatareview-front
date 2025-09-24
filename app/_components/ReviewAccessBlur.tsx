@@ -16,37 +16,32 @@ interface ReviewAccessBlurProps {
 export const PartialComment = ({ content }: { content: string }) => {
   if (!content) return null
 
-  // 短いコメントの場合（50文字以下）は30%まで表示
-  if (content.length <= 50) {
-    const visibleLength = Math.floor(content.length * 0.3)
-    const visibleText = content.substring(0, visibleLength)
-    const hiddenText = content.substring(visibleLength)
+  // ダミーテキスト（十分な長さを確保）
+  const dummyText = 'この授業は非常に興味深く、講義内容も充実していました。課題の量も適切で、理解を深めることができました。テストは授業内容をしっかり復習すれば対応可能です。'
 
+  // 8文字未満のコメントは全文ぼかし表示（ダミーテキスト付き）
+  if (content.length < 8) {
     return (
-      <div className="min-h-24 flex items-start">
-        <p className="text-gray-800 leading-relaxed break-words">
-          <span>{visibleText}</span>
+      <div className="min-h-16 md:min-h-16 h-40 md:h-auto overflow-hidden md:overflow-visible flex items-start">
+        <p className="text-gray-800 leading-relaxed w-full" style={{wordBreak: 'break-all', whiteSpace: 'pre-wrap'}}>
           <span className="filter blur-sm select-none opacity-60">
-            {hiddenText}
+            {content + dummyText}
           </span>
         </p>
       </div>
     )
   }
 
-  // 長いコメントの場合は1行目の半分まで表示
-  const firstLineEnd = content.indexOf('\n') !== -1 ? content.indexOf('\n') : Math.min(content.length, 80)
-  const firstLine = content.substring(0, firstLineEnd)
-  const visibleLength = Math.floor(firstLine.length * 0.5)
-  const visibleText = firstLine.substring(0, visibleLength)
-  const hiddenPart = content.substring(visibleLength)
+  // 8文字以上のコメントは最初の20文字を表示
+  const visibleText = content.substring(0, 20)
+  const hiddenText = content.substring(20) + dummyText
 
   return (
-    <div className="min-h-16 flex items-start">
-      <p className="text-gray-800 leading-relaxed break-words">
+    <div className="min-h-16 md:min-h-16 h-40 md:h-auto overflow-hidden md:overflow-visible flex items-start">
+      <p className="text-gray-800 leading-relaxed w-full" style={{wordBreak: 'break-all', whiteSpace: 'pre-wrap'}}>
         <span>{visibleText}</span>
         <span className="filter blur-sm select-none opacity-60">
-          {hiddenPart}
+          {hiddenText}
         </span>
       </p>
     </div>
