@@ -121,11 +121,7 @@ export default function MyPage() {
       // 🔥 一時的なエラーテスト用 - 削除する前にコメントアウトしてください
       // throw new Error('認証エラーのテスト')
 
-      console.log('Fetching mypage data...')
-      console.log('Token:', session?.backendToken ? 'Token present' : 'Token missing')
-
       const response = await mypageApi.getMypage()
-      console.log('Mypage data received:', response.data)
       setMypageData(response.data)
     } catch (error: any) {
       console.error('マイページデータの取得に失敗:', error)
@@ -147,12 +143,6 @@ export default function MyPage() {
   useEffect(() => {
     // 認証済みの場合にマイページデータを取得
     if (session && status === 'authenticated') {
-      console.log('=== SESSION DEBUG ===')
-      console.log('Full session object:', JSON.stringify(session, null, 2))
-      console.log('Session backendToken:', session.backendToken)
-      console.log('Session user:', session.user)
-      console.log('Status:', status)
-      console.log('====================')
       fetchMypageData()
     }
   }, [session, status, fetchMypageData])
