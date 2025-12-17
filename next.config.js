@@ -50,27 +50,14 @@ const withPWA = require('next-pwa')({
       },
     },
     {
-      urlPattern: /^https?:\/\/.*\/api\/.*/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'api-cache',
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60 * 24, // 1日
-        },
-        networkTimeoutSeconds: 10,
-      },
+      // 認証・ユーザー固有のAPIはキャッシュさせない
+      urlPattern: ({ url }) => url.pathname.startsWith('/api/auth/'),
+      handler: 'NetworkOnly',
     },
     {
-      urlPattern: /^https?:\/\/.*/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'pages',
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60 * 24 * 7, // 7日
-        },
-      },
+      // その他のAPIもデフォルトでキャッシュしない（公開情報をキャッシュする場合は個別に追加）
+      urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+      handler: 'NetworkOnly',
     },
   ],
 });
