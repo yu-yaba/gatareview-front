@@ -335,13 +335,20 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
         success('レビューを登録しました');
         router.push(`/lectures/${lecture.id}`);
       } else {
-        handleAjaxError(res.data.message || "reCAPTCHA認証に失敗しました");
+        handleAjaxError(res.data.message || res.data.errors?.[0] || "レビューの登録に失敗しました");
       }
     } catch (error: any) {
-      console.error('Review creation error:', error);
-      if (error.response?.status === 401) {
+      // セキュリティ: AxiosError の全体出力はAuthorizationヘッダー等が含まれ得るため避ける
+      console.error('Review creation error:', error?.response?.status, error?.message);
+
+      const status = error.response?.status;
+      const errorData = error.response?.data;
+
+      if (status === 422) {
+        handleAjaxError(errorData?.message || errorData?.errors?.[0] || "レビューの登録に失敗しました");
+      } else if (status === 401) {
         handleAjaxError("ログインが必要です");
-      } else if (error.response?.status === 403) {
+      } else if (status === 403) {
         handleAjaxError("権限がありません");
       } else {
         handleAjaxError("レビューの登録に失敗しました");
