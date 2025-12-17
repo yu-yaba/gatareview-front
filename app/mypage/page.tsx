@@ -124,7 +124,8 @@ export default function MyPage() {
       const response = await mypageApi.getMypage()
       setMypageData(response.data)
     } catch (error: any) {
-      console.error('マイページデータの取得に失敗:', error)
+      // セキュリティ: AxiosError の全体出力はAuthorizationヘッダー等が含まれ得るため避ける
+      console.error('マイページデータの取得に失敗:', error?.response?.status, error?.message)
 
       if (error.response?.status === 401) {
         setError('セッションの有効期限が切れました。再度ログインしてください。')
