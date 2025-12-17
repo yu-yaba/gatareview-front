@@ -4,6 +4,8 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
+  // 既に配布済みの古いSWが作成したキャッシュ（api-cache/pages等）を削除する
+  importScripts: ['/sw-cache-cleanup.js'],
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -114,4 +116,3 @@ const nextConfig = {
 };
 
 module.exports = withPWA(nextConfig);
-
