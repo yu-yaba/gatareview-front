@@ -5,7 +5,6 @@ Allow: /
 Allow: /lectures
 Allow: /reviews
 Allow: /faq
-Allow: /welcome
 
 # クロールを制限するページ
 Disallow: /api/
