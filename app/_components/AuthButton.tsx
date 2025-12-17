@@ -14,11 +14,6 @@ export default function AuthButton() {
     }
   }, [status])
 
-  // デバッグ用（本番では削除可能）
-  useEffect(() => {
-    console.log('AuthButton state:', { status, isInitialized, hasSession: !!session })
-  }, [status, isInitialized, session])
-
   // 初期ロード完了まではスピナーを表示しない（点滅防止）
   // セッションが既にある場合は、ロード中でも該当のUIを表示
   if (!isInitialized || (status === 'loading' && !session)) {

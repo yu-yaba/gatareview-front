@@ -70,7 +70,8 @@ export default function MyBookmarksPage() {
       setBookmarksData(response.data)
       setCurrentPage(page)
     } catch (error: any) {
-      console.error('ブックマークデータの取得に失敗:', error)
+      // セキュリティ: AxiosError の全体出力はAuthorizationヘッダー等が含まれ得るため避ける
+      console.error('ブックマークデータの取得に失敗:', error?.response?.status, error?.message)
 
       // ネットワークエラーの詳細分類
       if (!error.response) {
