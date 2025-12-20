@@ -19,8 +19,8 @@ export const PartialComment = ({ content }: { content: string }) => {
   // ダミーテキスト（十分な長さを確保）
   const dummyText = 'この授業は非常に興味深く、講義内容も充実していました。課題の量も適切で、理解を深めることができました。テストは授業内容をしっかり復習すれば対応可能です。'
 
-  // 8文字未満のコメントは全文ぼかし表示（ダミーテキスト付き）
-  if (content.length < 8) {
+  // 30文字未満のコメントは全文ぼかし表示（ダミーテキスト付き）
+  if (content.length < 30) {
     return (
       <div className="min-h-16 md:min-h-16 h-40 md:h-auto overflow-hidden md:overflow-visible flex items-start">
         <p className="text-gray-800 leading-relaxed w-full" style={{wordBreak: 'break-all', whiteSpace: 'pre-wrap'}}>
@@ -32,9 +32,9 @@ export const PartialComment = ({ content }: { content: string }) => {
     )
   }
 
-  // 8文字以上のコメントは最初の20文字を表示
-  const visibleText = content.substring(0, 20)
-  const hiddenText = content.substring(20) + dummyText
+  // 30文字以上のコメントは最初の30文字のみ表示（それ以降はダミーテキストでぼかし）
+  const visibleText = content.substring(0, 30)
+  const hiddenText = dummyText
 
   return (
     <div className="min-h-16 md:min-h-16 h-40 md:h-auto overflow-hidden md:overflow-visible flex items-start">

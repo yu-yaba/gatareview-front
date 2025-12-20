@@ -285,7 +285,7 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                         <FaComments className="text-green-500 mt-1 flex-shrink-0" />
                         <div className="flex-1">
                           <span className="text-sm text-gray-500 block mb-2">コメント</span>
-                          {canViewReviews ? (
+                          {(canViewReviews || index === 0) ? (
                             <p className="text-gray-800 leading-relaxed break-words">{review.content}</p>
                           ) : (
                             <div className="relative">
