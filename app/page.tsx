@@ -635,10 +635,8 @@ const ReviewCard = memo<ReviewCardProps>(({ review, index }) => (
             </div>
           </div>
 
-          <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg">
-            {review.content && review.content.length > 80
-              ? `${review.content.substring(0, 80)}...`
-              : review.content || 'コメントなし'}
+          <p className="text-xs text-gray-700 line-clamp-10 leading-relaxed bg-gray-50 p-3 rounded-lg">
+            {review.content || 'コメントなし'}
           </p>
         </div>
       </div>
@@ -1111,4 +1109,3 @@ export default function Page() {
     </>
   );
 }
-

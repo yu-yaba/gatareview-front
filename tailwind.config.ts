@@ -17,6 +17,9 @@ const config: Config = {
       '3xl': '1920px',
     },
     extend: {
+      lineClamp: {
+        10: '10',
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
