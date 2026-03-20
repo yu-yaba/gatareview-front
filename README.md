@@ -1,160 +1,151 @@
-<img src="https://github.com/yu-yaba/gatareview-front/assets/109569162/8702c61e-ef49-4922-8261-e97048ecb208">
+# ガタレビュ Frontend
 
-![Static Badge](https://img.shields.io/badge/https%3A%2F%2Fgithub.com%2Fyu-yaba%2Fgatareview-front)
-<img src="https://img.shields.io/badge/-TypeScript-007ACC.svg?logo=typescript&style=flat">
-<img src="https://img.shields.io/badge/-NextJS-000000?logo=nextdotjs">
-<img src="https://img.shields.io/badge/-React-555.svg?logo=react&style=flat">
-<img src="https://img.shields.io/badge/-Docker-EEE.svg?logo=docker&style=flat">
+新潟大学向け授業レビューサービス「ガタレビュ」の Next.js フロントエンドです。  
+UI、検索、レビュー投稿導線、Google ログイン、PWA、SEO を担当します。
 
-## ガタレビュ！
-新潟大学の授業レビューサイトのフロントエンドリポジトリです。レビューの登録ができます。
+- Production: `https://www.gatareview.com`
+- Backend repo: `https://github.com/yu-yaba/gatareview-back`
+- Agent guide: [`AGENTS.md`](./AGENTS.md)
+- 仕様メモ: [`docs/site-spec.md`](./docs/site-spec.md), [`docs/review-access-toggle-spec.md`](./docs/review-access-toggle-spec.md)
 
-バックエンドリポジトリはこちらです。
-  * https://github.com/yu-yaba/gatareview-back
+## 主な機能
 
-# URL
-https://www.gatareview.com
+- 授業検索
+  - キーワード検索
+  - 学部絞り込み
+  - 新着順 / レビュー件数順 / 評価順
+  - レビュー詳細条件による絞り込み
+- 授業詳細 / レビュー閲覧
+- レビュー投稿
+- Google ログイン
+- マイページ
+  - 投稿レビュー一覧
+  - ブックマーク一覧
+- PWA 対応
+- OGP / sitemap / structured data 対応
 
-レスポンシブ対応をしています。
+## 技術スタック
 
-# このサービスの理念
-## すべての新潟大学生に授業情報を、オープンに
+| 領域 | 技術 |
+| --- | --- |
+| Framework | Next.js 13.4.19 |
+| UI | React 18, Tailwind CSS |
+| Language | TypeScript |
+| Auth | NextAuth |
+| Data Fetching | `fetch`, `axios` |
+| PWA | `next-pwa` |
+| Tooling | ESLint |
 
-* 忙しい学生、授業情報を取得しにくい学生の力になりたい。
+## ディレクトリ構成
 
-* シラバスではわからない情報を共有することで、履修のミスマッチを減らしたい。
-
-
-# デモ
-### キーワード、学部での検索機能と並び替え機能があります。
-![ガタレビュデモ1](https://github.com/yu-yaba/gatareview-front/assets/109569162/a7e937e3-acae-4fd0-9c88-c78297ca3b9c)
-
-
-### レビューの登録ができます。
-![ガタレビュデモ2](https://github.com/yu-yaba/gatareview-front/assets/109569162/e475a83c-60da-499b-8ca3-9725cb341a88)
-
-# 開発期間
-* 2023年6月 Reactで開発　リポジトリ： https://github.com/yu-yaba/Lecture-review-site
-* 2023年9月 フロントエンドをNext.js, TypeScriptにリプレイス
-* 以降、アップデートを続けています。
-
-# 機能
-### ・ レビューの投稿
-### ・ 検索機能
-* キーワード検索
-* 学部による検索
-* 新しい順、レビュー件数順、評価が高い順で並び替え
-
-# 技術スタック
-| 領域 | 技術スタック |
-| ---- | ---- |
-| Frontend　| Next.js, TypeScript |
-| Backend | Ruby on Rails (apiモード) |
-| Database | MySQL (JawsDB) |
-| Infra | Vercel Heroku  AWS S3 |
-| Development | Docker |
-
-# 開発環境のセットアップ
-### フォルダ構造
-
-```
-|-- gatareview-front
-|-- gatareview-back
-|
-|-- docker
-|   |-- <DBのデータが入る。docker-compose buildすると自動作成されるので、ディレクトリを作成する必要はない。>
-|
-|-- docker-compose.yml
-|-- .env
+```text
+app/
+  _components/   再利用コンポーネント
+  _helpers/      API 呼び出し、バリデーション、通知、閲覧制御補助
+  _hooks/        認証やデータ取得のフック
+  _types/        型定義
+  lectures/      授業一覧・授業詳細・レビュー投稿
+  mypage/        マイページ
+  auth/          サインイン / サインアウト画面
+  api/auth/      NextAuth route
+public/          画像、manifest、PWA アセット
+docs/            実装ベースの仕様書
 ```
 
-## リポジトリのクローン
-* このリポジトリをクローンする
-* バックエンドリポジトリをcloneする
-  * https://github.com/yu-yaba/gatareview-back
+## 前提
 
+- Node.js 18 以上を推奨
+- npm
+- 別途、Rails API が起動していること
 
-## docker-compose.yml
+## セットアップ
 
-```yml
-services: 
-  gatareview-front:                             # Next.js用コンテナ
-    build:
-      context: ./gatareview-front
-    volumes:
-      - ./gatareview-front:/usr/src/app
-    command: 'npm run dev'
-    ports:
-      - "8080:3000"
-  gatareview-back:                              # Rails用コンテナ
-    build:
-      context: ./gatareview-back
-    ports:
-      - "3001:3000"
-    volumes:
-      - ./gatareview-back:/app
-    environment:                     # 環境変数の設定　.envファイルから取得
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_HOST: ${MYSQL_HOST}
-    depends_on:
-      - db
-  db:                                # Mysql用コンテナ
-    image: mysql:8.0.33
-    environment:                     # 環境変数の設定　.envファイルから取得
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    volumes:
-      - "./docker/db:/var/lib/mysql"
+1. 依存関係をインストール
+
+```bash
+npm install
 ```
 
-## .env
-* docker-compose.ymlとRailsのdatabase.ymlのDBの設定値を管理するファイル
-* ルートディレクトリ直下に作成する
-* 任意の値を設定する
-```env
-MYSQL_ROOT_PASSWORD=your_password
-MYSQL_DATABASE=your_database
-MYSQL_PASSWORD=your_password
-MYSQL_USER=root
-MYSQL_HOST=db
-```
+2. `.env.local` を作成
 
-## .env.local
-* Next.jsの環境変数を設定するファイル
-* ここでは開発環境でapiにリクエストを送信する際の値を設定する
-* gatareview-front直下に作成する
 ```env
 NEXT_PUBLIC_ENV=http://localhost:3001
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Optional
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
+NEXT_PUBLIC_GA_ID=
+
+# Docker などで Next.js サーバーから backend コンテナへ直接疎通させる場合に使用
+# DOCKER_BACKEND_URL=http://gatareview-back:3000
 ```
 
-### コンテナを起動
+3. 開発サーバーを起動
 
-* 初回起動時のみnode_modulesがないので以下を実行
-```
-docker-compose run --rm gatareview-front npm install
-```
-
-```
-docker-compose up --build
+```bash
+npm run dev
 ```
 
-* gatareview-backコンテナ内で、railsのマイグレーションを実行
+4. ブラウザで開く
+
+```text
+http://localhost:3000
 ```
-docker-compose run --rm gatareview-back bin/rails db:migrate RAILS_ENV=development
+
+## 環境変数
+
+`NEXT_PUBLIC_ENV` は `http://localhost:3001` のような backend のベース URL を指定します。  
+`/api/v1` はコード側で付与している箇所が多いため、通常は含めません。
+
+| 変数名 | 必須 | 用途 |
+| --- | --- | --- |
+| `NEXT_PUBLIC_ENV` | Yes | Rails API のベース URL |
+| `NEXTAUTH_URL` | Yes | NextAuth が使う自身の URL |
+| `NEXTAUTH_SECRET` | Yes | NextAuth セッション署名 |
+| `GOOGLE_CLIENT_ID` | Yes | Google ログイン |
+| `GOOGLE_CLIENT_SECRET` | Yes | Google ログイン |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Optional | レビュー投稿時の reCAPTCHA |
+| `NEXT_PUBLIC_GA_ID` | Optional | Google Analytics |
+| `DOCKER_BACKEND_URL` | Optional | Docker / サーバーサイド実行時の backend 内部 URL |
+
+## 開発コマンド
+
+```bash
+npm run dev
+npm run lint
+npm run build
+npm run start
 ```
 
-## DBのER図
-![image](https://github.com/user-attachments/assets/8c3ae1a2-3f9d-4640-828c-8445694b00ec)
+## 実装上の注意
 
+- 認証は NextAuth と backend JWT を組み合わせています。
+- レビュー閲覧制御はフロント単体で完結しません。変更する場合は backend 側の判定も合わせて確認してください。
+- `NEXT_PUBLIC_ENV` を変更した場合は、クライアント側 fetch と `app/api/auth/[...nextauth]/route.ts` の server-side fetch の両方に影響します。
+- Google ログインや reCAPTCHA を使わない場合でも、該当機能の動作確認なしで本番反映しないでください。
 
+## 検証
 
-# 開発以外の活動
-* X（旧Twitter）でのSNS運用
-* 大学でのビラ配り
-* 履修登録相談会などのイベントへの参加
+最低限、変更後は以下を実行してください。
 
-# 開発者
-<a href="https://github.com/yu-yaba"><img width="50" src="https://avatars.githubusercontent.com/u/109569162?v=4" css></a>
+```bash
+npm run lint
+npm run build
+```
+
+手動確認の優先フロー:
+
+- ホーム
+- 授業一覧
+- 授業詳細
+- レビュー投稿
+- ログイン
+- マイページ
+
+## 関連リポジトリ
+
+- Frontend: `https://github.com/yu-yaba/gatareview-front`
+- Backend: `https://github.com/yu-yaba/gatareview-back`
