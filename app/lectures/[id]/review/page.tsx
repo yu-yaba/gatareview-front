@@ -8,7 +8,6 @@ import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter } from 'next/navigation';
 import { reviewApi } from '../../../_helpers/api';
-import { grantReviewAccess } from '../../../_helpers/reviewAccessManager';
 import Loading from 'react-loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
 
@@ -330,8 +329,6 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
       });
 
       if (res.data.success) {
-        // レビュー投稿成功時にローカルストレージにアクセス権限を保存
-        grantReviewAccess();
         success('レビューを登録しました');
         router.push(`/lectures/${lecture.id}`);
       } else {

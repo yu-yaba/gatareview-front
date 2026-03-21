@@ -16,6 +16,16 @@ export type ReviewSchema = {
   thanks_count?: number;
 }
 
+export interface ReviewAccessState {
+  restriction_enabled: boolean;
+  access_granted: boolean;
+}
+
+export interface LectureReviewsResponse {
+  reviews: ReviewSchema[];
+  access: ReviewAccessState;
+}
+
 // APIレスポンス型
 export interface CreateReviewResponse {
   success: boolean;
