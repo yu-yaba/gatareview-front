@@ -118,7 +118,36 @@ npm run dev
 npm run lint
 npm run build
 npm run start
+npm run e2e:install
+npm run e2e:smoke
+npm run e2e
 ```
+
+## Playwright E2E
+
+Playwright は `@playwright/test` で導入済みです。設定ファイルは [playwright.config.ts](/Users/kawaiyuya/Desktop/gatareview/gatareview-front/playwright.config.ts)、スモークテストは [tests/e2e/review-access.smoke.spec.ts](/Users/kawaiyuya/Desktop/gatareview/gatareview-front/tests/e2e/review-access.smoke.spec.ts) にあります。
+
+基本手順:
+
+```bash
+npm run e2e:install
+npm run e2e:smoke
+```
+
+デフォルトでは `http://localhost:8080` を見に行きます。対象授業を変えたいときは以下を指定します。
+
+```bash
+PLAYWRIGHT_BASE_URL=http://localhost:8080 \
+PLAYWRIGHT_LECTURE_ID=3886 \
+PLAYWRIGHT_LECTURE_TITLE=実働確認用授業 \
+PLAYWRIGHT_LECTURER=実働確認教員 \
+npm run e2e:smoke
+```
+
+現在のスモークテストが確認する内容:
+
+- 授業詳細ページで backend の授業情報とレビューが表示されること
+- `/admin/review-access` に未ログインでアクセスしたとき `/auth/signin` へ遷移すること
 
 ## 実装上の注意
 

@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "e2e:install": "playwright install chromium",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:smoke": "playwright test tests/e2e/review-access.smoke.spec.ts --project=chromium"
   },
   "dependencies": {
     "@types/grecaptcha": "^3.0.9",
@@ -38,6 +42,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/js-cookie": "^3.0.6",
     "@types/minimatch": "^6.0.0",
     "@types/react-modal": "^3.16.0",

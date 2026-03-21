@@ -74,7 +74,8 @@ const authOptions: NextAuthOptions = {
           id: token.user.id,
           email: token.user.email,
           name: token.user.name,
-          avatar_url: token.user.avatar_url || null
+          avatar_url: token.user.avatar_url || null,
+          admin: token.user.admin || false
         }
       }
 

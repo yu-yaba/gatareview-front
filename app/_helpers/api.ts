@@ -82,6 +82,16 @@ export interface ApiResponse<T = any> {
   status: number
 }
 
+export interface AdminReviewAccessState {
+  lecture_review_restriction_enabled: boolean
+  updated_at: string | null
+  last_updated_by: {
+    id: number
+    name: string
+    email: string
+  } | null
+}
+
 // 汎用API呼び出し関数
 export const apiRequest = {
   get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
@@ -117,6 +127,17 @@ export const reviewApi = {
 
   // ユーザーのレビュー一覧を取得（認証必須）
   getUserReviews: () => apiRequest.get('/users/reviews'),
+}
+
+export const reviewAccessAdminApi = {
+  getReviewAccess: () => apiRequest.get<AdminReviewAccessState>('/admin/review-access'),
+
+  updateReviewAccess: (enabled: boolean) =>
+    apiRequest.patch<AdminReviewAccessState>('/admin/review-access', {
+      review_access: {
+        lecture_review_restriction_enabled: enabled,
+      },
+    }),
 }
 
 // マイページ関連のAPI関数

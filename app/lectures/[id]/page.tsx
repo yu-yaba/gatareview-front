@@ -3,32 +3,38 @@ import ReactStars from 'react-stars'
 import { handleAjaxError } from '../../_helpers/helpers';
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import type { ReviewSchema } from '@/app/_types/ReviewSchema';
+import type { LectureReviewsResponse, ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { FaBook, FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit, FaTrash, FaFlag } from 'react-icons/fa';
+import { FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit } from 'react-icons/fa';
 import BookmarkButton from '../../_components/BookmarkButton';
 import ThanksButton from '../../_components/ThanksButton';
 import ReviewEditModal from '../../_components/ReviewEditModal';
 import ReportButton from '../../_components/ReportButton';
-import ReviewAccessBlur, { PartialComment } from '../../_components/ReviewAccessBlur';
+import { PartialComment } from '../../_components/ReviewAccessBlur';
 import ReviewPromptModal from '../../_components/ReviewPromptModal';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
-import { canAccessReviews, canAccessReviewsUnified } from '../../_helpers/reviewAccessManager';
 
 const LectureDetail = ({ params }: { params: { id: number } }) => {
-  const [reviews, setReviews] = useState<{ reviews: ReviewSchema[], avgRating: string }>({ reviews: [], avgRating: "" });
+  const [reviews, setReviews] = useState<LectureReviewsResponse & { avgRating: string }>({
+    reviews: [],
+    avgRating: '0.0',
+    access: {
+      restriction_enabled: false,
+      access_granted: true,
+    },
+  });
   const [lecture, setLecture] = useState<LectureSchema | null>(null)
   const [editingReview, setEditingReview] = useState<ReviewSchema | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReviewPromptModalOpen, setIsReviewPromptModalOpen] = useState(false);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
   const { data: session, status } = useSession();
   const { user, isAuthenticated } = useAuth();
 
-  // レビュー閲覧権限をチェック（期間ベースAPI優先、フォールバックでセッション認証またはローカルストレージの権限）
-  const canViewReviews = canAccessReviewsUnified(reviews.reviews, isAuthenticated, user?.reviews_count);
+  const canViewReviews = reviews.access.access_granted;
 
   useEffect(() => {
     const fetchLectureDetail = async () => {
@@ -37,7 +43,6 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`);
         if (!res.ok) throw Error(res.statusText);
         const data = await res.json();
-        console.log(data)
         setLecture(data)
       } catch (error) {
         handleAjaxError("授業の取得に失敗しました");
@@ -67,14 +72,20 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
         });
 
         if (!res.ok) throw Error(res.statusText);
-        const data = await res.json();
+        const data: LectureReviewsResponse = await res.json();
         let avgRating = "0.0";
-        if (data.length > 0) {
-          avgRating = (data.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / data.length).toFixed(1);
+        if (data.reviews.length > 0) {
+          avgRating = (data.reviews.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / data.reviews.length).toFixed(1);
         }
-        setReviews({ reviews: data, avgRating });
+        setReviews({
+          reviews: data.reviews,
+          access: data.access,
+          avgRating,
+        });
+        setReviewsError(null);
       } catch (error) {
         handleAjaxError("レビューの取得に失敗しました");
+        setReviewsError("レビューの取得に失敗しました。時間をおいて再度お試しください。");
       }
     };
     fetchReviews();
@@ -96,7 +107,11 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
     if (updatedReviews.length > 0) {
       avgRating = (updatedReviews.reduce((total: number, review: ReviewSchema) => total + review.rating, 0) / updatedReviews.length).toFixed(1);
     }
-    setReviews({ reviews: updatedReviews, avgRating });
+    setReviews((currentReviews) => ({
+      ...currentReviews,
+      reviews: updatedReviews,
+      avgRating,
+    }));
     setIsEditModalOpen(false);
     setEditingReview(null);
   };
@@ -143,19 +158,28 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                   {/* 評価セクション */}
                   <div className="flex-1">
                     <div className="text-center">
-                      <div className="flex items-center justify-center gap-3">
-                        <h3 className="text-3xl font-bold text-yellow-500">{reviews.avgRating}</h3>
-                        <ReactStars
-                          value={parseFloat(reviews.avgRating)}
-                          edit={false}
-                          size={24}
-                          className="flex"
-                          half={true}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        ({reviews.reviews.length}件のレビュー)
-                      </p>
+                      {reviewsError ? (
+                        <>
+                          <h3 className="text-3xl font-bold text-red-500">--</h3>
+                          <p className="text-sm text-red-500 mt-1">レビュー取得エラー</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-center gap-3">
+                            <h3 className="text-3xl font-bold text-yellow-500">{reviews.avgRating}</h3>
+                            <ReactStars
+                              value={parseFloat(reviews.avgRating)}
+                              edit={false}
+                              size={24}
+                              className="flex"
+                              half={true}
+                            />
+                          </div>
+                          <p className="text-sm text-gray-500 mt-1">
+                            ({reviews.reviews.length}件のレビュー)
+                          </p>
+                        </>
+                      )}
 
                       {/* ブックマークボタン */}
                       {lecture && (
@@ -193,8 +217,14 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
 
           {/* レビュー一覧セクション */}
           <div className="max-w-6xl mx-auto relative">
+            {reviewsError && (
+              <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-6 py-5 text-red-700 shadow-sm">
+                {reviewsError}
+              </div>
+            )}
+
             {/* レビューカード */}
-            <div className="space-y-6">
+            {!reviewsError && <div className="space-y-6">
               {reviews.reviews && reviews.reviews.map((review: ReviewSchema, index: number) => (
                 <div
                   key={review.id}
@@ -342,10 +372,10 @@ const LectureDetail = ({ params }: { params: { id: number } }) => {
                   </div>
                 </div>
               ))}
-            </div>
+            </div>}
 
             {/* レビューがない場合の表示 */}
-            {reviews.reviews.length === 0 && (
+            {!reviewsError && reviews.reviews.length === 0 && (
               <div className="text-center py-16">
                 <div className="mb-4">
                   <FaComments className="mx-auto text-5xl text-gray-300" />
