@@ -100,22 +100,26 @@ http://localhost:3000
 `NEXT_PUBLIC_ENV` は `http://localhost:3001` のような backend のベース URL を指定します。  
 `/api/v1` はコード側で付与している箇所が多いため、通常は含めません。
 
-| 変数名 | 必須 | 用途 |
-| --- | --- | --- |
-| `NEXT_PUBLIC_ENV` | Yes | Rails API のベース URL |
-| `NEXTAUTH_URL` | Yes | NextAuth が使う自身の URL |
-| `NEXTAUTH_SECRET` | Yes | NextAuth セッション署名 |
-| `GOOGLE_CLIENT_ID` | Yes | Google ログイン |
-| `GOOGLE_CLIENT_SECRET` | Yes | Google ログイン |
-| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Optional | レビュー投稿時の reCAPTCHA |
-| `NEXT_PUBLIC_GA_ID` | Optional | Google Analytics |
-| `DOCKER_BACKEND_URL` | Optional | Docker / サーバーサイド実行時の backend 内部 URL |
+| 変数名 | 必須 | 用途 | 本番例 |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_ENV` | Yes | Rails API のベース URL | `https://gatareview-back-b726b6ea4bcf.herokuapp.com` |
+| `NEXTAUTH_URL` | Yes | NextAuth が使う自身の URL | `https://www.gatareview.com` |
+| `NEXTAUTH_SECRET` | Yes | NextAuth セッション署名 | ランダムな長い文字列 |
+| `GOOGLE_CLIENT_ID` | Yes | Google ログイン | Google Cloud Console の値 |
+| `GOOGLE_CLIENT_SECRET` | Yes | Google ログイン | Google Cloud Console の値 |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Optional | レビュー投稿時の reCAPTCHA | reCAPTCHA site key |
+| `NEXT_PUBLIC_GA_ID` | Optional | Google Analytics | `G-XXXXXXXXXX` |
+| `DOCKER_BACKEND_URL` | Optional | Docker / サーバーサイド実行時の backend 内部 URL | 通常は未設定 |
+
+本番デプロイ先が Vercel の場合、環境変数の追加・変更後は再デプロイが必要です。
 
 ## 開発コマンド
 
 ```bash
 npm run dev
 npm run lint
+npm run typecheck
+npm run verify
 npm run build
 npm run start
 npm run e2e:install
@@ -134,6 +138,7 @@ npm run e2e:install
 npm run e2e:smoke
 ```
 
+Playwright は `playwright.config.ts` から `Next.js` 開発サーバーを自動起動します。  
 デフォルトでは `http://localhost:8080` を見に行きます。対象授業を変えたいときは以下を指定します。
 
 ```bash
@@ -161,7 +166,7 @@ npm run e2e:smoke
 最低限、変更後は以下を実行してください。
 
 ```bash
-npm run lint
+npm run verify
 npm run build
 ```
 
@@ -173,6 +178,11 @@ npm run build
 - レビュー投稿
 - ログイン
 - マイページ
+
+## デプロイ前確認
+
+本番反映前の確認手順は [`docs/deploy-checklist.md`](./docs/deploy-checklist.md) にまとめています。  
+review access まわりの変更は backend の migration / env 追加が必要になることがあるため、frontend だけで完了と判断しないでください。
 
 ## 関連リポジトリ
 
