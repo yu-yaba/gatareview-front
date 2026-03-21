@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm run e2e:smoke",
     "e2e:install": "playwright install chromium",
     "e2e": "playwright test",
     "e2e:headed": "playwright test --headed",
