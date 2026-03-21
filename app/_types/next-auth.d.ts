@@ -8,6 +8,7 @@ export interface CustomUser {
   name: string
   avatar_url?: string | null
   reviews_count?: number
+  admin?: boolean
 }
 
 declare module "next-auth" {
