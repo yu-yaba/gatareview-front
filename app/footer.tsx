@@ -1,7 +1,12 @@
+'use client'
+
 import Link from "next/link";
 import Image from "next/image";
+import { getCurrentJapanYear } from "./_helpers/reviewYears";
 
 export default function Footer() {
+  const currentYear = getCurrentJapanYear();
+
   return (
     <footer className="mt-20 border-t border-gray-200 bg-gray-50">
       <div className="w-full max-w-6xl mx-auto px-4 md:px-8 py-8">
@@ -53,7 +58,7 @@ export default function Footer() {
 
           <div className="text-center md:text-left">
             <p className="text-gray-600 text-sm md:text-base">
-              © 2025 ガタレビュ！
+              © <span suppressHydrationWarning>{currentYear}</span> ガタレビュ！
             </p>
             <p className="text-gray-500 text-xs md:text-sm">
               新潟大学授業レビューサイト

@@ -5,6 +5,7 @@ import Modal from 'react-modal'
 import Link from 'next/link'
 import { FaTimes, FaArrowRight, FaPencilAlt, FaUserCircle, FaComments, FaBookOpen, FaHeart } from 'react-icons/fa'
 import { useAuth } from '../_hooks/useAuth'
+import { getModalAppElement } from '../_helpers/modalAppElement'
 
 interface ReviewPromptModalProps {
   isOpen: boolean
@@ -43,9 +44,9 @@ export default function ReviewPromptModal({ isOpen, onClose, lectureId }: Review
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
+      appElement={getModalAppElement()}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
       overlayClassName="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-md"
-      ariaHideApp={false}
     >
       <div className="bg-white rounded-3xl p-4 md:p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-100 relative overflow-hidden animate-fade-in max-h-[90vh] overflow-y-auto">
         {/* 背景エフェクト */}

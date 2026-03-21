@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../../_helpers/helpers';
+import { getReviewYearOptions } from '../../../_helpers/reviewYears';
 import { success } from '@/app/_helpers/notifications';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
@@ -35,12 +36,13 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
   }
 
   // フィールド設定の定義（メモ化）
+  const reviewYearOptions = useMemo(() => getReviewYearOptions(), []);
   const selectFieldConfigs: SelectFieldConfig[] = useMemo(() => [
     {
       id: 'period_year',
       name: 'period_year',
       label: '授業を受けた年',
-      options: ['2025', '2024', '2023', '2022', '2021', '2020', 'その他・不明']
+      options: [...reviewYearOptions, 'その他・不明']
     },
     {
       id: 'period_term',
@@ -78,7 +80,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
       label: '内容充実度',
       options: ['とても良い', '良い', '普通', '悪い', 'とても悪い']
     }
-  ], []);
+  ], [reviewYearOptions]);
 
   // 講義詳細取得
   useEffect(() => {

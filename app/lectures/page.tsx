@@ -4,6 +4,7 @@ import ReactStars from 'react-stars'
 import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
+import { getReviewYearOptions } from '../_helpers/reviewYears';
 import Loading from 'react-loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -98,6 +99,7 @@ const LectureList = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const reviewYearOptions = useMemo(() => getReviewYearOptions(), []);
 
   // URLパラメータを更新する関数
   const updateURL = useCallback((params: Partial<SearchParams>) => {
@@ -713,12 +715,9 @@ const LectureList = () => {
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-blue-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
-                                <option value="2025">2025</option>
-                                <option value="2024">2024</option>
-                                <option value="2023">2023</option>
-                                <option value="2022">2022</option>
-                                <option value="2021">2021</option>
-                                <option value="2020">2020</option>
+                                {reviewYearOptions.map((year) => (
+                                  <option key={year} value={year}>{year}</option>
+                                ))}
                                 <option value="その他・不明">その他・不明</option>
                               </select>
                             </div>
