@@ -1,6 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import AuthButton from "./_components/AuthButton";
+import dynamic from "next/dynamic";
+
+const AuthButton = dynamic(() => import("./_components/AuthButton"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center px-5 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5">
+      <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  ),
+});
 
 export default function Header() {
   return (

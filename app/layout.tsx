@@ -5,9 +5,13 @@ import Header from './header'
 import Footer from './footer'
 import { ToastContainer } from 'react-toastify';
 import ScriptGa from './_components/ScriptGa'
-import PWAInstall from './_components/PWAInstall'
 import ClientProviders from './_components/ClientProviders'
 import Script from 'next/script';
+import dynamic from 'next/dynamic';
+
+const PWAInstall = dynamic(() => import('./_components/PWAInstall'), {
+  ssr: false,
+});
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -165,6 +169,35 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <ScriptGa />
+        {process.env.NODE_ENV !== 'production' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                  window.addEventListener('load', function () {
+                    navigator.serviceWorker.getRegistrations()
+                      .then(function (registrations) {
+                        return Promise.all(registrations.map(function (registration) {
+                          return registration.unregister();
+                        }));
+                      })
+                      .catch(function () {});
+
+                    if (window.caches && typeof window.caches.keys === 'function') {
+                      window.caches.keys()
+                        .then(function (cacheNames) {
+                          return Promise.all(cacheNames.map(function (cacheName) {
+                            return window.caches.delete(cacheName);
+                          }));
+                        })
+                        .catch(function () {});
+                    }
+                  });
+                }
+              `,
+            }}
+          />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

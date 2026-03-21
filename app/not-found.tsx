@@ -1,7 +1,5 @@
-'use client'
-
 import Link from 'next/link'
-import { FaHome, FaSearch, FaQuestionCircle, FaExclamationTriangle, FaArrowLeft } from 'react-icons/fa'
+import { FaHome, FaSearch, FaQuestionCircle, FaExclamationTriangle } from 'react-icons/fa'
 
 export default function NotFound() {
   return (
@@ -96,14 +94,6 @@ export default function NotFound() {
                   <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-green-100 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
                 </Link>
 
-                {/* Back Button */}
-                <button
-                  onClick={() => window.history.back()}
-                  className="w-full inline-flex justify-center items-center px-6 py-3 text-gray-500 font-medium rounded-xl hover:text-gray-700 hover:bg-gray-100/80 transform hover:scale-105 transition-all duration-300 relative overflow-hidden group/btn"
-                >
-                  <FaArrowLeft className="mr-2 text-sm relative z-10 transform group-hover/btn:-translate-x-1 transition-transform duration-300" />
-                  <span className="relative z-10">前のページに戻る</span>
-                </button>
               </div>
             </div>
           </div>
