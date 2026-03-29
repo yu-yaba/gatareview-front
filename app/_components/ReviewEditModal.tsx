@@ -188,8 +188,9 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   value={formData.content}
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   rows={6}
+                  maxLength={1000}
                   className="p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-none text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300 lg:min-h-[220px]"
-                  placeholder="授業の感想やアドバイスなどを150文字以内で入力してください..."
+                  placeholder="授業の感想やアドバイスなどを1000文字以内で入力してください..."
                   required
                 />
               </label>

@@ -484,12 +484,13 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
                 <textarea
                   cols={30}
                   rows={6}
+                  maxLength={1000}
                   id="content"
                   name="content"
                   className={getTextareaClass('content')}
                   onChange={handleInputChange}
                   value={review?.content || ''}
-                  placeholder="授業の感想やアドバイスなどを400文字以内で入力してください..."
+                  placeholder="授業の感想やアドバイスなどを1000文字以内で入力してください..."
                 />
                 {renderFieldError('content')}
               </label>
