@@ -366,13 +366,15 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ClientProviders>
-          <Header />
-          <ToastContainer />
-          <main>
-            {children}
-          </main>
-          <Footer />
-          <PWAInstall />
+          <div id="app-root">
+            <Header />
+            <ToastContainer />
+            <main>
+              {children}
+            </main>
+            <Footer />
+            <PWAInstall />
+          </div>
         </ClientProviders>
         <Script
           src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}

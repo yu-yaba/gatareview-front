@@ -65,6 +65,7 @@ type HomeLatestReview = {
 };
 
 const lectureId = process.env.PLAYWRIGHT_LECTURE_ID || "3886";
+const currentYear = String(new Date().getFullYear());
 
 const lectureResponse = {
   id: Number(lectureId),
@@ -103,7 +104,7 @@ const firstReview: LectureReview = {
   content: "これは先頭レビューです。全文表示されることを確認するための本文です。",
   thanks_count: 0,
   user_id: 901,
-  period_year: "2025",
+  period_year: currentYear,
   period_term: "1ターム",
 };
 
@@ -114,7 +115,7 @@ const secondReview: LectureReview = {
   content: "これは2件目レビューです。制限時は先頭30文字だけ見えることを確認するための長い本文です。",
   thanks_count: 1,
   user_id: 902,
-  period_year: "2025",
+  period_year: currentYear,
   period_term: "1ターム",
 };
 
@@ -171,7 +172,7 @@ const mypageResponse = {
       grading_type: "レポートのみ",
       content_difficulty: "普通",
       content_quality: "良い",
-      period_year: "2025",
+      period_year: currentYear,
       period_term: "1ターム",
       lecture: {
         id: 9002,

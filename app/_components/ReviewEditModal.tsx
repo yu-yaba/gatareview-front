@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Modal from 'react-modal'
 import ReactStars from 'react-stars'
 import { FaTimes, FaSave, FaTrash } from 'react-icons/fa'
 import { success, error } from '@/app/_helpers/notifications'
+import { getModalAppElement } from '@/app/_helpers/modalAppElement'
+import { getReviewYearOptions } from '@/app/_helpers/reviewYears'
 
 interface ReviewEditModalProps {
   isOpen: boolean
@@ -28,6 +30,7 @@ interface ReviewEditModalProps {
 
 export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDelete }: ReviewEditModalProps) {
   const { data: session } = useSession()
+  const reviewYearOptions = useMemo(() => getReviewYearOptions(), [])
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [formData, setFormData] = useState({
@@ -53,12 +56,6 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
     setIsLoading(true)
     
     try {
-      console.log('Updating review:', {
-        reviewId: review.id,
-        token: session.backendToken ? 'Present' : 'Missing',
-        formData
-      });
-
       const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${review.id}`, {
         method: 'PATCH',
         headers: {
@@ -68,9 +65,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
         body: JSON.stringify({ review: formData })
       })
       
-      console.log('Response status:', res.status);
       const responseData = await res.json();
-      console.log('Response data:', responseData);
       
       if (res.ok) {
         onSave(responseData.review)
@@ -137,6 +132,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
+      appElement={getModalAppElement()}
       className="w-full max-w-6xl mx-auto mt-2 sm:mt-8 lg:mt-0 bg-white/95 backdrop-blur-md rounded-3xl shadow-xl border border-green-100/50 p-6 md:p-8 lg:p-10 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
       overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-start lg:items-center justify-center p-2 sm:p-4 z-50"
     >
@@ -192,8 +188,9 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   value={formData.content}
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   rows={6}
+                  maxLength={1000}
                   className="p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-none text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300 lg:min-h-[220px]"
-                  placeholder="授業の感想やアドバイスなどを150文字以内で入力してください..."
+                  placeholder="授業の感想やアドバイスなどを1000文字以内で入力してください..."
                   required
                 />
               </label>
@@ -352,11 +349,9 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
-                  <option value="2025">2025年度</option>
-                  <option value="2024">2024年度</option>
-                  <option value="2023">2023年度</option>
-                  <option value="2022">2022年度</option>
-                  <option value="2021">2021年度</option>
+                  {reviewYearOptions.map((year) => (
+                    <option key={year} value={year}>{year}年度</option>
+                  ))}
                   <option value="その他・不明">その他・不明</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">

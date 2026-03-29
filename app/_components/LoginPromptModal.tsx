@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Modal from 'react-modal'
 import Link from 'next/link'
 import { FaTimes, FaRocket, FaBookmark, FaHeart, FaShieldAlt } from 'react-icons/fa'
+import { getModalAppElement } from '@/app/_helpers/modalAppElement'
 
 interface LoginPromptModalProps {
   isOpen: boolean
@@ -44,9 +45,9 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
+      appElement={getModalAppElement()}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
       overlayClassName="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-      ariaHideApp={false}
     >
       <div className="bg-white rounded-3xl p-4 md:p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-100 relative overflow-hidden animate-fade-in max-h-[90vh] overflow-y-auto">
         {/* 背景エフェクト */}
@@ -59,7 +60,6 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Close button clicked'); // デバッグ用ログ
             onClose();
           }}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 z-20 pointer-events-auto"
