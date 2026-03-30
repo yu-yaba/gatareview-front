@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { lectureApi } from '@/app/_helpers/api';
+import { getLectureForMetadata } from '@/app/_helpers/serverLectureApi';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const lecture = await lectureApi.getLecture(params.id);
+  const lecture = await getLectureForMetadata(params.id);
 
   if (!lecture) {
     return {

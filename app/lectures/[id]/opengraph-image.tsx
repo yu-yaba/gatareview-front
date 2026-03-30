@@ -1,9 +1,10 @@
 import { ImageResponse } from 'next/server';
-import { lectureApi } from '@/app/_helpers/api';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { getLectureForMetadata, METADATA_REVALIDATE_SECONDS } from '@/app/_helpers/serverLectureApi';
 
-// ウェイトを引数に取るように変更
+export const revalidate = METADATA_REVALIDATE_SECONDS;
+
 async function loadFont(subset: string, weight: number) {
   const fontResponse = await fetch(
     `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}&text=${encodeURIComponent(subset)}`
@@ -11,31 +12,30 @@ async function loadFont(subset: string, weight: number) {
   if (!fontResponse.ok) {
     throw new Error(`Failed to fetch font CSS for weight ${weight}`);
   }
+
   const fontCss = await fontResponse.text();
   const fontUrl = fontCss.match(/url\((.*?)\)/)?.[1];
   if (!fontUrl) {
     throw new Error(`Failed to extract font URL for weight ${weight}`);
   }
+
   const fontDataResponse = await fetch(fontUrl);
   if (!fontDataResponse.ok) {
     throw new Error(`Failed to fetch font data for weight ${weight}`);
   }
+
   return fontDataResponse.arrayBuffer();
 }
 
 export default async function Image({ params }: { params: { id: string } }) {
-  const lecture = await lectureApi.getLecture(params.id);
+  const lecture = await getLectureForMetadata(params.id);
 
   if (!lecture) {
     return new Response('Not Found', { status: 404 });
   }
 
   const textSubset = `${lecture.title}${lecture.lecturer}${lecture.faculty}平均評価ガタレビュ！${lecture.avg_rating?.toFixed(1) || 'N/A'}`;
-  
-  // 700ウェイトのフォントのみ読み込む
   const boldFont = await loadFont(textSubset, 700);
-
-  // ロゴファイルを直接読み込む
   const logoPath = path.join(process.cwd(), 'public', 'green-footer-title.png');
   const logoData = readFileSync(logoPath);
 
@@ -92,12 +92,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                 {lecture.avg_rating?.toFixed(1) || 'N/A'}
               </div>
             </div>
-            <img
-              // @ts-ignore
-              src={logoData.buffer}
-              width="350"
-              alt="ガタレビュ！"
-            />
+            <img src={logoData.buffer as any} width="350" alt="ガタレビュ！" />
           </div>
         </div>
       </div>
@@ -109,7 +104,7 @@ export default async function Image({ params }: { params: { id: string } }) {
         {
           name: 'Noto Sans JP',
           data: boldFont,
-          weight: 700, // weightを明示
+          weight: 700,
           style: 'normal',
         },
       ],
