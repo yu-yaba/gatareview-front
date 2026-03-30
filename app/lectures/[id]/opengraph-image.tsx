@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/server';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -6,15 +5,27 @@ import { getLectureForMetadata, METADATA_REVALIDATE_SECONDS } from '@/app/_helpe
 
 export const revalidate = METADATA_REVALIDATE_SECONDS;
 
-function toArrayBuffer(buffer: Buffer) {
-  return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+async function loadFont(subset: string, weight: number) {
+  const fontResponse = await fetch(
+    `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}&text=${encodeURIComponent(subset)}`
+  );
+  if (!fontResponse.ok) {
+    throw new Error(`Failed to fetch font CSS for weight ${weight}`);
+  }
+
+  const fontCss = await fontResponse.text();
+  const fontUrl = fontCss.match(/url\((.*?)\)/)?.[1];
+  if (!fontUrl) {
+    throw new Error(`Failed to extract font URL for weight ${weight}`);
+  }
+
+  const fontDataResponse = await fetch(fontUrl);
+  if (!fontDataResponse.ok) {
+    throw new Error(`Failed to fetch font data for weight ${weight}`);
+  }
+
+  return fontDataResponse.arrayBuffer();
 }
-
-const fontPath = path.join(process.cwd(), 'public', 'fonts', 'NotoSansJP-Variable.ttf');
-const logoPath = path.join(process.cwd(), 'public', 'green-footer-title.png');
-
-const fontData = toArrayBuffer(readFileSync(fontPath));
-const logoDataUri = `data:image/png;base64,${readFileSync(logoPath).toString('base64')}`;
 
 export default async function Image({ params }: { params: { id: string } }) {
   const lecture = await getLectureForMetadata(params.id);
@@ -22,6 +33,11 @@ export default async function Image({ params }: { params: { id: string } }) {
   if (!lecture) {
     return new Response('Not Found', { status: 404 });
   }
+
+  const textSubset = `${lecture.title}${lecture.lecturer}${lecture.faculty}平均評価ガタレビュ！${lecture.avg_rating?.toFixed(1) || 'N/A'}`;
+  const boldFont = await loadFont(textSubset, 700);
+  const logoPath = path.join(process.cwd(), 'public', 'green-footer-title.png');
+  const logoData = readFileSync(logoPath);
 
   return new ImageResponse(
     (
@@ -76,12 +92,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                 {lecture.avg_rating?.toFixed(1) || 'N/A'}
               </div>
             </div>
-            <img
-              // @ts-ignore
-              src={logoDataUri}
-              width="350"
-              alt="ガタレビュ！"
-            />
+            <img src={logoData.buffer as any} width="350" alt="ガタレビュ！" />
           </div>
         </div>
       </div>
@@ -92,7 +103,7 @@ export default async function Image({ params }: { params: { id: string } }) {
       fonts: [
         {
           name: 'Noto Sans JP',
-          data: fontData,
+          data: boldFont,
           weight: 700,
           style: 'normal',
         },
