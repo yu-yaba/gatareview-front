@@ -13,7 +13,7 @@ Disallow: /admin/
 Disallow: *.json$
 
 # サイトマップの場所を指定
-Sitemap: https://gatareview.com/sitemap.xml
+Sitemap: https://www.gatareview.com/sitemap.xml
 
 # クロール頻度の調整
 Crawl-delay: 1 

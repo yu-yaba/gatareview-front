@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const title = `${lecture.title} - ${lecture.lecturer} | ガタレビュ！`;
   const description = `${lecture.faculty}の「${lecture.title}」(${lecture.lecturer} 先生)の授業レビュー。平均評価${lecture.avg_rating?.toFixed(1) || '0.0'}点、${lecture.review_count || 0}件のレビューを確認できます。`;
 
-  const baseUrl = process.env.NODE_ENV === 'production' ? 'https://gatareview.com' : 'http://localhost:8080';
+  const baseUrl = process.env.NODE_ENV === 'production' ? 'https://www.gatareview.com' : 'http://localhost:8080';
 
   return {
     title,

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'よくある質問 - ガタレビュ！',
     description: 'ガタレビュ！についてよくある質問をまとめました。新潟大学の授業レビューサイトの使い方や機能について詳しく解説。',
-    url: 'https://gatareview.com/faq',
+    url: 'https://www.gatareview.com/faq',
     siteName: 'ガタレビュ！',
     images: [
       {
@@ -53,4 +53,4 @@ export default function FAQLayout({
   children: React.ReactNode
 }) {
   return <>{children}</>
-} 
+}
