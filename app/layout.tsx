@@ -16,7 +16,7 @@ const PWAInstall = dynamic(() => import('./_components/PWAInstall'), {
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NODE_ENV === 'production' ? 'https://gatareview.com' : 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NODE_ENV === 'production' ? 'https://www.gatareview.com' : 'http://localhost:3000'),
   title: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
   description: '新潟大学生のための授業レビューサイトです。シラバスではわからないリアルな授業情報を共有しましょう。履修選択に役立つ学生の生の声をお届けします。',
   keywords: [
@@ -121,7 +121,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
     description: '新潟大学生のための授業レビューサイト。シラバスではわからないリアルな授業情報を学生同士で共有。履修選択に役立つ詳細な授業評価とレビューを提供します。',
-    url: 'https://gatareview.com',
+    url: 'https://www.gatareview.com',
     siteName: 'ガタレビュ！',
     images: [
       {
@@ -150,9 +150,9 @@ export const metadata: Metadata = {
     site: '@gatareview',
   },
   alternates: {
-    canonical: 'https://gatareview.com',
+    canonical: 'https://www.gatareview.com',
     languages: {
-      'ja-JP': 'https://gatareview.com',
+      'ja-JP': 'https://www.gatareview.com',
     },
   },
   category: 'education',
@@ -206,18 +206,18 @@ export default function RootLayout({
               {
                 '@context': 'https://schema.org',
                 '@type': 'WebSite',
-                '@id': 'https://gatareview.com/#website',
+                '@id': 'https://www.gatareview.com/#website',
                 name: 'ガタレビュ！',
                 description: '新潟大学生のための授業レビューサイト',
-                url: 'https://gatareview.com',
+                url: 'https://www.gatareview.com',
                 inLanguage: 'ja-JP',
                 publisher: {
                   '@type': 'Organization',
-                  '@id': 'https://gatareview.com/#organization',
+                  '@id': 'https://www.gatareview.com/#organization',
                 },
                 potentialAction: {
                   '@type': 'SearchAction',
-                  target: 'https://gatareview.com/lectures?search={search_term_string}',
+                  target: 'https://www.gatareview.com/lectures?search={search_term_string}',
                   'query-input': 'required name=search_term_string',
                 },
               },
@@ -225,13 +225,13 @@ export default function RootLayout({
               {
                 '@context': 'https://schema.org',
                 '@type': 'Organization',
-                '@id': 'https://gatareview.com/#organization',
+                '@id': 'https://www.gatareview.com/#organization',
                 name: 'ガタレビュ運営チーム',
                 description: '新潟大学生のための授業レビューサイト運営',
-                url: 'https://gatareview.com',
+                url: 'https://www.gatareview.com',
                 logo: {
                   '@type': 'ImageObject',
-                  url: 'https://gatareview.com/icon.png',
+                  url: 'https://www.gatareview.com/icon.png',
                   width: 180,
                   height: 180,
                 },
@@ -260,14 +260,14 @@ export default function RootLayout({
               {
                 '@context': 'https://schema.org',
                 '@type': 'EducationalOrganization',
-                '@id': 'https://gatareview.com/#educationalorg',
+                '@id': 'https://www.gatareview.com/#educationalorg',
                 name: 'ガタレビュ！',
                 description: '新潟大学生のための授業レビューサイト',
-                url: 'https://gatareview.com',
-                logo: 'https://gatareview.com/icon.png',
+                url: 'https://www.gatareview.com',
+                logo: 'https://www.gatareview.com/icon.png',
                 mainEntityOfPage: {
                   '@type': 'WebPage',
-                  '@id': 'https://gatareview.com',
+                  '@id': 'https://www.gatareview.com',
                 },
                 audience: {
                   '@type': 'EducationalAudience',
@@ -276,7 +276,7 @@ export default function RootLayout({
                 },
                 provider: {
                   '@type': 'Organization',
-                  '@id': 'https://gatareview.com/#organization',
+                  '@id': 'https://www.gatareview.com/#organization',
                 },
                 offers: {
                   '@type': 'Offer',
@@ -303,19 +303,19 @@ export default function RootLayout({
                     '@type': 'ListItem',
                     position: 1,
                     name: 'ホーム',
-                    item: 'https://gatareview.com',
+                    item: 'https://www.gatareview.com',
                   },
                   {
                     '@type': 'ListItem',
                     position: 2,
                     name: '授業レビュー',
-                    item: 'https://gatareview.com/lectures',
+                    item: 'https://www.gatareview.com/lectures',
                   },
                   {
                     '@type': 'ListItem',
                     position: 3,
                     name: 'よくある質問',
-                    item: 'https://gatareview.com/faq',
+                    item: 'https://www.gatareview.com/faq',
                   },
                 ],
               },
