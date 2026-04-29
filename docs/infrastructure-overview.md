@@ -11,7 +11,7 @@
   - フロントエンド
     - GitHub: https://github.com/yu-yaba/gatareview-front
     - Vercelにgatareview-frontとしてデプロイ。
-    - www.gatareview.comとgatareview.comをフロントエンドの公開用ドメインとして紐付けている。
+    - www.gatareview.com とgatareview.comをフロントエンドの公開用ドメインとして紐付けている。
       - 2つのドメインを使う理由は、ユーザーがどちらのURLでアクセスしても同じフロントエンドへ到達できるようにするため。本番ではwww.gatareview.comをサイト本体とし、gatareview.comはwww.gatareview.comへ転送する入口として使っている。
   - バックエンド
     - GitHub: https://github.com/yu-yaba/gatareview-back
@@ -21,7 +21,7 @@
   - Cloudflare
     - Cloudflareは独自ドメインgatareview.comのDNS管理に使用している。
     - ルートドメインであるgatareview.comと、wwwサブドメインであるwww.gatareview.comのどちらからでもアクセスできるようにしている。
-      - gatareview.comはVercelが指定するAレコードへ向け、www.gatareview.comはVercelが指定するCNAMEレコードへ向けている。Cloudflareはこの2つの入口を管理し、実際のフロントエンドの実行と配信はVercelに任せている。
+      - gatareview.comはVercelが指定するAレコードへ向け、www.gatareview.com はVercelが指定するCNAMEレコードへ向けている。Cloudflareはこの2つの入口を管理し、実際のフロントエンドの実行と配信はVercelに任せている。
 - DB
   - Aiven MySQL
     - 本番DBはAiven for MySQLを利用している。
