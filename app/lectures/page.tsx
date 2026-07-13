@@ -8,6 +8,7 @@ import { getReviewYearOptions } from '../_helpers/reviewYears';
 import Loading from 'react-loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import OfferingBadges from '../_components/OfferingBadges';
 
 interface PaginationInfo {
   current_page: number;
@@ -33,6 +34,9 @@ interface SearchParams {
   grading_type: string;
   content_difficulty: string;
   content_quality: string;
+  term: string;
+  day: string;
+  period: string;
   detailed: string;
 }
 
@@ -50,6 +54,9 @@ const DEFAULT_VALUES = {
   grading_type: '',
   content_difficulty: '',
   content_quality: '',
+  term: '',
+  day: '',
+  period: '',
   detailed: 'false'
 } as const;
 
@@ -62,11 +69,17 @@ const LectureList = () => {
   const [tempSearchWord, setTempSearchWord] = useState('');
   const [tempSelectedFaculty, setTempSelectedFaculty] = useState('');
   const [tempSortType, setTempSortType] = useState('newest');
+  const [tempTerm, setTempTerm] = useState('');
+  const [tempDay, setTempDay] = useState('');
+  const [tempPeriod, setTempPeriod] = useState('');
 
   // 確定済みの検索条件（API呼び出し用）
   const [confirmedSearchWord, setConfirmedSearchWord] = useState('');
   const [confirmedSelectedFaculty, setConfirmedSelectedFaculty] = useState('');
   const [confirmedSortType, setConfirmedSortType] = useState('newest');
+  const [confirmedTerm, setConfirmedTerm] = useState('');
+  const [confirmedDay, setConfirmedDay] = useState('');
+  const [confirmedPeriod, setConfirmedPeriod] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [showDetailedSearch, setShowDetailedSearch] = useState(false);
@@ -149,6 +162,9 @@ const LectureList = () => {
       gradingType: getParam('grading_type'),
       contentDifficulty: getParam('content_difficulty'),
       contentQuality: getParam('content_quality'),
+      term: getParam('term'),
+      day: getParam('day'),
+      period: getParam('period'),
       showDetailedSearch: getParam('detailed', DEFAULT_VALUES.detailed) === 'true'
     };
   }, [searchParams]);
@@ -165,6 +181,9 @@ const LectureList = () => {
     gradingType?: string;
     contentDifficulty?: string;
     contentQuality?: string;
+    term?: string;
+    day?: string;
+    period?: string;
   }) => {
     try {
       setIsLoading(true);
@@ -183,6 +202,9 @@ const LectureList = () => {
       const gradingType = searchParams?.gradingType ?? confirmedGradingType;
       const contentDifficulty = searchParams?.contentDifficulty ?? confirmedContentDifficulty;
       const contentQuality = searchParams?.contentQuality ?? confirmedContentQuality;
+      const term = searchParams?.term ?? confirmedTerm;
+      const day = searchParams?.day ?? confirmedDay;
+      const period = searchParams?.period ?? confirmedPeriod;
 
       if (searchWord) params.append('search', searchWord);
       if (selectedFaculty) params.append('faculty', selectedFaculty);
@@ -196,6 +218,9 @@ const LectureList = () => {
       if (gradingType) params.append('grading_type', gradingType);
       if (contentDifficulty) params.append('content_difficulty', contentDifficulty);
       if (contentQuality) params.append('content_quality', contentQuality);
+      if (term) params.append('term', term);
+      if (day) params.append('day', day);
+      if (period) params.append('period', period);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?${params.toString()}`, {
         next: { revalidate: 60 }
@@ -213,7 +238,7 @@ const LectureList = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality]);
+  }, [confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, confirmedTerm, confirmedDay, confirmedPeriod]);
 
   // 初期化用のuseEffect
   useEffect(() => {
@@ -221,6 +246,9 @@ const LectureList = () => {
     setTempSearchWord(initialState.searchWord);
     setTempSelectedFaculty(initialState.selectedFaculty);
     setTempSortType(initialState.sortType);
+    setTempTerm(initialState.term);
+    setTempDay(initialState.day);
+    setTempPeriod(initialState.period);
     setCurrentPage(initialState.currentPage);
     setTempPeriodYear(initialState.periodYear);
     setTempPeriodTerm(initialState.periodTerm);
@@ -235,6 +263,9 @@ const LectureList = () => {
     setConfirmedSearchWord(initialState.searchWord);
     setConfirmedSelectedFaculty(initialState.selectedFaculty);
     setConfirmedSortType(initialState.sortType);
+    setConfirmedTerm(initialState.term);
+    setConfirmedDay(initialState.day);
+    setConfirmedPeriod(initialState.period);
     setConfirmedPeriodYear(initialState.periodYear);
     setConfirmedPeriodTerm(initialState.periodTerm);
     setConfirmedTextbook(initialState.textbook);
@@ -257,6 +288,9 @@ const LectureList = () => {
         grading_type: initialState.gradingType,
         content_difficulty: initialState.contentDifficulty,
         content_quality: initialState.contentQuality,
+        term: initialState.term,
+        day: initialState.day,
+        period: initialState.period,
         detailed: initialState.showDetailedSearch.toString()
       });
     }
@@ -273,7 +307,10 @@ const LectureList = () => {
         attendance: initialState.attendance,
         gradingType: initialState.gradingType,
         contentDifficulty: initialState.contentDifficulty,
-        contentQuality: initialState.contentQuality
+        contentQuality: initialState.contentQuality,
+        term: initialState.term,
+        day: initialState.day,
+        period: initialState.period
       });
       setIsInitialized(true);
     }, 0);
@@ -308,6 +345,9 @@ const LectureList = () => {
     setConfirmedGradingType(tempGradingType);
     setConfirmedContentDifficulty(tempContentDifficulty);
     setConfirmedContentQuality(tempContentQuality);
+    setConfirmedTerm(tempTerm);
+    setConfirmedDay(tempDay);
+    setConfirmedPeriod(tempPeriod);
 
     setCurrentPage(1);
     setShowDetailedSearch(false);
@@ -323,7 +363,10 @@ const LectureList = () => {
       attendance: tempAttendance,
       gradingType: tempGradingType,
       contentDifficulty: tempContentDifficulty,
-      contentQuality: tempContentQuality
+      contentQuality: tempContentQuality,
+      term: tempTerm,
+      day: tempDay,
+      period: tempPeriod
     });
 
     // URLパラメータを更新
@@ -339,9 +382,12 @@ const LectureList = () => {
       grading_type: tempGradingType,
       content_difficulty: tempContentDifficulty,
       content_quality: tempContentQuality,
+      term: tempTerm,
+      day: tempDay,
+      period: tempPeriod,
       detailed: 'false'
     });
-  }, [tempSearchWord, tempSelectedFaculty, tempSortType, tempPeriodYear, tempPeriodTerm, tempTextbook, tempAttendance, tempGradingType, tempContentDifficulty, tempContentQuality, updateURL, fetchLectures]);
+  }, [tempSearchWord, tempSelectedFaculty, tempSortType, tempPeriodYear, tempPeriodTerm, tempTextbook, tempAttendance, tempGradingType, tempContentDifficulty, tempContentQuality, tempTerm, tempDay, tempPeriod, updateURL, fetchLectures]);
 
   // エンターキー押下時のハンドラー
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -369,12 +415,15 @@ const LectureList = () => {
         grading_type: confirmedGradingType,
         content_difficulty: confirmedContentDifficulty,
         content_quality: confirmedContentQuality,
+        term: confirmedTerm,
+        day: confirmedDay,
+        period: confirmedPeriod,
         detailed: showDetailedSearch.toString()
       });
 
       fetchLectures(page);
     }
-  }, [paginationInfo.total_pages, confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, showDetailedSearch, updateURL, fetchLectures]);
+  }, [paginationInfo.total_pages, confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, confirmedTerm, confirmedDay, confirmedPeriod, showDetailedSearch, updateURL, fetchLectures]);
 
   // 選択変更ハンドラー（一時的な状態のみ更新）
   const handleSelectChange = useCallback((setStateFunc: React.Dispatch<React.SetStateAction<string>>) =>
@@ -391,6 +440,9 @@ const LectureList = () => {
     setTempGradingType('');
     setTempContentDifficulty('');
     setTempContentQuality('');
+    setTempTerm('');
+    setTempDay('');
+    setTempPeriod('');
   }, []);
 
   // ページネーション要素をメモ化
@@ -491,6 +543,7 @@ const LectureList = () => {
                       <span className="text-gray-600 text-sm lg:text-base">{lecture.faculty}</span>
                     </div>
                   </div>
+                  <OfferingBadges offering={lecture.offering} className="mt-2 justify-center sm:justify-start" />
                 </div>
 
                 {/* 評価セクション */}
@@ -650,6 +703,36 @@ const LectureList = () => {
                                   </svg>
                                 </div>
                               </div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                            <div className="flex items-center gap-2 sm:flex-col sm:items-stretch md:flex-row">
+                              <label htmlFor="term-select" className="text-sm font-bold text-gray-800 whitespace-nowrap">
+                                <FaClock className="mr-1 inline text-emerald-500" aria-hidden="true" />ターム
+                              </label>
+                              <select id="term-select" value={tempTerm} onChange={handleSelectChange(setTempTerm)} className="w-full rounded-xl border-2 border-green-400 bg-white px-3 py-2.5 text-sm font-semibold text-gray-600 focus:border-green-500 focus:outline-none">
+                                <option value="">指定なし</option>
+                                <option value="1">第1ターム</option>
+                                <option value="2">第2ターム</option>
+                                <option value="3">第3ターム</option>
+                                <option value="4">第4ターム</option>
+                                <option value="intensive">集中・その他</option>
+                              </select>
+                            </div>
+                            <div className="flex items-center gap-2 sm:flex-col sm:items-stretch md:flex-row">
+                              <label htmlFor="day-select" className="text-sm font-bold text-gray-800 whitespace-nowrap">曜日</label>
+                              <select id="day-select" value={tempDay} onChange={handleSelectChange(setTempDay)} className="w-full rounded-xl border-2 border-green-400 bg-white px-3 py-2.5 text-sm font-semibold text-gray-600 focus:border-green-500 focus:outline-none">
+                                <option value="">指定なし</option>
+                                <option value="1">月</option><option value="2">火</option><option value="3">水</option><option value="4">木</option><option value="5">金</option><option value="6">土</option><option value="7">日</option>
+                              </select>
+                            </div>
+                            <div className="flex items-center gap-2 sm:flex-col sm:items-stretch md:flex-row">
+                              <label htmlFor="period-select" className="text-sm font-bold text-gray-800 whitespace-nowrap">時限</label>
+                              <select id="period-select" value={tempPeriod} onChange={handleSelectChange(setTempPeriod)} className="w-full rounded-xl border-2 border-green-400 bg-white px-3 py-2.5 text-sm font-semibold text-gray-600 focus:border-green-500 focus:outline-none">
+                                <option value="">指定なし</option>
+                                <option value="1">1限</option><option value="2">2限</option><option value="3">3限</option><option value="4">4限</option><option value="5">5限</option><option value="6">6限</option><option value="7">7限</option>
+                              </select>
                             </div>
                           </div>
                         </div>

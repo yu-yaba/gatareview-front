@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { reviewApi } from '../../../_helpers/api';
 import Loading from 'react-loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
+import { reviewTermForOffering } from '@/app/_helpers/offering';
 
 declare global {
   interface Window {
@@ -96,8 +97,8 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
         setReview({
           lecture_id: data.id,
           rating: 3,
-          period_year: '',
-          period_term: '',
+          period_year: data.offering?.year?.toString() ?? '',
+          period_term: reviewTermForOffering(data.offering?.term_label ?? null),
           textbook: '',
           attendance: '',
           grading_type: '',

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import type { LectureReviewsResponse, ReviewAccessState, ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit } from 'react-icons/fa';
+import { FaUser, FaUniversity, FaStar, FaCalendar, FaGraduationCap, FaClipboardList, FaComments, FaHeart, FaBookOpen, FaChartLine, FaEdit, FaExternalLinkAlt } from 'react-icons/fa';
 import BookmarkButton from '../../_components/BookmarkButton';
 import ThanksButton from '../../_components/ThanksButton';
 import ReviewEditModal from '../../_components/ReviewEditModal';
@@ -13,6 +13,7 @@ import { PartialComment } from '../../_components/ReviewAccessBlur';
 import ReviewPromptModal from '../../_components/ReviewPromptModal';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
+import OfferingBadges from '../../_components/OfferingBadges';
 
 interface LectureDetailClientProps {
   lecture: LectureSchema;
@@ -96,6 +97,7 @@ const LectureDetailClient = ({
                           <span className="text-lg font-semibold text-gray-800">{lecture.lecturer}</span>
                         </div>
                       </div>
+                      <OfferingBadges offering={lecture.offering} showYear className="justify-center sm:justify-start md:justify-center lg:justify-start" />
                       <div className="flex items-center justify-center sm:justify-start md:justify-center lg:justify-start">
                         <FaUniversity className="text-purple-500 mr-3 text-lg" />
                         <div className="text-center sm:text-left md:text-center lg:text-left">
@@ -131,9 +133,20 @@ const LectureDetailClient = ({
                         </>
                       )}
 
-                      {/* ブックマークボタン */}
+                      {/* シラバス・ブックマークボタン */}
                       {lecture && (
-                        <div className="mt-4 flex justify-end">
+                        <div className="mt-4 flex flex-wrap justify-center gap-2 lg:justify-end">
+                          {lecture.offering?.syllabus_url && (
+                            <a
+                              href={lecture.offering.syllabus_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-green-700"
+                            >
+                              シラバスを見る
+                              <FaExternalLinkAlt aria-hidden="true" />
+                            </a>
+                          )}
                           <BookmarkButton lectureId={lecture.id} />
                         </div>
                       )}
