@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
 import Link from 'next/link'
+import { authApi } from '../../_helpers/api'
 import { FaSignOutAlt, FaUser, FaHome, FaSpinner, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa'
 
 export default function SignOutPage() {
@@ -11,6 +12,16 @@ export default function SignOutPage() {
 
   const handleSignOut = async () => {
     setIsLoggingOut(true)
+
+    try {
+      await authApi.logout()
+    } catch (error: any) {
+      // 失効済みのトークンは再ログイン不要なので、そのままローカルセッションも終了する
+      if (error?.response?.status !== 401) {
+        console.error('バックエンドトークンの失効に失敗:', error?.response?.status, error?.message)
+      }
+    }
+
     try {
       await signOut({ callbackUrl: '/' })
     } catch (error) {

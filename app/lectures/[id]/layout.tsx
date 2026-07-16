@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { getLectureForMetadata } from '@/app/_helpers/serverLectureApi';
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const lecture = await getLectureForMetadata(params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const lecture = await getLectureForMetadata(id);
 
   if (!lecture) {
     return {
@@ -32,13 +33,13 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/lectures/${params.id}`,
+      url: `${baseUrl}/lectures/${id}`,
       siteName: 'ガタレビュ！',
       locale: 'ja_JP',
       type: 'article',
       images: [
         {
-          url: `${baseUrl}/lectures/${params.id}/opengraph-image`,
+          url: `${baseUrl}/lectures/${id}/opengraph-image`,
           width: 1200,
           height: 630,
           alt: title,
@@ -51,7 +52,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       title,
       description,
       images: {
-        url: `${baseUrl}/lectures/${params.id}/opengraph-image`,
+        url: `${baseUrl}/lectures/${id}/opengraph-image`,
         width: 1200,
         height: 630,
         alt: title,
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       site: '@gatareview',
     },
     alternates: {
-      canonical: `${baseUrl}/lectures/${params.id}`,
+      canonical: `${baseUrl}/lectures/${id}`,
     },
   };
 }

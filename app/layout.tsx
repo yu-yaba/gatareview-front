@@ -7,11 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import ScriptGa from './_components/ScriptGa'
 import ClientProviders from './_components/ClientProviders'
 import Script from 'next/script';
-import dynamic from 'next/dynamic';
-
-const PWAInstall = dynamic(() => import('./_components/PWAInstall'), {
-  ssr: false,
-});
+import PWAInstall from './_components/PWAInstall';
 
 const inter = Inter({ subsets: ['latin'] })
 

@@ -1,13 +1,13 @@
 'use client'
 
 import { signIn, getSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { FaBookOpen, FaStar, FaHeart, FaUsers, FaCheckCircle, FaBolt, FaShieldAlt, FaRocket, FaBookmark, FaEdit } from 'react-icons/fa'
 import Cookies from 'js-cookie'
 
-export default function SignInPage() {
+function SignInPageContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
@@ -225,5 +225,13 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50" />}>
+      <SignInPageContent />
+    </Suspense>
   )
 }

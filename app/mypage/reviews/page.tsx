@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, memo } from 'react'
 import Link from 'next/link'
-import Loading from 'react-loading'
+import Loading from '../../_components/Loading'
 import ReactStars from 'react-stars'
 import { mypageApi } from '../../_helpers/api'
 import {
