@@ -10,6 +10,7 @@ const AuthButton = dynamic(() => import("./_components/AuthButton"), {
     </div>
   ),
 });
+const TimetableNavButton = dynamic(() => import("./_components/TimetableNavButton"), { ssr: false });
 
 export default function Header() {
   return (
@@ -44,6 +45,8 @@ export default function Header() {
               <span className="hidden md:inline ml-2 text-sm lg:text-base relative">レビューする</span>
             </button>
           </Link>
+
+          <TimetableNavButton />
 
           {/* 認証ボタン */}
           <AuthButton />

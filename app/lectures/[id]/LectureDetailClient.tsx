@@ -14,6 +14,7 @@ import ReviewPromptModal from '../../_components/ReviewPromptModal';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
 import OfferingBadges from '../../_components/OfferingBadges';
+import TimetableButton from '../../_components/TimetableButton';
 
 interface LectureDetailClientProps {
   lecture: LectureSchema;
@@ -148,6 +149,7 @@ const LectureDetailClient = ({
                             </a>
                           )}
                           <BookmarkButton lectureId={lecture.id} />
+                          <TimetableButton lectureId={lecture.id} offering={lecture.offering} />
                         </div>
                       )}
                     </div>

@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import Modal from 'react-modal'
 import Link from 'next/link'
-import { FaTimes, FaRocket, FaBookmark, FaHeart, FaShieldAlt } from 'react-icons/fa'
+import { FaTimes, FaRocket, FaBookmark, FaHeart, FaShieldAlt, FaCalendarAlt } from 'react-icons/fa'
 import { getModalAppElement } from '@/app/_helpers/modalAppElement'
 
 interface LoginPromptModalProps {
   isOpen: boolean
   onClose: () => void
-  featureType: 'bookmark' | 'thanks'
+  featureType: 'bookmark' | 'thanks' | 'timetable'
 }
 
 export default function LoginPromptModal({ isOpen, onClose, featureType }: LoginPromptModalProps) {
@@ -28,6 +28,13 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
           title: 'ありがとう機能',
           description: '役に立ったレビューに「ありがとう」を送れます。',
           color: 'from-red-500 to-red-600'
+        }
+      case 'timetable':
+        return {
+          icon: <FaCalendarAlt className="text-3xl md:text-4xl text-green-500" />,
+          title: '時間割機能',
+          description: '履修中の講義を時間割に登録して管理できます。',
+          color: 'from-green-500 to-green-600'
         }
       default:
         return {

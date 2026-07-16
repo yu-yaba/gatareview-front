@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { getSession } from 'next-auth/react'
 import { CreateReviewResponse } from '../_types/ReviewSchema'
+import type { TimetableData, TimetablePlacement, TimetableEntry } from '../_types/TimetableData'
 
 // API ベースURL
 const API_BASE_URL = process.env.NEXT_PUBLIC_ENV ? `${process.env.NEXT_PUBLIC_ENV}/api/v1` : 'http://localhost:3001/api/v1'
@@ -152,6 +153,25 @@ export const mypageApi = {
   // ユーザーのブックマーク一覧を取得（認証必須、ページネーション付き）
   getBookmarks: (page = 1, perPage = 10) => 
     apiRequest.get(`/mypage/bookmarks?page=${page}&per_page=${perPage}`),
+}
+
+export const timetableApi = {
+  get: (year?: number, term?: number) => {
+    const params = new URLSearchParams()
+    if (year) params.set('year', String(year))
+    if (term !== undefined) params.set('term', String(term))
+    return apiRequest.get<TimetableData>(`/timetable?${params.toString()}`)
+  },
+  createEntries: (lectureId: number, year: number, placements: TimetablePlacement[], replace = false, lectureOfferingId?: number) =>
+    apiRequest.post<{ success: boolean; message?: string; errors?: string[]; conflicts?: TimetableEntry[]; entries?: TimetableEntry[] }>('/timetable/entries', {
+      lecture_id: lectureId,
+      lecture_offering_id: lectureOfferingId,
+      year,
+      placements,
+      replace,
+    }),
+  deleteEntry: (id: number, allForLecture = false) =>
+    apiRequest.delete<{ success: boolean; message?: string }>(`/timetable/entries/${id}${allForLecture ? '?all_for_lecture=true' : ''}`),
 }
 
 export default apiClient
