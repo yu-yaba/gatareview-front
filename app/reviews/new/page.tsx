@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
+import { Suspense, useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { handleAjaxError } from '../../_helpers/helpers';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Loading from 'react-loading';
+import Loading from '../../_components/Loading';
 import { debounce } from 'lodash';
 import { useAuth } from '../../_hooks/useAuth';
 import { signIn } from 'next-auth/react';
@@ -443,4 +443,12 @@ const NewReviewPage = () => {
   );
 };
 
-export default memo(NewReviewPage);
+const MemoizedNewReviewPage = memo(NewReviewPage);
+
+export default function NewReviewPageWithSuspense() {
+  return (
+    <Suspense fallback={<section className="flex justify-center p-8"><Loading type="spin" color="#22c55e" /></section>}>
+      <MemoizedNewReviewPage />
+    </Suspense>
+  );
+}

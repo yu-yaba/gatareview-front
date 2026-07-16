@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { FaExclamationTriangle, FaHome, FaRedo, FaQuestionCircle } from 'react-icons/fa'
 
 export default function Error({
@@ -91,14 +92,14 @@ export default function Error({
                 </button>
 
                 {/* Secondary Button - Home */}
-                <a
+                <Link
                   href="/"
                   className="w-full inline-flex justify-center items-center px-6 py-4 bg-white/80 backdrop-blur-sm text-gray-700 font-semibold rounded-2xl border-2 border-gray-200/80 hover:border-green-300 hover:bg-green-50/80 transform hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl relative overflow-hidden group/btn"
                 >
                   <FaHome className="mr-3 text-lg relative z-10 transform group-hover/btn:rotate-12 transition-transform duration-300" />
                   <span className="relative z-10">ホームに戻る</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-green-100 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -129,4 +130,4 @@ export default function Error({
       </div>
     </div>
   )
-} 
+}

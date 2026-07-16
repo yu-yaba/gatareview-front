@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState, memo, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import Loading from 'react-loading'
+import Loading from '../_components/Loading'
 import { mypageApi } from '../_helpers/api'
 import {
   FaUser,

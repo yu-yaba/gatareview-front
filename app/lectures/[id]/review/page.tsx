@@ -7,9 +7,9 @@ import { getReviewYearOptions } from '../../../_helpers/reviewYears';
 import { success } from '@/app/_helpers/notifications';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { reviewApi } from '../../../_helpers/api';
-import Loading from 'react-loading';
+import Loading from '../../../_components/Loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
 
 declare global {
@@ -18,7 +18,8 @@ declare global {
   }
 }
 
-const ReviewPage = ({ params }: { params: { id: string } }) => {
+const ReviewPage = () => {
+  const params = useParams<{ id: string }>();
   const [lecture, setLecture] = useState<LectureSchema | null>(null);
   const [review, setReview] = useState<ReviewData | null>(null);
   const [isLoading, setIsLoading] = useState(false);

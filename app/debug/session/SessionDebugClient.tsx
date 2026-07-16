@@ -1,6 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
 export default function SessionDebugClient() {
@@ -115,9 +116,9 @@ export default function SessionDebugClient() {
         </div>
 
         <div className="mt-6">
-          <a href="/" className="text-blue-500 hover:text-blue-700 underline">
+          <Link href="/" className="text-blue-500 hover:text-blue-700 underline">
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
