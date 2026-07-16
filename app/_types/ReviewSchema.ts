@@ -10,6 +10,9 @@ export type ReviewSchema = {
   content_quality: string;
   period_year: string;
   period_term: string;
+  academic_year?: number | null;
+  term_code?: string | null;
+  lecture_offering_id?: number | null;
   created_at: Date;
   updated_at: Date;
   user_id?: number | null;

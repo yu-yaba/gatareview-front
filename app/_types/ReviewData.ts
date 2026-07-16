@@ -9,4 +9,6 @@ export type ReviewData = {
   content_quality: string;
   period_year: string;
   period_term: string;
+  academic_year?: number | null;
+  term_code?: string | null;
 }

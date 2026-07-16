@@ -6,11 +6,23 @@ export type OfferingSlot = {
 };
 
 export type OfferingData = {
+  id: number;
   year: number;
   term_label: string | null;
   term_numbers: number[];
+  schedule_kind?: 'regular' | 'intensive' | 'other' | 'unknown';
+  source_title?: string | null;
+  source_lecturer?: string | null;
   slots: OfferingSlot[];
   syllabus_url: string;
+  details?: {
+    credits?: number | null;
+    target_years?: number[] | null;
+    campus?: string | null;
+    language?: string | null;
+    delivery_method?: string | null;
+    subject_category?: string | null;
+  } | null;
 };
 
 export type LectureSchema = {

@@ -34,6 +34,7 @@ interface SearchParams {
   grading_type: string;
   content_difficulty: string;
   content_quality: string;
+  offering_year: string;
   term: string;
   day: string;
   period: string;
@@ -54,6 +55,7 @@ const DEFAULT_VALUES = {
   grading_type: '',
   content_difficulty: '',
   content_quality: '',
+  offering_year: '',
   term: '',
   day: '',
   period: '',
@@ -69,6 +71,7 @@ const LectureList = () => {
   const [tempSearchWord, setTempSearchWord] = useState('');
   const [tempSelectedFaculty, setTempSelectedFaculty] = useState('');
   const [tempSortType, setTempSortType] = useState('newest');
+  const [tempOfferingYear, setTempOfferingYear] = useState('');
   const [tempTerm, setTempTerm] = useState('');
   const [tempDay, setTempDay] = useState('');
   const [tempPeriod, setTempPeriod] = useState('');
@@ -77,6 +80,7 @@ const LectureList = () => {
   const [confirmedSearchWord, setConfirmedSearchWord] = useState('');
   const [confirmedSelectedFaculty, setConfirmedSelectedFaculty] = useState('');
   const [confirmedSortType, setConfirmedSortType] = useState('newest');
+  const [confirmedOfferingYear, setConfirmedOfferingYear] = useState('');
   const [confirmedTerm, setConfirmedTerm] = useState('');
   const [confirmedDay, setConfirmedDay] = useState('');
   const [confirmedPeriod, setConfirmedPeriod] = useState('');
@@ -162,6 +166,7 @@ const LectureList = () => {
       gradingType: getParam('grading_type'),
       contentDifficulty: getParam('content_difficulty'),
       contentQuality: getParam('content_quality'),
+      offeringYear: getParam('offering_year'),
       term: getParam('term'),
       day: getParam('day'),
       period: getParam('period'),
@@ -181,6 +186,7 @@ const LectureList = () => {
     gradingType?: string;
     contentDifficulty?: string;
     contentQuality?: string;
+    offeringYear?: string;
     term?: string;
     day?: string;
     period?: string;
@@ -202,6 +208,7 @@ const LectureList = () => {
       const gradingType = searchParams?.gradingType ?? confirmedGradingType;
       const contentDifficulty = searchParams?.contentDifficulty ?? confirmedContentDifficulty;
       const contentQuality = searchParams?.contentQuality ?? confirmedContentQuality;
+      const offeringYear = searchParams?.offeringYear ?? confirmedOfferingYear;
       const term = searchParams?.term ?? confirmedTerm;
       const day = searchParams?.day ?? confirmedDay;
       const period = searchParams?.period ?? confirmedPeriod;
@@ -218,6 +225,7 @@ const LectureList = () => {
       if (gradingType) params.append('grading_type', gradingType);
       if (contentDifficulty) params.append('content_difficulty', contentDifficulty);
       if (contentQuality) params.append('content_quality', contentQuality);
+      if (offeringYear) params.append('offering_year', offeringYear);
       if (term) params.append('term', term);
       if (day) params.append('day', day);
       if (period) params.append('period', period);
@@ -238,7 +246,7 @@ const LectureList = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, confirmedTerm, confirmedDay, confirmedPeriod]);
+  }, [confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, confirmedOfferingYear, confirmedTerm, confirmedDay, confirmedPeriod]);
 
   // 初期化用のuseEffect
   useEffect(() => {
@@ -246,6 +254,7 @@ const LectureList = () => {
     setTempSearchWord(initialState.searchWord);
     setTempSelectedFaculty(initialState.selectedFaculty);
     setTempSortType(initialState.sortType);
+    setTempOfferingYear(initialState.offeringYear);
     setTempTerm(initialState.term);
     setTempDay(initialState.day);
     setTempPeriod(initialState.period);
@@ -263,6 +272,7 @@ const LectureList = () => {
     setConfirmedSearchWord(initialState.searchWord);
     setConfirmedSelectedFaculty(initialState.selectedFaculty);
     setConfirmedSortType(initialState.sortType);
+    setConfirmedOfferingYear(initialState.offeringYear);
     setConfirmedTerm(initialState.term);
     setConfirmedDay(initialState.day);
     setConfirmedPeriod(initialState.period);
@@ -288,6 +298,7 @@ const LectureList = () => {
         grading_type: initialState.gradingType,
         content_difficulty: initialState.contentDifficulty,
         content_quality: initialState.contentQuality,
+        offering_year: initialState.offeringYear,
         term: initialState.term,
         day: initialState.day,
         period: initialState.period,
@@ -308,6 +319,7 @@ const LectureList = () => {
         gradingType: initialState.gradingType,
         contentDifficulty: initialState.contentDifficulty,
         contentQuality: initialState.contentQuality,
+        offeringYear: initialState.offeringYear,
         term: initialState.term,
         day: initialState.day,
         period: initialState.period
@@ -345,6 +357,7 @@ const LectureList = () => {
     setConfirmedGradingType(tempGradingType);
     setConfirmedContentDifficulty(tempContentDifficulty);
     setConfirmedContentQuality(tempContentQuality);
+    setConfirmedOfferingYear(tempOfferingYear);
     setConfirmedTerm(tempTerm);
     setConfirmedDay(tempDay);
     setConfirmedPeriod(tempPeriod);
@@ -364,6 +377,7 @@ const LectureList = () => {
       gradingType: tempGradingType,
       contentDifficulty: tempContentDifficulty,
       contentQuality: tempContentQuality,
+      offeringYear: tempOfferingYear,
       term: tempTerm,
       day: tempDay,
       period: tempPeriod
@@ -382,12 +396,13 @@ const LectureList = () => {
       grading_type: tempGradingType,
       content_difficulty: tempContentDifficulty,
       content_quality: tempContentQuality,
+      offering_year: tempOfferingYear,
       term: tempTerm,
       day: tempDay,
       period: tempPeriod,
       detailed: 'false'
     });
-  }, [tempSearchWord, tempSelectedFaculty, tempSortType, tempPeriodYear, tempPeriodTerm, tempTextbook, tempAttendance, tempGradingType, tempContentDifficulty, tempContentQuality, tempTerm, tempDay, tempPeriod, updateURL, fetchLectures]);
+  }, [tempSearchWord, tempSelectedFaculty, tempSortType, tempPeriodYear, tempPeriodTerm, tempTextbook, tempAttendance, tempGradingType, tempContentDifficulty, tempContentQuality, tempOfferingYear, tempTerm, tempDay, tempPeriod, updateURL, fetchLectures]);
 
   // エンターキー押下時のハンドラー
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -415,6 +430,7 @@ const LectureList = () => {
         grading_type: confirmedGradingType,
         content_difficulty: confirmedContentDifficulty,
         content_quality: confirmedContentQuality,
+        offering_year: confirmedOfferingYear,
         term: confirmedTerm,
         day: confirmedDay,
         period: confirmedPeriod,
@@ -423,7 +439,7 @@ const LectureList = () => {
 
       fetchLectures(page);
     }
-  }, [paginationInfo.total_pages, confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, confirmedTerm, confirmedDay, confirmedPeriod, showDetailedSearch, updateURL, fetchLectures]);
+  }, [paginationInfo.total_pages, confirmedSearchWord, confirmedSelectedFaculty, confirmedSortType, confirmedPeriodYear, confirmedPeriodTerm, confirmedTextbook, confirmedAttendance, confirmedGradingType, confirmedContentDifficulty, confirmedContentQuality, confirmedOfferingYear, confirmedTerm, confirmedDay, confirmedPeriod, showDetailedSearch, updateURL, fetchLectures]);
 
   // 選択変更ハンドラー（一時的な状態のみ更新）
   const handleSelectChange = useCallback((setStateFunc: React.Dispatch<React.SetStateAction<string>>) =>
@@ -440,6 +456,7 @@ const LectureList = () => {
     setTempGradingType('');
     setTempContentDifficulty('');
     setTempContentQuality('');
+    setTempOfferingYear('');
     setTempTerm('');
     setTempDay('');
     setTempPeriod('');
@@ -706,7 +723,18 @@ const LectureList = () => {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                            <div className="flex items-center gap-2 sm:flex-col sm:items-stretch md:flex-row">
+                              <label htmlFor="offering-year-select" className="text-sm font-bold text-gray-800 whitespace-nowrap">
+                                <FaCalendarAlt className="mr-1 inline text-blue-500" aria-hidden="true" />開講年度
+                              </label>
+                              <select id="offering-year-select" value={tempOfferingYear} onChange={handleSelectChange(setTempOfferingYear)} className="w-full rounded-xl border-2 border-green-400 bg-white px-3 py-2.5 text-sm font-semibold text-gray-600 focus:border-green-500 focus:outline-none">
+                                <option value="">最新年度</option>
+                                {reviewYearOptions.map((year) => (
+                                  <option key={year} value={year}>{year}年度</option>
+                                ))}
+                              </select>
+                            </div>
                             <div className="flex items-center gap-2 sm:flex-col sm:items-stretch md:flex-row">
                               <label htmlFor="term-select" className="text-sm font-bold text-gray-800 whitespace-nowrap">
                                 <FaClock className="mr-1 inline text-emerald-500" aria-hidden="true" />ターム
@@ -717,7 +745,8 @@ const LectureList = () => {
                                 <option value="2">第2ターム</option>
                                 <option value="3">第3ターム</option>
                                 <option value="4">第4ターム</option>
-                                <option value="intensive">集中・その他</option>
+                                <option value="intensive">集中</option>
+                                <option value="other">その他・時間外</option>
                               </select>
                             </div>
                             <div className="flex items-center gap-2 sm:flex-col sm:items-stretch md:flex-row">
