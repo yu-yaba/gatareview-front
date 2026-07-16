@@ -8,16 +8,16 @@ export default function Footer() {
   const currentYear = getCurrentJapanYear();
 
   return (
-    <footer className="mt-20 border-t border-gray-200 bg-gray-50">
-      <div className="w-full max-w-6xl mx-auto px-4 md:px-8 py-8">
+    <footer className="mt-20 border-t border-gray-200/80 bg-gray-50/80">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-8 py-10">
         {/* Links section */}
         <div className="mb-8">
-          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 md:gap-x-6">
             <a
               href="https://forms.gle/2EU6Yud7f5YXeJX18"
               target="_blank"
               rel="noreferrer"
-              className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1"
+              className="text-gray-600 hover:text-green-700 text-sm md:text-base transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 rounded-md px-2 py-1"
             >
               削除依頼
             </a>
@@ -26,27 +26,27 @@ export default function Footer() {
               href="https://forms.gle/kawPCGBi6NB5pfQz8"
               target="_blank"
               rel="noreferrer"
-              className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1"
+              className="text-gray-600 hover:text-green-700 text-sm md:text-base transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 rounded-md px-2 py-1"
             >
               お問い合わせ
             </a>
 
-            <Link href="/faq" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
+            <Link href="/faq" className="text-gray-600 hover:text-green-700 text-sm md:text-base transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 rounded-md px-2 py-1">
               FAQ
             </Link>
 
-            <Link href="/terms" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
+            <Link href="/terms" className="text-gray-600 hover:text-green-700 text-sm md:text-base transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 rounded-md px-2 py-1">
               利用規約
             </Link>
 
-            <Link href="/privacy" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
+            <Link href="/privacy" className="text-gray-600 hover:text-green-700 text-sm md:text-base transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 rounded-md px-2 py-1">
               プライバシーポリシー
             </Link>
           </div>
         </div>
 
         {/* Brand section */}
-        <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 py-4">
+        <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 border-t border-gray-200/70 pt-7">
           <Image
             src="/green-footer-title.png"
             alt="ガタレビュ - 新潟大学授業レビューサイト"

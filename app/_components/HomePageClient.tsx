@@ -271,7 +271,7 @@ const ReviewCounter = memo<ReviewCounterProps>(({ displayedCount, countingComple
 
       <div className="relative z-20 flex items-center">
         <div className="mr-4 lg:mr-6 xl:mr-8 bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-3xl p-3 lg:p-5 xl:p-6 text-white text-xl lg:text-2xl xl:text-3xl shadow-2xl group-hover:shadow-green-500/25 transition-all duration-700 genius-icon">
-          <FaCommentAlt className="transform group-hover:scale-110 transition-transform duration-700" />
+          <FaCommentAlt className="transform group-hover:scale-105 transition-transform duration-500" />
           <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-600 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 animate-pulse"></div>
         </div>
 
@@ -356,7 +356,7 @@ const SearchSection = memo<SearchSectionProps>(({
 
           <button
             onClick={handleSearch}
-            className="w-full sm:w-auto lg:w-32 xl:w-36 2xl:w-40 px-5 lg:px-6 xl:px-8 2xl:px-10 py-3 lg:py-3.5 xl:py-4 2xl:py-5 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl animate-card-hover-lift relative overflow-hidden group text-sm lg:text-base xl:text-lg 2xl:text-xl"
+            className="w-full sm:w-auto lg:w-32 xl:w-36 2xl:w-40 px-5 lg:px-6 xl:px-8 2xl:px-10 py-3 lg:py-3.5 xl:py-4 2xl:py-5 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg relative overflow-hidden group text-sm lg:text-base xl:text-lg 2xl:text-xl"
           >
             <span className="relative z-10">検索</span>
             <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -376,7 +376,7 @@ interface StatsCardProps {
 }
 
 const StatsCard = memo<StatsCardProps>(({ stat, index }) => (
-  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-2xl hover:shadow-green-400/20 transition-all duration-700 hover:scale-105 animate-card-hover-lift group relative overflow-hidden">
+  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-xl hover:shadow-green-400/20 transition-all duration-500 hover:-translate-y-0.5 group relative overflow-hidden">
     <div className={COMMON_CLASSES.cardDecoration}></div>
     <div className={COMMON_CLASSES.cardShimmer}>
       <div className="absolute inset-0 animate-shimmer rounded-3xl"></div>
@@ -386,7 +386,7 @@ const StatsCard = memo<StatsCardProps>(({ stat, index }) => (
     <div className="absolute bottom-2 left-2 w-1 h-1 bg-white/40 rounded-full animate-float opacity-60" style={{ animationDelay: ANIMATION_DELAYS.SMALL }}></div>
 
     <div className="relative z-10">
-      <div className="text-3xl lg:text-4xl text-white mb-4 flex justify-center transform group-hover:scale-110 transition-transform duration-700 genius-icon">
+      <div className="text-3xl lg:text-4xl text-white mb-4 flex justify-center transform group-hover:scale-105 transition-transform duration-500 genius-icon">
         {stat.icon}
       </div>
       <div className="text-3xl lg:text-4xl font-bold text-white mb-2 genius-number">{stat.number}</div>
@@ -406,7 +406,7 @@ interface FeatureCardProps {
 }
 
 const FeatureCard = memo<FeatureCardProps>(({ feature, index }) => (
-  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-2xl hover:shadow-green-400/20 transition-all duration-700 hover:scale-105 animate-card-hover-lift group relative overflow-hidden">
+  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-xl hover:shadow-green-400/20 transition-all duration-500 hover:-translate-y-0.5 group relative overflow-hidden">
     <div className={COMMON_CLASSES.cardDecoration}></div>
     <div className={COMMON_CLASSES.cardShimmer}>
       <div className="absolute inset-0 animate-shimmer rounded-3xl"></div>
@@ -419,7 +419,7 @@ const FeatureCard = memo<FeatureCardProps>(({ feature, index }) => (
     </div>
 
     <div className="relative z-10">
-      <div className="mb-4 lg:mb-6 flex justify-center transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 genius-icon">
+      <div className="mb-4 lg:mb-6 flex justify-center transform group-hover:scale-105 transition-all duration-500 genius-icon">
         {feature.icon}
       </div>
       <h3 className="text-lg lg:text-xl font-bold text-white mb-4 transform group-hover:translate-y-1 transition-transform duration-700">{feature.title}</h3>
@@ -441,7 +441,7 @@ const ReviewCard = memo<ReviewCardProps>(({ review, index }) => (
   <div className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
     <Link
       href={`/lectures/${review.lecture.id}`}
-      className="block w-full bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+      className="block w-full bg-white rounded-3xl p-6 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
     >
       <div className="space-y-4 h-full flex flex-col">
         <div className="space-y-2 flex-grow">
@@ -496,7 +496,7 @@ interface LectureCardProps {
 }
 
 const LectureCard = memo<LectureCardProps>(({ lecture, showReviewInfo = true, isWaitingForReview = false }) => (
-  <Link href={`/lectures/${lecture.id}`} className="block bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group w-full">
+  <Link href={`/lectures/${lecture.id}`} className="block bg-white rounded-3xl p-6 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group w-full">
     <div className="space-y-4 h-full flex flex-col">
       <div className="space-y-2 flex-grow">
         <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
@@ -854,7 +854,7 @@ export default function HomePageClient({
                       href="https://docs.google.com/forms/d/e/1FAIpQLScencxVkV7P5sXKi9GkqlyIbAnQblG_yGciERVgsomicq_7Hw/viewform"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block w-full px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="inline-block w-full px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg"
                     >
                       お問い合わせ
                     </a>
@@ -904,7 +904,7 @@ export default function HomePageClient({
               <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 xl:gap-8 justify-center max-w-2xl mx-auto">
                 <button
                   onClick={handleNavigateToReviewCreate}
-                  className="px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 lg:py-4 xl:py-5 2xl:py-6 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl flex items-center justify-center text-sm lg:text-base xl:text-lg 2xl:text-xl"
+                  className="px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 lg:py-4 xl:py-5 2xl:py-6 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center text-sm lg:text-base xl:text-lg 2xl:text-xl"
                 >
                   <FaHeart className="mr-2 lg:mr-3" />
                   <span>レビューを投稿する</span>
@@ -912,7 +912,7 @@ export default function HomePageClient({
 
                 <button
                   onClick={handleNavigateToLectures}
-                  className="px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 lg:py-4 xl:py-5 2xl:py-6 bg-transparent border-2 border-green-500 text-green-600 font-bold rounded-2xl hover:bg-green-50 transform hover:scale-105 transition-all duration-500 flex items-center justify-center text-sm lg:text-base xl:text-lg 2xl:text-xl"
+                  className="px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 lg:py-4 xl:py-5 2xl:py-6 bg-transparent border-2 border-green-500 text-green-600 font-bold rounded-2xl hover:bg-green-50 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center text-sm lg:text-base xl:text-lg 2xl:text-xl"
                 >
                   <FaLightbulb className="mr-2 lg:mr-3" />
                   <span>授業を探す</span>

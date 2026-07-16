@@ -39,6 +39,28 @@ body {
     "Hiragino Sans",
     Meiryo,
     sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #a7f3d0;
+  color: #064e3b;
+}
+
+:where(a, button) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid rgba(29, 190, 103, 0.38);
+  outline-offset: 3px;
+}
+
+:where(input, select, textarea) {
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
 
 /* ========================================
@@ -1754,6 +1776,19 @@ _:future,
 
 /* レスポンシブな効果無効化 */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   .gradient-cosmic,
   .gradient-aurora,
   .gradient-plasma,
