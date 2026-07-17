@@ -17,8 +17,27 @@ function calculateAverageRating(reviews: ReviewSchema[]) {
   return averageRating.toFixed(1);
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const lecture = await getLectureForPage(params.id);
+type PageProps = {
+  params: { id: string };
+  searchParams?: { offering_id?: string | string[] };
+};
+
+export default async function Page({ params, searchParams }: PageProps) {
+  const offeringParam = searchParams?.offering_id;
+  let offeringId: number | undefined;
+  if (offeringParam !== undefined) {
+    const rawOfferingId = Array.isArray(offeringParam) && offeringParam.length === 1
+      ? offeringParam[0]
+      : Array.isArray(offeringParam)
+        ? null
+        : offeringParam;
+    const parsedOfferingId = rawOfferingId && /^[1-9]\d*$/.test(rawOfferingId)
+      ? Number(rawOfferingId)
+      : Number.NaN;
+    if (!Number.isSafeInteger(parsedOfferingId)) notFound();
+    offeringId = parsedOfferingId;
+  }
+  const lecture = await getLectureForPage(params.id, offeringId);
 
   if (!lecture) {
     notFound();

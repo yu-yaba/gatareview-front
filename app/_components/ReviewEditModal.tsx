@@ -23,6 +23,7 @@ interface ReviewEditModalProps {
     content_quality: string
     period_year: string
     period_term: string
+    lecture_offering_id?: number | null
   }
   onSave: (updatedReview: any) => void
   onDelete?: (reviewId: number) => void
@@ -56,13 +57,17 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
     setIsLoading(true)
     
     try {
+      const periodChanged = formData.period_year !== review.period_year || formData.period_term !== review.period_term
+      const reviewPayload: typeof formData & { lecture_offering_id?: null } = { ...formData }
+      if (periodChanged) reviewPayload.lecture_offering_id = null
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${review.id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${session.backendToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ review: formData })
+        body: JSON.stringify({ review: reviewPayload })
       })
       
       const responseData = await res.json();

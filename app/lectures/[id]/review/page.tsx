@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../../_helpers/helpers';
 import { getReviewYearOptions } from '../../../_helpers/reviewYears';
 import { success } from '@/app/_helpers/notifications';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { reviewApi } from '../../../_helpers/api';
 import Loading from 'react-loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
@@ -27,6 +27,23 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [ratingValue, setRatingValue] = useState(3);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedOfferingValues = searchParams.getAll('offering_id');
+  const hasRequestedOffering = searchParams.has('offering_id');
+  const rawRequestedOffering = requestedOfferingValues[0] ?? '';
+  const parsedRequestedOffering = /^[1-9]\d*$/.test(rawRequestedOffering)
+    ? Number(rawRequestedOffering)
+    : Number.NaN;
+  const requestedOfferingParam = hasRequestedOffering
+    ? requestedOfferingValues.length === 1 && Number.isSafeInteger(parsedRequestedOffering)
+      ? rawRequestedOffering
+      : '__invalid__'
+    : null;
+  const initialOfferingReview = useRef<{
+    offeringId: number;
+    periodYear: string;
+    periodTerm: string;
+  } | null>(null);
 
   // フィールド設定の型定義
   interface SelectFieldConfig {
@@ -85,38 +102,59 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   // 講義詳細取得
   useEffect(() => {
+    const controller = new AbortController();
     const fetchLecture = async () => {
       try {
         setIsLoadingLecture(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`);
+        setLecture(null);
+        setReview(null);
+        initialOfferingReview.current = null;
+        const offeringQuery = requestedOfferingParam !== null
+          ? `?offering_id=${encodeURIComponent(requestedOfferingParam)}`
+          : '';
+        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}${offeringQuery}`, {
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error(response.statusText);
         const data = await response.json();
         setLecture(data);
 
         // レビューデータの初期化
+        const initialPeriodYear = data.offering?.year?.toString() ?? '';
+        const initialPeriodTerm = reviewTermForOffering(data.offering?.term_label ?? null);
+        initialOfferingReview.current = data.offering
+          ? {
+              offeringId: data.offering.id,
+              periodYear: initialPeriodYear,
+              periodTerm: initialPeriodTerm,
+            }
+          : null;
         setReview({
           lecture_id: data.id,
           rating: 3,
-          period_year: data.offering?.year?.toString() ?? '',
-          period_term: reviewTermForOffering(data.offering?.term_label ?? null),
+          period_year: initialPeriodYear,
+          period_term: initialPeriodTerm,
           textbook: '',
           attendance: '',
           grading_type: '',
           content_difficulty: '',
           content_quality: '',
           content: '',
+          lecture_offering_id: data.offering?.id ?? null,
         });
         setRatingValue(3);
       } catch (error) {
+        if (controller.signal.aborted) return;
         handleAjaxError("授業の取得に失敗しました");
         router.push('/reviews/new');
       } finally {
-        setIsLoadingLecture(false);
+        if (!controller.signal.aborted) setIsLoadingLecture(false);
       }
     };
 
     fetchLecture();
-  }, [params.id, router]);
+    return () => controller.abort();
+  }, [params.id, router, requestedOfferingParam]);
 
   // レビューフォームのロジック（最適化）
   const updateReview = useCallback((name: string, value: string | number) => {
@@ -326,14 +364,24 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
     if (!lecture) return;
     try {
       setIsLoading(true);
+      const initialOffering = initialOfferingReview.current;
+      const matchesDisplayedOffering = Boolean(
+        initialOffering &&
+        newReview.period_year === initialOffering.periodYear &&
+        newReview.period_term === initialOffering.periodTerm
+      );
       const res = await reviewApi.createReview(lecture.id.toString(), {
-        review: newReview,
+        review: {
+          ...newReview,
+          lecture_offering_id: matchesDisplayedOffering ? initialOffering?.offeringId : null,
+        },
         token,
       });
 
       if (res.data.success) {
         success('レビューを登録しました');
-        router.push(`/lectures/${lecture.id}`);
+        const offeringQuery = lecture.offering ? `?offering_id=${lecture.offering.id}` : '';
+        router.push(`/lectures/${lecture.id}${offeringQuery}`);
       } else {
         handleAjaxError(res.data.message || res.data.errors?.[0] || "レビューの登録に失敗しました");
       }
@@ -382,8 +430,9 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
   }, [review, addReview]);
 
   const handleBack = useCallback(() => {
-    router.push(`/lectures/${params.id}`);
-  }, [params.id, router]);
+    const offeringQuery = lecture?.offering ? `?offering_id=${lecture.offering.id}` : '';
+    router.push(`/lectures/${params.id}${offeringQuery}`);
+  }, [params.id, router, lecture]);
 
   if (isLoadingLecture || !lecture) {
     return (

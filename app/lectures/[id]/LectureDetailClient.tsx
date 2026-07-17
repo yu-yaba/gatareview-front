@@ -47,6 +47,7 @@ const LectureDetailClient = ({
   const { user, isAuthenticated } = useAuth();
 
   const canViewReviews = reviews.access.access_granted;
+  const offeringQuery = lecture.offering ? `?offering_id=${lecture.offering.id}` : '';
 
   // レビュー編集機能
   const handleEditReview = (review: ReviewSchema) => {
@@ -161,7 +162,7 @@ const LectureDetailClient = ({
 
           {/* レビューボタン */}
           <div className="flex justify-center mb-8">
-            <Link href={`/lectures/${lectureId}/review`}>
+            <Link href={`/lectures/${lectureId}/review${offeringQuery}`}>
               <button
                 type="button"
                 className="px-10 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group"

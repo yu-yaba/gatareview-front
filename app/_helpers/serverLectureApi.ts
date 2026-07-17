@@ -66,8 +66,9 @@ export async function getLectureForMetadata(id: string): Promise<LectureSchema |
   });
 }
 
-export async function getLectureForPage(id: string): Promise<LectureSchema | null> {
-  return fetchJson<LectureSchema>(`/api/v1/lectures/${id}`, {
+export async function getLectureForPage(id: string, offeringId?: number): Promise<LectureSchema | null> {
+  const query = offeringId ? `?offering_id=${offeringId}` : '';
+  return fetchJson<LectureSchema>(`/api/v1/lectures/${id}${query}`, {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
   });
 }

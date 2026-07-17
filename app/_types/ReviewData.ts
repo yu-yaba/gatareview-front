@@ -11,4 +11,5 @@ export type ReviewData = {
   period_term: string;
   academic_year?: number | null;
   term_code?: string | null;
+  lecture_offering_id?: number | null;
 }

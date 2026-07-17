@@ -534,7 +534,7 @@ const LectureList = () => {
   // 講義リストをメモ化
   const lectureElements = useMemo(() => {
     return fetchedLectures.map((lecture) => (
-      <Link href={`/lectures/${lecture.id}`} key={lecture.id} className="block w-full">
+      <Link href={`/lectures/${lecture.id}${lecture.offering ? `?offering_id=${lecture.offering.id}` : ''}`} key={lecture.id} className="block w-full">
         <div className="mx-auto mb-4 p-4 md:p-5 lg:p-6 rounded-2xl md:rounded-3xl bg-white border border-1 shadow-md w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition duration-150">
           {/* メインコンテンツ */}
           <div className="flex flex-col md:flex-row md:items-center">

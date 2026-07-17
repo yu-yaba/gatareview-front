@@ -8,9 +8,10 @@ type TimetableGridProps = {
   year: number;
   term: number;
   onDelete: (entry: TimetableEntry) => void;
+  disabled?: boolean;
 }
 
-export default function TimetableGrid({ entries, year, term, onDelete }: TimetableGridProps) {
+export default function TimetableGrid({ entries, year, term, onDelete, disabled = false }: TimetableGridProps) {
   const days = [1, 2, 3, 4, 5, 6, 7].filter((day) => day <= 5 || entries.some((entry) => entry.day === day))
   const periods = [1, 2, 3, 4, 5, 6, 7].filter((period) => period <= 5 || entries.some((entry) => entry.period === period))
   const entryFor = (day: number, period: number) => entries.find((entry) => entry.day === day && entry.period === period)
@@ -30,15 +31,18 @@ export default function TimetableGrid({ entries, year, term, onDelete }: Timetab
               <th className="bg-gray-50/70 p-3 text-gray-500">{period}限</th>
               {days.map((day) => {
                 const entry = entryFor(day, period)
+                const offeringQuery = entry?.lecture_offering_id && entry.lecture_offering_status === 'active'
+                  ? `?offering_id=${entry.lecture_offering_id}`
+                  : ''
                 return (
                   <td key={day} className="h-28 border-l border-gray-100 p-2 align-top">
                     {entry ? (
                       <div className="flex h-full flex-col rounded-xl border border-green-100 bg-green-50 p-3 text-green-950">
-                        <Link href={`/lectures/${entry.lecture.id}`} className="line-clamp-2 font-bold leading-5 hover:text-green-700">
+                        <Link href={`/lectures/${entry.lecture.id}${offeringQuery}`} className="line-clamp-2 font-bold leading-5 hover:text-green-700">
                           {entry.lecture.title}
                         </Link>
                         <p className="mt-2 flex items-center gap-1 text-xs font-bold text-amber-600"><FaStar />{entry.lecture.avg_rating.toFixed(1)}</p>
-                        <button type="button" onClick={() => onDelete(entry)} className="mt-auto text-left text-xs font-bold text-red-600 hover:text-red-700">
+                        <button type="button" onClick={() => onDelete(entry)} disabled={disabled} className="mt-auto text-left text-xs font-bold text-red-600 hover:text-red-700 disabled:opacity-50">
                           <FaTrash className="mr-1 inline" />削除
                         </button>
                       </div>

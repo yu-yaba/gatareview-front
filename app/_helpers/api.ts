@@ -156,20 +156,29 @@ export const mypageApi = {
 }
 
 export const timetableApi = {
-  get: (year?: number, term?: number) => {
+  get: (year?: number, term?: number, signal?: AbortSignal) => {
     const params = new URLSearchParams()
     if (year) params.set('year', String(year))
     if (term !== undefined) params.set('term', String(term))
-    return apiRequest.get<TimetableData>(`/timetable?${params.toString()}`)
+    return apiRequest.get<TimetableData>(`/timetable?${params.toString()}`, { signal })
   },
-  createEntries: (lectureId: number, year: number, placements: TimetablePlacement[], replace = false, lectureOfferingId?: number) =>
-    apiRequest.post<{ success: boolean; message?: string; errors?: string[]; conflicts?: TimetableEntry[]; entries?: TimetableEntry[] }>('/timetable/entries', {
+  createEntries: (lectureId: number, year: number, placements: TimetablePlacement[], replace = false, lectureOfferingId?: number) => {
+    const payload: {
+      lecture_id: number;
+      year: number;
+      placements: TimetablePlacement[];
+      replace: boolean;
+      lecture_offering_id?: number;
+    } = {
       lecture_id: lectureId,
-      lecture_offering_id: lectureOfferingId,
       year,
       placements,
       replace,
-    }),
+    }
+    if (lectureOfferingId !== undefined) payload.lecture_offering_id = lectureOfferingId
+
+    return apiRequest.post<{ success: boolean; message?: string; errors?: string[]; conflicts?: TimetableEntry[]; entries?: TimetableEntry[] }>('/timetable/entries', payload)
+  },
   deleteEntry: (id: number, allForLecture = false) =>
     apiRequest.delete<{ success: boolean; message?: string }>(`/timetable/entries/${id}${allForLecture ? '?all_for_lecture=true' : ''}`),
 }
