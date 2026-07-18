@@ -10,9 +10,10 @@ interface LoginPromptModalProps {
   isOpen: boolean
   onClose: () => void
   featureType: 'bookmark' | 'thanks' | 'timetable'
+  forceReauthentication?: boolean
 }
 
-export default function LoginPromptModal({ isOpen, onClose, featureType }: LoginPromptModalProps) {
+export default function LoginPromptModal({ isOpen, onClose, featureType, forceReauthentication = false }: LoginPromptModalProps) {
   const getFeatureInfo = () => {
     switch (featureType) {
       case 'bookmark':
@@ -120,7 +121,7 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
 
           {/* アクションボタン */}
           <div className="space-y-2">
-            <Link href="/auth/signin" onClick={onClose}>
+            <Link href={forceReauthentication ? '/auth/signin?force=true' : '/auth/signin'} onClick={onClose}>
               <button className={`w-full px-4 py-3 bg-gradient-to-r ${featureInfo.color} text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative overflow-hidden`}>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                 <FaRocket className="mr-2 group-hover:animate-bounce" />

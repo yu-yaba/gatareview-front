@@ -9,6 +9,7 @@ export type OfferingData = {
   id: number;
   year: number;
   term_label: string | null;
+  term_code: string | null;
   term_numbers: number[];
   schedule_kind?: 'regular' | 'intensive' | 'other' | 'unknown';
   source_title?: string | null;

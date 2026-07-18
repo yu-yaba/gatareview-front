@@ -2,11 +2,14 @@
 
 import { FormEvent, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import Modal from 'react-modal'
 import { FaCalendarPlus, FaSpinner } from 'react-icons/fa'
 import type { OfferingData } from '@/app/_types/LectureSchema'
 import type { TimetableEntry, TimetablePlacement } from '@/app/_types/TimetableData'
 import { DAY_LABELS } from '@/app/_helpers/offering'
 import { timetableApi } from '@/app/_helpers/api'
+import { getCurrentAcademicTerm, getCurrentAcademicYear } from '@/app/_helpers/academicCalendar'
+import { getModalAppElement } from '@/app/_helpers/modalAppElement'
 import LoginPromptModal from './LoginPromptModal'
 
 type TimetableButtonProps = { lectureId: number; offering: OfferingData | null }
@@ -21,14 +24,6 @@ type PlacementTarget = {
 const terms = [1, 2, 3, 4]
 const days = [1, 2, 3, 4, 5, 6, 7]
 const periods = [1, 2, 3, 4, 5, 6, 7]
-
-function currentTerm() {
-  const month = new Date().getMonth() + 1
-  if (month === 4 || month === 5) return 1
-  if (month >= 6 && month <= 8) return 2
-  if (month >= 9 && month <= 11) return 3
-  return 4
-}
 
 function automaticTarget(offering: OfferingData | null): PlacementTarget | null {
   if (!offering || offering.schedule_kind === 'unknown') return null
@@ -70,13 +65,15 @@ function conflictLabel(entry: TimetableEntry) {
 
 export default function TimetableButton({ lectureId, offering }: TimetableButtonProps) {
   const { data: session, status } = useSession()
+  const backendToken = session?.backendToken?.trim()
   const autoTarget = useMemo(() => automaticTarget(offering), [offering])
   const [loading, setLoading] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [requiresReauthentication, setRequiresReauthentication] = useState(false)
   const [showPlacementModal, setShowPlacementModal] = useState(false)
   const [mode, setMode] = useState<PlacementMode>('manual')
-  const [manualYear, setManualYear] = useState(offering?.year ?? new Date().getFullYear())
-  const [manualTerms, setManualTerms] = useState<number[]>([currentTerm()])
+  const [manualYear, setManualYear] = useState(() => offering?.year ?? getCurrentAcademicYear())
+  const [manualTerms, setManualTerms] = useState<number[]>(() => [getCurrentAcademicTerm()])
   const [manualDay, setManualDay] = useState(offering?.slots[0]?.day ?? 1)
   const [manualPeriod, setManualPeriod] = useState(offering?.slots[0]?.period ?? 1)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -84,9 +81,9 @@ export default function TimetableButton({ lectureId, offering }: TimetableButton
   const openPlacementModal = () => {
     const suggestedTerms = offering?.term_numbers.length
       ? offering.term_numbers
-      : [currentTerm()]
+      : [getCurrentAcademicTerm()]
     setMode(autoTarget ? 'automatic' : 'manual')
-    setManualYear(offering?.year ?? new Date().getFullYear())
+    setManualYear(offering?.year ?? getCurrentAcademicYear())
     setManualTerms(suggestedTerms)
     setManualDay(offering?.slots[0]?.day ?? 1)
     setManualPeriod(offering?.slots[0]?.period ?? 1)
@@ -152,14 +149,25 @@ export default function TimetableButton({ lectureId, offering }: TimetableButton
           target.year,
           target.placements,
           true,
-          target.source === 'automatic' ? target.lectureOfferingId : undefined
+          target.source === 'automatic' ? target.lectureOfferingId : undefined,
+          conflicts.map((entry) => entry.id),
         )
       }
 
       setShowPlacementModal(false)
       window.alert('時間割に追加しました')
     } catch (error: any) {
-      setSubmitError(error.response?.data?.errors?.[0] || '時間割への追加に失敗しました')
+      if (error.response?.status === 401) {
+        setShowPlacementModal(false)
+        setRequiresReauthentication(true)
+        setShowLoginModal(true)
+        return
+      }
+      setSubmitError(
+        error.response?.data?.errors?.[0] ||
+        error.response?.data?.message ||
+        '時間割への追加に失敗しました'
+      )
     } finally {
       setLoading(false)
     }
@@ -179,13 +187,18 @@ export default function TimetableButton({ lectureId, offering }: TimetableButton
   if (status === 'loading') {
     return <button type="button" disabled className={buttonClassName}><FaSpinner className="animate-spin" />確認中</button>
   }
-  if (!session) {
+  if (!backendToken) {
     return (
       <>
         <button type="button" onClick={() => setShowLoginModal(true)} className="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200">
           <FaCalendarPlus />時間割に追加
         </button>
-        <LoginPromptModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} featureType="timetable" />
+        <LoginPromptModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          featureType="timetable"
+          forceReauthentication={Boolean(session)}
+        />
       </>
     )
   }
@@ -196,15 +209,19 @@ export default function TimetableButton({ lectureId, offering }: TimetableButton
         {loading ? <FaSpinner className="animate-spin" /> : <FaCalendarPlus />}時間割に追加
       </button>
 
-      {showPlacementModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation">
-          <form
-            onSubmit={submit}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="timetable-placement-title"
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 text-left shadow-2xl sm:p-8"
-          >
+      <Modal
+        isOpen={showPlacementModal}
+        onRequestClose={() => {
+          if (!loading) setShowPlacementModal(false)
+        }}
+        appElement={getModalAppElement()}
+        contentLabel="時間割への追加"
+        shouldCloseOnEsc={!loading}
+        shouldCloseOnOverlayClick={!loading}
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 text-left shadow-2xl outline-none sm:p-8"
+        overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      >
+          <form onSubmit={submit}>
             <h2 id="timetable-placement-title" className="text-2xl font-bold text-gray-900">時間割への追加</h2>
             <p className="mt-2 text-sm text-gray-600">登録する年度とコマを確認してください。</p>
 
@@ -308,8 +325,14 @@ export default function TimetableButton({ lectureId, offering }: TimetableButton
               </button>
             </div>
           </form>
-        </div>
-      )}
+      </Modal>
+
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        featureType="timetable"
+        forceReauthentication={requiresReauthentication}
+      />
     </>
   )
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../../_helpers/helpers';
-import { getReviewYearOptions } from '../../../_helpers/reviewYears';
+import { getReviewYearOptions, reviewAcademicYear } from '../../../_helpers/reviewYears';
 import { success } from '@/app/_helpers/notifications';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
@@ -11,7 +11,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { reviewApi } from '../../../_helpers/api';
 import Loading from 'react-loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
-import { reviewTermForOffering } from '@/app/_helpers/offering';
+import {
+  offeringTermCode,
+  REVIEW_TERM_OPTIONS,
+  reviewTermCode,
+  reviewTermForOffering,
+} from '@/app/_helpers/offering';
 
 declare global {
   interface Window {
@@ -41,8 +46,8 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
     : null;
   const initialOfferingReview = useRef<{
     offeringId: number;
-    periodYear: string;
-    periodTerm: string;
+    academicYear: number;
+    termCode: string | null;
   } | null>(null);
 
   // フィールド設定の型定義
@@ -66,7 +71,7 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
       id: 'period_term',
       name: 'period_term',
       label: '開講',
-      options: ['1ターム', '2ターム', '1, 2ターム', '3ターム', '4ターム', '3, 4ターム', '通年', '集中', 'その他・不明']
+      options: [...REVIEW_TERM_OPTIONS, 'その他・不明']
     },
     {
       id: 'textbook',
@@ -116,17 +121,18 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
           signal: controller.signal,
         });
         if (!response.ok) throw new Error(response.statusText);
-        const data = await response.json();
+        const data: LectureSchema = await response.json();
         setLecture(data);
 
         // レビューデータの初期化
         const initialPeriodYear = data.offering?.year?.toString() ?? '';
-        const initialPeriodTerm = reviewTermForOffering(data.offering?.term_label ?? null);
+        const initialTermCode = offeringTermCode(data.offering?.term_code, data.offering?.term_label);
+        const initialPeriodTerm = reviewTermForOffering(initialTermCode, data.offering?.term_label);
         initialOfferingReview.current = data.offering
           ? {
               offeringId: data.offering.id,
-              periodYear: initialPeriodYear,
-              periodTerm: initialPeriodTerm,
+              academicYear: data.offering.year,
+              termCode: initialTermCode,
             }
           : null;
         setReview({
@@ -134,6 +140,8 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
           rating: 3,
           period_year: initialPeriodYear,
           period_term: initialPeriodTerm,
+          academic_year: data.offering?.year ?? null,
+          term_code: initialTermCode,
           textbook: '',
           attendance: '',
           grading_type: '',
@@ -158,9 +166,28 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
 
   // レビューフォームのロジック（最適化）
   const updateReview = useCallback((name: string, value: string | number) => {
-    if (!review) return;
-    setReview((prevReview) => ({ ...prevReview!, [name]: value }));
-  }, [review]);
+    setReview((currentReview) => {
+      if (!currentReview) return currentReview;
+      if (name === 'period_year') {
+        const periodYear = String(value);
+        return {
+          ...currentReview,
+          period_year: periodYear,
+          academic_year: reviewAcademicYear(periodYear),
+        };
+      }
+      if (name === 'period_term') {
+        const periodTerm = String(value);
+        return {
+          ...currentReview,
+          period_term: periodTerm,
+          term_code: reviewTermCode(periodTerm),
+        };
+      }
+
+      return { ...currentReview, [name]: value };
+    });
+  }, []);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -367,14 +394,19 @@ const ReviewPage = ({ params }: { params: { id: string } }) => {
       const initialOffering = initialOfferingReview.current;
       const matchesDisplayedOffering = Boolean(
         initialOffering &&
-        newReview.period_year === initialOffering.periodYear &&
-        newReview.period_term === initialOffering.periodTerm
+        newReview.academic_year === initialOffering.academicYear &&
+        newReview.term_code === initialOffering.termCode
       );
+      const reviewPayload: ReviewData = { ...newReview };
+      delete reviewPayload.lecture_offering_id;
+      if (matchesDisplayedOffering && initialOffering) {
+        reviewPayload.lecture_offering_id = initialOffering.offeringId;
+      } else if (newReview.academic_year == null || newReview.term_code == null) {
+        // 「その他・不明」は年度だけの一意推論で既知Offeringへ戻さない。
+        reviewPayload.lecture_offering_id = null;
+      }
       const res = await reviewApi.createReview(lecture.id.toString(), {
-        review: {
-          ...newReview,
-          lecture_offering_id: matchesDisplayedOffering ? initialOffering?.offeringId : null,
-        },
+        review: reviewPayload,
         token,
       });
 

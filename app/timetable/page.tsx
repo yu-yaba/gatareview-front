@@ -9,30 +9,38 @@ import { FaCalendarAlt, FaTrash } from 'react-icons/fa'
 import { timetableApi } from '@/app/_helpers/api'
 import type { TimetableData, TimetableEntry } from '@/app/_types/TimetableData'
 import TimetableGrid from '@/app/_components/TimetableGrid'
+import { getCurrentAcademicYear } from '@/app/_helpers/academicCalendar'
+import LoginPromptModal from '@/app/_components/LoginPromptModal'
 
 const terms = [1, 2, 3, 4, 0]
-const currentYear = new Date().getFullYear()
 
 export default function TimetablePage() {
   const { data: session, status } = useSession()
+  const backendToken = session?.backendToken?.trim()
   const router = useRouter()
+  const [defaultAcademicYear] = useState(() => getCurrentAcademicYear())
   const requestId = useRef(0)
   const resolvedDefault = useRef<string | null>(null)
   const [data, setData] = useState<TimetableData | null>(null)
-  const [availableYears, setAvailableYears] = useState<number[]>([currentYear])
-  const [year, setYear] = useState(currentYear)
+  const [availableYears, setAvailableYears] = useState<number[]>(() => [defaultAcademicYear])
+  const [year, setYear] = useState(() => defaultAcademicYear)
   const [term, setTerm] = useState<number | null>(null)
   const [reloadVersion, setReloadVersion] = useState(0)
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.replace('/auth/signin')
-  }, [status, router])
+    if (status === 'unauthenticated') {
+      router.replace('/auth/signin')
+    } else if (status === 'authenticated' && !backendToken) {
+      router.replace('/auth/signin?force=true')
+    }
+  }, [status, backendToken, router])
 
   useEffect(() => {
-    if (!session) return
+    if (!backendToken) return
     if (term !== null && resolvedDefault.current === `${year}-${term}`) {
       resolvedDefault.current = null
       return
@@ -62,8 +70,12 @@ export default function TimetablePage() {
           responseData.year,
         ])).sort((left, right) => right - left))
       })
-      .catch(() => {
+      .catch((requestError) => {
         if (controller.signal.aborted || requestId.current !== activeRequestId) return
+        if ((requestError as { response?: { status?: number } }).response?.status === 401) {
+          router.replace('/auth/signin?force=true')
+          return
+        }
         setData(null)
         setError('時間割を読み込めませんでした。時間をおいて再度お試しください。')
       })
@@ -72,7 +84,7 @@ export default function TimetablePage() {
       })
 
     return () => controller.abort()
-  }, [session, year, term, reloadVersion])
+  }, [backendToken, year, term, reloadVersion, router])
 
   const remove = async (entry: TimetableEntry) => {
     if (loading || deletingId !== null) return
@@ -89,7 +101,11 @@ export default function TimetablePage() {
           intensive_entries: current.intensive_entries.filter((item) => item.id !== entry.id),
         }
       })
-    } catch {
+    } catch (requestError) {
+      if ((requestError as { response?: { status?: number } }).response?.status === 401) {
+        setShowLoginModal(true)
+        return
+      }
       window.alert('時間割から削除できませんでした。')
     } finally {
       setDeletingId(null)
@@ -106,7 +122,7 @@ export default function TimetablePage() {
   if (status === 'loading') {
     return <div className="flex min-h-screen items-center justify-center bg-gray-50"><Loading type="bubbles" color="#16a34a" width={96} height={96} /></div>
   }
-  if (!session) return null
+  if (!backendToken) return null
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
@@ -177,6 +193,12 @@ export default function TimetablePage() {
           <p className="rounded-3xl border border-gray-100 bg-white p-10 text-center text-sm text-gray-500 shadow-xl">時間割を表示できませんでした。</p>
         ) : null}
       </div>
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        featureType="timetable"
+        forceReauthentication
+      />
     </main>
   )
 }

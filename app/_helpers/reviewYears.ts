@@ -17,3 +17,10 @@ export const getReviewYearOptions = (currentYear = getCurrentJapanYear()) => {
     (_, index) => String(currentYear - index)
   )
 }
+
+export const reviewAcademicYear = (value: string | null | undefined): number | null => {
+  if (!value || !/^\d{4}$/.test(value)) return null
+
+  const year = Number(value)
+  return year >= 2000 && year <= 2100 ? year : null
+}

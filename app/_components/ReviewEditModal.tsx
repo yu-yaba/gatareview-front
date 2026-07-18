@@ -7,7 +7,13 @@ import ReactStars from 'react-stars'
 import { FaTimes, FaSave, FaTrash } from 'react-icons/fa'
 import { success, error } from '@/app/_helpers/notifications'
 import { getModalAppElement } from '@/app/_helpers/modalAppElement'
-import { getReviewYearOptions } from '@/app/_helpers/reviewYears'
+import { getReviewYearOptions, reviewAcademicYear } from '@/app/_helpers/reviewYears'
+import {
+  offeringTermCode,
+  REVIEW_TERM_OPTIONS,
+  reviewTermCode,
+  reviewTermForOffering,
+} from '@/app/_helpers/offering'
 
 interface ReviewEditModalProps {
   isOpen: boolean
@@ -23,6 +29,8 @@ interface ReviewEditModalProps {
     content_quality: string
     period_year: string
     period_term: string
+    academic_year?: number | null
+    term_code?: string | null
     lecture_offering_id?: number | null
   }
   onSave: (updatedReview: any) => void
@@ -34,6 +42,8 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
   const reviewYearOptions = useMemo(() => getReviewYearOptions(), [])
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const initialAcademicYear = review.academic_year ?? reviewAcademicYear(review.period_year)
+  const initialTermCode = offeringTermCode(review.term_code, review.period_term)
   const [formData, setFormData] = useState({
     rating: review.rating,
     content: review.content,
@@ -43,13 +53,15 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
     content_difficulty: review.content_difficulty,
     content_quality: review.content_quality,
     period_year: review.period_year,
-    period_term: review.period_term
+    period_term: reviewTermForOffering(initialTermCode, review.period_term),
+    academic_year: initialAcademicYear,
+    term_code: initialTermCode,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!session) {
+    if (!session?.backendToken) {
       error('ログインが必要です')
       return
     }
@@ -57,9 +69,14 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
     setIsLoading(true)
     
     try {
-      const periodChanged = formData.period_year !== review.period_year || formData.period_term !== review.period_term
-      const reviewPayload: typeof formData & { lecture_offering_id?: null } = { ...formData }
-      if (periodChanged) reviewPayload.lecture_offering_id = null
+      const periodChanged = formData.academic_year !== initialAcademicYear || formData.term_code !== initialTermCode
+      const reviewPayload: typeof formData & { lecture_offering_id?: number | null } = { ...formData }
+      if (!periodChanged && review.lecture_offering_id) {
+        reviewPayload.lecture_offering_id = review.lecture_offering_id
+      } else if (formData.academic_year == null || formData.term_code == null) {
+        // 「その他・不明」の明示選択では、年度だけの自動推論を抑止する。
+        reviewPayload.lecture_offering_id = null
+      }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/reviews/${review.id}`, {
         method: 'PATCH',
@@ -88,10 +105,15 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
   }
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+    setFormData(prev => {
+      if (field === 'period_year') {
+        return { ...prev, period_year: value, academic_year: reviewAcademicYear(value) }
+      }
+      if (field === 'period_term') {
+        return { ...prev, period_term: value, term_code: reviewTermCode(value) }
+      }
+      return { ...prev, [field]: value }
+    })
   }
 
   const handleDelete = async () => {
@@ -99,7 +121,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
       return
     }
 
-    if (!session) {
+    if (!session?.backendToken) {
       error('ログインが必要です')
       return
     }
@@ -381,14 +403,9 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
-                  <option value="1ターム">1ターム</option>
-                  <option value="2ターム">2ターム</option>
-                  <option value="1, 2ターム">1, 2ターム</option>
-                  <option value="3ターム">3ターム</option>
-                  <option value="4ターム">4ターム</option>
-                  <option value="3, 4ターム">3, 4ターム</option>
-                  <option value="通年">通年</option>
-                  <option value="集中">集中</option>
+                  {REVIEW_TERM_OPTIONS.map((termLabel) => (
+                    <option key={termLabel} value={termLabel}>{termLabel}</option>
+                  ))}
                   <option value="その他・不明">その他・不明</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">

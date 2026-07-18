@@ -162,13 +162,21 @@ export const timetableApi = {
     if (term !== undefined) params.set('term', String(term))
     return apiRequest.get<TimetableData>(`/timetable?${params.toString()}`, { signal })
   },
-  createEntries: (lectureId: number, year: number, placements: TimetablePlacement[], replace = false, lectureOfferingId?: number) => {
+  createEntries: (
+    lectureId: number,
+    year: number,
+    placements: TimetablePlacement[],
+    replace = false,
+    lectureOfferingId?: number,
+    conflictIds?: number[],
+  ) => {
     const payload: {
       lecture_id: number;
       year: number;
       placements: TimetablePlacement[];
       replace: boolean;
       lecture_offering_id?: number;
+      conflict_ids?: number[];
     } = {
       lecture_id: lectureId,
       year,
@@ -176,6 +184,7 @@ export const timetableApi = {
       replace,
     }
     if (lectureOfferingId !== undefined) payload.lecture_offering_id = lectureOfferingId
+    if (conflictIds !== undefined) payload.conflict_ids = conflictIds
 
     return apiRequest.post<{ success: boolean; message?: string; errors?: string[]; conflicts?: TimetableEntry[]; entries?: TimetableEntry[] }>('/timetable/entries', payload)
   },

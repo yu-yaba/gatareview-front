@@ -5,6 +5,7 @@ import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
 import { getReviewYearOptions } from '../_helpers/reviewYears';
+import { REVIEW_TERM_OPTIONS } from '../_helpers/offering';
 import Loading from 'react-loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -847,14 +848,9 @@ const LectureList = () => {
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-emerald-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
-                                <option value="1ターム">1ターム</option>
-                                <option value="2ターム">2ターム</option>
-                                <option value="1, 2ターム">1, 2ターム</option>
-                                <option value="3ターム">3ターム</option>
-                                <option value="4ターム">4ターム</option>
-                                <option value="3, 4ターム">3, 4ターム</option>
-                                <option value="通年">通年</option>
-                                <option value="集中">集中</option>
+                                {REVIEW_TERM_OPTIONS.map((termLabel) => (
+                                  <option key={termLabel} value={termLabel}>{termLabel}</option>
+                                ))}
                                 <option value="その他・不明">その他・不明</option>
                               </select>
                             </div>
