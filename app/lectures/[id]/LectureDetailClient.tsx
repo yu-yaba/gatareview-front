@@ -13,6 +13,7 @@ import { PartialComment } from '../../_components/ReviewAccessBlur';
 import ReviewPromptModal from '../../_components/ReviewPromptModal';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
+import AffiliateSlot from '../../_components/AffiliateSlot';
 
 interface LectureDetailClientProps {
   lecture: LectureSchema;
@@ -334,6 +335,8 @@ const LectureDetailClient = ({
                 <p className="text-gray-400 mb-6">この授業の最初のレビューを投稿してみませんか？</p>
               </div>
             )}
+
+            <AffiliateSlot placement="lecture_detail" />
 
           </div>
         </div>

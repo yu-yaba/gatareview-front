@@ -8,6 +8,7 @@ import { getReviewYearOptions } from '../_helpers/reviewYears';
 import Loading from 'react-loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import AffiliateSlot from '../_components/AffiliateSlot';
 
 interface PaginationInfo {
   current_page: number;
@@ -891,6 +892,8 @@ const LectureList = () => {
                   <div className="space-y-0">
                     {lectureElements}
                   </div>
+
+                  <AffiliateSlot placement="lectures_list" />
 
                   {/* ページネーション */}
                   {paginationElements}
