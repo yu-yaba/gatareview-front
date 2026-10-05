@@ -57,3 +57,10 @@
 - `NEXT_PUBLIC_ENV` に `/api/v1` を含めない
 - frontend の再デプロイだけでは `site_settings` は作られない
 - review access 不具合は frontend ではなく backend の migration / env 不備が原因のことがある
+
+## 2026年10月のセキュリティ更新
+
+- Node.js 24 / Next.js 15.5.27を使用する。
+- 再ログインと通常のログアウトで、APIの失効を確認してからNextAuthのセッションを終了する。APIが401の場合は終了できる。通信障害や5xxの場合はセッションを保持して再試行する。
+- backendの `token_version` migration と32バイト以上の専用JWT鍵を先に確認する。
+- 回帰テストはローカルの専用モックAPI（3101番）を使う。授業のサーバー表示も同じモックを利用するため、テストは順次実行する。

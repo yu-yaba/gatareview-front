@@ -200,7 +200,8 @@ test.describe("lecture detail review access", () => {
       reviewsResponse: "fail",
     });
 
-    await expect(page.getByText("レビューの取得に失敗しました", { exact: true })).toBeVisible();
+    // An SSR fetch failure is shown inline; a client-only toast is unnecessary.
+    await expect(page.getByRole('heading', { name: fixtures.lectureResponse.title })).toBeVisible();
     await expect(page.getByText("レビューの取得に失敗しました。時間をおいて再度お試しください。")).toBeVisible();
     await expect(page.getByText("レビュー取得エラー")).toBeVisible();
     await expect(page.getByText("--")).toBeVisible();

@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 
 const lectureId = Number(process.env.PLAYWRIGHT_LECTURE_ID || '3886');
 const currentYear = String(new Date().getFullYear());
+const mockResponses = new Map();
 
 const lecture = {
   id: lectureId,
@@ -41,14 +42,32 @@ const reviews = {
   },
 };
 
-const server = createServer((request, response) => {
+const server = createServer(async (request, response) => {
   const pathname = new URL(request.url || '/', 'http://127.0.0.1').pathname;
   let body;
 
-  if (pathname === '/health') {
+  if (request.method === 'POST' && pathname.startsWith('/_test/')) {
+    if (pathname === '/_test/reset') {
+      mockResponses.clear();
+    } else if (pathname === '/_test/response') {
+      const chunks = [];
+      for await (const chunk of request) chunks.push(chunk);
+      const { path, status = 200, body: mockBody } = JSON.parse(Buffer.concat(chunks).toString());
+      mockResponses.set(path, { status, body: mockBody });
+    }
+    body = { ok: true };
+  } else if (mockResponses.has(pathname)) {
+    const mock = mockResponses.get(pathname);
+    response.writeHead(mock.status, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(mock.body));
+    return;
+  } else if (pathname === '/health') {
     body = { ok: true };
   } else if (pathname === `/api/v1/lectures/${lectureId}`) {
     body = lecture;
+  } else if (pathname === '/api/v1/lectures/4001' || pathname === '/api/v1/lectures/4002') {
+    const id = Number(pathname.split('/').pop());
+    body = { ...lecture, id, title: id === 4001 ? 'レビュー0件の授業' : 'レビュー1件の授業', review_count: id === 4001 ? 0 : 1 };
   } else if (pathname === `/api/v1/lectures/${lectureId}/reviews`) {
     body = reviews;
   } else {
@@ -61,7 +80,7 @@ const server = createServer((request, response) => {
   response.end(JSON.stringify(body));
 });
 
-server.listen(3001, '127.0.0.1');
+server.listen(Number(process.env.PLAYWRIGHT_MOCK_API_PORT || 3101), '127.0.0.1');
 
 const shutdown = () => server.close(() => process.exit(0));
 process.on('SIGINT', shutdown);
