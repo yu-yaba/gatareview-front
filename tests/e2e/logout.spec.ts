@@ -73,3 +73,37 @@ test('API失効に失敗したらセッションを保持し、再試行でき�
   await expect(page).toHaveURL(/\/$/)
   expect(signoutCalls).toBe(1)
 })
+
+for (const fails of [false, true]) {
+  test(`別アカウントへのログイン${fails ? 'は失効失敗時に停止する' : 'の前に旧APIトークンを失効する'}`, async ({ page }) => {
+    const calls: string[] = []
+    await page.route('**/api/v1/auth/logout', async route => {
+      calls.push('revoke')
+      await route.fulfill({ status: fails ? 503 : 200, json: {} })
+    })
+    await page.route('**/api/auth/signout', async route => { calls.push('signout'); await route.fulfill({ json: { url: '/auth/signin?force=true' } }) })
+    await page.route('**/api/auth/providers', route => route.fulfill({ json: { google: { id: 'google', name: 'Google', type: 'oauth', signinUrl: '/api/auth/signin/google' } } }))
+    await page.route('**/api/auth/signin/google', async route => { calls.push('oauth'); await route.fulfill({ json: { url: '/' } }) })
+    await page.goto('/auth/signin?force=true')
+    await dismissInstallPromptIfVisible(page)
+    await page.getByRole('button', { name: 'Googleでログイン' }).click()
+    if (fails) {
+      await expect(page.getByRole('alert').filter({ hasText: 'ログアウトに失敗しました' })).toBeVisible()
+      expect(calls).toEqual(['revoke'])
+      await expect(page).toHaveURL(/force=true/)
+    } else {
+      await expect(page).toHaveURL(/\/$/)
+      expect(calls).toEqual(['revoke', 'signout', 'oauth'])
+    }
+  })
+}
+
+test('標準サインアウト側の失効が失敗したら画面のセッション終了も停止する', async ({ page }) => {
+  await page.route('**/api/v1/auth/logout', route => route.fulfill({ json: {} }))
+  await page.route('**/api/auth/signout', route => route.fulfill({ status: 503, json: { error: 'API revocation failed' } }))
+  await page.goto('/auth/signout')
+  await dismissInstallPromptIfVisible(page)
+  await page.getByRole('button', { name: 'ログアウト', exact: true }).click()
+  await expect(page.getByRole('alert').filter({ hasText: 'ログアウトに失敗しました' })).toBeVisible()
+  await expect(page).toHaveURL(/\/auth\/signout$/)
+})

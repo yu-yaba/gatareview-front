@@ -55,7 +55,7 @@ const ReviewPage = () => {
       id: 'textbook',
       name: 'textbook',
       label: '教科書',
-      options: ['必要', '不要', 'その他・不明']
+      options: ['必要', '不要', 'どちらでも', 'その他・不明']
     },
     {
       id: 'attendance',

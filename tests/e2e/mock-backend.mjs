@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 const lectureId = Number(process.env.PLAYWRIGHT_LECTURE_ID || '3886');
 const currentYear = String(new Date().getFullYear());
 const mockResponses = new Map();
+const requests = [];
 
 const lecture = {
   id: lectureId,
@@ -45,19 +46,24 @@ const reviews = {
 const server = createServer(async (request, response) => {
   const pathname = new URL(request.url || '/', 'http://127.0.0.1').pathname;
   let body;
+  if (!pathname.startsWith('/_test/')) requests.push({ method: request.method, path: pathname });
 
-  if (request.method === 'POST' && pathname.startsWith('/_test/')) {
+  if (request.method === 'GET' && pathname === '/_test/requests') {
+    body = requests;
+  } else if (request.method === 'POST' && pathname.startsWith('/_test/')) {
     if (pathname === '/_test/reset') {
       mockResponses.clear();
+      requests.length = 0;
     } else if (pathname === '/_test/response') {
       const chunks = [];
       for await (const chunk of request) chunks.push(chunk);
-      const { path, status = 200, body: mockBody } = JSON.parse(Buffer.concat(chunks).toString());
-      mockResponses.set(path, { status, body: mockBody });
+      const { path, status = 200, body: mockBody, disconnect = false } = JSON.parse(Buffer.concat(chunks).toString());
+      mockResponses.set(path, { status, body: mockBody, disconnect });
     }
     body = { ok: true };
   } else if (mockResponses.has(pathname)) {
     const mock = mockResponses.get(pathname);
+    if (mock.disconnect) { request.socket.destroy(); return; }
     response.writeHead(mock.status, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(mock.body));
     return;

@@ -52,6 +52,10 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
       error('ログインが必要です')
       return
     }
+    if (formData.content !== review.content && (formData.content.length < 30 || formData.content.length > 1000)) {
+      error('コメントは30文字以上1000文字以内で入力してください')
+      return
+    }
 
     setIsLoading(true)
     
@@ -188,9 +192,9 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   value={formData.content}
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   rows={6}
-                  maxLength={1000}
+                  maxLength={formData.content === review.content ? undefined : 1000}
                   className="p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-none text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300 lg:min-h-[220px]"
-                  placeholder="授業の感想やアドバイスなどを1000文字以内で入力してください..."
+                  placeholder="授業の感想やアドバイスなどを30文字以上1000文字以内で入力してください..."
                   required
                 />
               </label>
@@ -216,6 +220,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   <option value="必要">必要</option>
                   <option value="不要">不要</option>
                   <option value="どちらでも">どちらでも</option>
+                  <option value="その他・不明">その他・不明</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
                   <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

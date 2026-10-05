@@ -11,6 +11,7 @@
     "verify": "npm run lint && npm run typecheck && npm run e2e:smoke",
     "e2e:install": "playwright install chromium",
     "e2e": "playwright test",
+    "e2e:security": "playwright test -c playwright.security.config.ts",
     "e2e:headed": "playwright test --headed",
     "e2e:smoke": "playwright test tests/e2e/review-access.smoke.spec.ts --project=chromium"
   },

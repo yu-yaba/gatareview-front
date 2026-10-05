@@ -35,3 +35,14 @@ jobs:
 
       - name: Run frontend verify
         run: npm run verify
+
+      - name: Run all application and authentication regression tests
+        run: npm run e2e
+
+      - name: Build and test the production service worker
+        run: |
+          node tests/e2e/mock-backend.mjs &
+          mock_backend_pid=$!
+          trap 'kill "$mock_backend_pid"' EXIT
+          npm run build
+          npm run e2e:security

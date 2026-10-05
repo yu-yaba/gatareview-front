@@ -8,13 +8,18 @@ const withPWA = require('next-pwa')({
   importScripts: ['/sw-cache-cleanup.js'],
   runtimeCaching: [
     {
+      // URL全体に対する拡張子ルールより先に、クエリ付きAPIも除外する。
+      urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+      handler: 'NetworkOnly',
+    },
+    {
       // アフィリエイト広告(A8.net)はキャッシュしない。
       // 特に1x1の計測ピクセルがキャッシュされると成果計測が壊れるため、画像ルールより先に置く。
       urlPattern: ({ url }) => url.hostname.endsWith('a8.net'),
       handler: 'NetworkOnly',
     },
     {
-      urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+      urlPattern: ({ url, request }) => url.protocol === 'https:' && url.hostname === 'fonts.googleapis.com' && request.destination === 'style',
       handler: 'CacheFirst',
       options: {
         cacheName: 'google-fonts',
@@ -25,7 +30,7 @@ const withPWA = require('next-pwa')({
       },
     },
     {
-      urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+      urlPattern: ({ url, request }) => url.protocol === 'https:' && url.hostname === 'fonts.gstatic.com' && request.destination === 'font',
       handler: 'CacheFirst',
       options: {
         cacheName: 'google-fonts-static',
@@ -36,10 +41,24 @@ const withPWA = require('next-pwa')({
       },
     },
     {
-      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+      // public直下で管理する公開画像だけを保存する。動的ページは拡張子でも除外する。
+      urlPattern: ({ url, request }) => request.destination === 'image' && url.origin === self.location.origin && [
+        '/apple-touch-icon.png', '/gatareview_ogp.png', '/green-footer-title.png', '/green-title.svg',
+        '/icon-120x120.png', '/icon-128x128.png', '/icon-144x144.png', '/icon-152x152.png',
+        '/icon-16x16.png', '/icon-192x192.png', '/icon-32x32.png', '/icon-384x384.png',
+        '/icon-512x512.png', '/icon-72x72.png', '/icon-96x96.png', '/icon.png', '/ogp.png',
+        '/white-header-title.png', '/white-title.svg',
+      ].includes(url.pathname),
       handler: 'CacheFirst',
       options: {
-        cacheName: 'images',
+        cacheName: 'images-v2',
+        plugins: [{
+          cacheWillUpdate: async ({ response }) => {
+            if (!response || response.status !== 200 || !response.headers.get('Content-Type')?.startsWith('image/')) return null;
+            if (/private|no-store/i.test(response.headers.get('Cache-Control') || '')) return null;
+            return response;
+          },
+        }],
         expiration: {
           maxEntries: 100,
           maxAgeSeconds: 60 * 60 * 24 * 30, // 30日
@@ -47,25 +66,25 @@ const withPWA = require('next-pwa')({
       },
     },
     {
-      urlPattern: /\.(?:js|css)$/i,
+      urlPattern: ({ url, request }) => url.origin === self.location.origin && url.pathname.startsWith('/_next/static/') && (
+        (request.destination === 'script' && url.pathname.endsWith('.js')) ||
+        (request.destination === 'style' && url.pathname.endsWith('.css'))
+      ),
       handler: 'StaleWhileRevalidate',
       options: {
-        cacheName: 'static-resources',
+        cacheName: 'static-resources-v2',
+        plugins: [{
+          cacheWillUpdate: async ({ response }) => {
+            if (!response || response.status !== 200 || !/^(application\/javascript|text\/javascript|text\/css)(;|$)/i.test(response.headers.get('Content-Type') || '')) return null;
+            if (/private|no-store/i.test(response.headers.get('Cache-Control') || '')) return null;
+            return response;
+          },
+        }],
         expiration: {
           maxEntries: 100,
           maxAgeSeconds: 60 * 60 * 24 * 7, // 7日
         },
       },
-    },
-    {
-      // 認証・ユーザー固有のAPIはキャッシュさせない
-      urlPattern: ({ url }) => url.pathname.startsWith('/api/auth/'),
-      handler: 'NetworkOnly',
-    },
-    {
-      // その他のAPIもデフォルトでキャッシュしない（公開情報をキャッシュする場合は個別に追加）
-      urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
-      handler: 'NetworkOnly',
     },
   ],
 });
@@ -113,7 +132,14 @@ const nextConfig = {
 
   // 画像最適化設定
   images: {
-    domains: ['localhost', 'gatareview.com', 'lh3.googleusercontent.com'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'gatareview.com', port: '' },
+      { protocol: 'https', hostname: 'www.gatareview.com', port: '' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', port: '' },
+      ...(process.env.NODE_ENV !== 'production'
+        ? [{ protocol: 'http', hostname: 'localhost' }, { protocol: 'http', hostname: '127.0.0.1' }]
+        : []),
+    ],
     formats: ['image/webp', 'image/avif'],
   },
 };
