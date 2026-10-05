@@ -17,15 +17,16 @@ function calculateAverageRating(reviews: ReviewSchema[]) {
   return averageRating.toFixed(1);
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const lecture = await getLectureForPage(params.id);
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const lecture = await getLectureForPage(id);
 
   if (!lecture) {
     notFound();
   }
 
   const session = await getServerSession(authOptions);
-  const reviewsResponse = await getLectureReviewsForPage(params.id, session?.backendToken);
+  const reviewsResponse = await getLectureReviewsForPage(id, session?.backendToken);
   const reviews = reviewsResponse?.reviews ?? [];
   const access = reviewsResponse?.access ?? {
     restriction_enabled: false,

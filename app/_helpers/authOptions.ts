@@ -23,7 +23,8 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, user }) {
       if (account && user) {
-        const rememberMe = cookies().get('remember_me')?.value === 'true';
+        const cookieStore = await cookies();
+        const rememberMe = cookieStore.get('remember_me')?.value === 'true';
 
         try {
           const backendUrl = process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV;

@@ -1,11 +1,11 @@
 'use client'
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { Suspense, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import ReactStars from 'react-stars'
 import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
 import { getReviewYearOptions } from '../_helpers/reviewYears';
-import Loading from 'react-loading';
+import Loading from '../_components/Loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import AffiliateSlot from '../_components/AffiliateSlot';
@@ -916,4 +916,10 @@ const LectureList = () => {
   );
 };
 
-export default LectureList
+export default function LecturesPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-8"><Loading type="spin" color="#22c55e" /></div>}>
+      <LectureList />
+    </Suspense>
+  );
+}

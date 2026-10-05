@@ -1,9 +1,9 @@
-import { ImageResponse } from 'next/server';
+import { ImageResponse } from 'next/og';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { getLectureForMetadata, METADATA_REVALIDATE_SECONDS } from '@/app/_helpers/serverLectureApi';
+import { getLectureForMetadata } from '@/app/_helpers/serverLectureApi';
 
-export const revalidate = METADATA_REVALIDATE_SECONDS;
+export const revalidate = 300;
 
 async function loadFont(subset: string, weight: number) {
   const fontResponse = await fetch(
@@ -27,8 +27,9 @@ async function loadFont(subset: string, weight: number) {
   return fontDataResponse.arrayBuffer();
 }
 
-export default async function Image({ params }: { params: { id: string } }) {
-  const lecture = await getLectureForMetadata(params.id);
+export default async function Image({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const lecture = await getLectureForMetadata(id);
 
   if (!lecture) {
     return new Response('Not Found', { status: 404 });

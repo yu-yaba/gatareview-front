@@ -28,24 +28,37 @@ export default defineConfig({
   ],
   ...(shouldStartLocalServer
     ? {
-        webServer: {
-          command: `npx next dev -H 127.0.0.1 -p ${localServerPort}`,
-          url: baseURL,
-          reuseExistingServer: !process.env.CI,
-          stdout: "pipe",
-          stderr: "pipe",
-          env: {
-            ...process.env,
-            NEXT_PUBLIC_ENV: "http://127.0.0.1:3001",
-            NEXTAUTH_URL: `http://127.0.0.1:${localServerPort}`,
-            NEXTAUTH_SECRET: "playwright-nextauth-secret",
-            GOOGLE_CLIENT_ID: "playwright-google-client-id",
-            GOOGLE_CLIENT_SECRET: "playwright-google-client-secret",
-            NEXT_PUBLIC_RECAPTCHA_SITE_KEY: "playwright-recaptcha-site-key",
-            NEXT_PUBLIC_GA_ID: "",
-            DOCKER_BACKEND_URL: "http://127.0.0.1:3001",
+        webServer: [
+          ...(process.env.CI
+            ? [
+                {
+                  command: "node tests/e2e/mock-backend.mjs",
+                  url: "http://127.0.0.1:3001/health",
+                  reuseExistingServer: false,
+                  stdout: "pipe" as const,
+                  stderr: "pipe" as const,
+                },
+              ]
+            : []),
+          {
+            command: `npx next dev -H 127.0.0.1 -p ${localServerPort}`,
+            url: baseURL,
+            reuseExistingServer: !process.env.CI,
+            stdout: "pipe",
+            stderr: "pipe",
+            env: {
+              ...process.env,
+              NEXT_PUBLIC_ENV: "http://127.0.0.1:3001",
+              NEXTAUTH_URL: `http://127.0.0.1:${localServerPort}`,
+              NEXTAUTH_SECRET: "playwright-nextauth-secret",
+              GOOGLE_CLIENT_ID: "playwright-google-client-id",
+              GOOGLE_CLIENT_SECRET: "playwright-google-client-secret",
+              NEXT_PUBLIC_RECAPTCHA_SITE_KEY: "playwright-recaptcha-site-key",
+              NEXT_PUBLIC_GA_ID: "",
+              DOCKER_BACKEND_URL: "http://127.0.0.1:3001",
+            },
           },
-        },
+        ],
       }
     : {}),
 });

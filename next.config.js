@@ -74,9 +74,6 @@ const nextConfig = {
   // React strictMode
   reactStrictMode: true,
 
-  // SWC minifier
-  swcMinify: true,
-
   // Webpack設定を最小限に抑制
   webpack: (config, { isServer }) => {
     // Canvas依存関係の問題を解決
