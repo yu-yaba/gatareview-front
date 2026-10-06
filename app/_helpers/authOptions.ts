@@ -47,11 +47,10 @@ export const authOptions: NextAuthOptions = {
               token.user = data.user;
             }
           } else {
-            const errorText = await response.text();
-            console.error('Backend authentication failed:', response.status, errorText);
+            console.error('Backend authentication failed:', response.status);
           }
-        } catch (error) {
-          console.error('Network error calling backend:', error);
+        } catch {
+          console.error('Network error calling backend authentication');
         }
       }
 

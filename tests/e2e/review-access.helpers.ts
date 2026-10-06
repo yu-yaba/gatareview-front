@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { encode } from 'next-auth/jwt';
 
 const mockApiURL = `http://127.0.0.1:${process.env.PLAYWRIGHT_MOCK_API_PORT || '3101'}`;
 
@@ -229,6 +230,16 @@ export async function dismissInstallPromptIfVisible(page: Page) {
 
 export async function mockSession(page: Page, sessionState: SessionState) {
   await page.request.post(`${mockApiURL}/_test/reset`);
+  await page.context().clearCookies({ name: /^(__Secure-)?next-auth\.session-token(\.\d+)?$/ });
+  if (sessionState.authenticated) {
+    const value = await encode({
+      secret: 'playwright-nextauth-secret',
+      token: { backendToken: sessionState.backendToken, user: sessionState.user },
+    });
+    await page.context().addCookies([{
+      name: 'next-auth.session-token', value, url: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080',
+    }]);
+  }
   // Next dev honors a hard refresh for its server fetch cache between scenarios.
   await page.setExtraHTTPHeaders({ 'Cache-Control': 'no-cache' });
   await page.route("**/api/auth/session**", async (route) => {

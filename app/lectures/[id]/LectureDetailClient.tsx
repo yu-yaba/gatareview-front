@@ -1,6 +1,7 @@
 'use client'
 import StarRating from '@/app/_components/StarRating'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { LectureReviewsResponse, ReviewAccessState, ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
@@ -14,8 +15,10 @@ import ReviewPromptModal from '../../_components/ReviewPromptModal';
 import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
 import AffiliateSlot from '../../_components/AffiliateSlot';
+import { ANONYMOUS_REVIEW_VIEWER, getReviewViewerKey } from '@/app/_helpers/reviewViewerKey';
 
 interface LectureDetailClientProps {
+  initialViewerKey: string;
   lecture: LectureSchema;
   lectureId: number;
   initialReviews: ReviewSchema[];
@@ -25,6 +28,7 @@ interface LectureDetailClientProps {
 }
 
 const LectureDetailClient = ({
+  initialViewerKey,
   lecture,
   lectureId,
   initialReviews,
@@ -42,8 +46,36 @@ const LectureDetailClient = ({
   const [isReviewPromptModalOpen, setIsReviewPromptModalOpen] = useState(false);
   const [reviewsError] = useState<string | null>(initialReviewsError);
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const backendToken = session?.backendToken || null;
+  const [verifiedViewer, setVerifiedViewer] = useState<{ backendToken: string | null; key: string } | null>(null);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    let active = true;
+    getReviewViewerKey(backendToken).then(key => {
+      if (active) setVerifiedViewer({ backendToken, key });
+    }).catch(() => {
+      // Keep old private data hidden if session verification is unavailable.
+      if (active) setVerifiedViewer(null);
+    });
+    return () => { active = false; };
+  }, [backendToken, status]);
+
+  const currentViewerKey = status === 'loading'
+    ? null
+    : !backendToken
+      ? ANONYMOUS_REVIEW_VIEWER
+      : verifiedViewer?.backendToken === backendToken ? verifiedViewer.key : null;
+  const viewerMatches = currentViewerKey === initialViewerKey || (
+    status === 'loading' && initialViewerKey === ANONYMOUS_REVIEW_VIEWER
+  );
+
+  useEffect(() => {
+    if (currentViewerKey && currentViewerKey !== initialViewerKey) router.refresh();
+  }, [currentViewerKey, initialViewerKey, router]);
 
   const canViewReviews = reviews.access.access_granted;
 
@@ -70,6 +102,10 @@ const LectureDetailClient = ({
     setIsEditModalOpen(false);
     setEditingReview(null);
   };
+
+  if (!viewerMatches) {
+    return <div role="status" className="py-16 text-center text-gray-600">閲覧情報を更新しています…</div>;
+  }
 
   return (
     <div className="min-h-screen bg-white">
