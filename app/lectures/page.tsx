@@ -1,6 +1,6 @@
 'use client'
 import { Suspense, useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import ReactStars from 'react-stars'
+import StarRating from '@/app/_components/StarRating'
 import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
@@ -502,7 +502,7 @@ const LectureList = () => {
                         <h2 className="text-xl text-yellow-500 font-bold">
                           {lecture.avg_rating.toFixed(1)}
                         </h2>
-                        <ReactStars
+                        <StarRating
                           value={lecture.avg_rating}
                           size={16}
                           edit={false}
@@ -518,7 +518,7 @@ const LectureList = () => {
                         <h2 className="text-lg text-gray-400 font-medium">
                           未評価
                         </h2>
-                        <ReactStars
+                        <StarRating
                           value={0}
                           size={16}
                           edit={false}

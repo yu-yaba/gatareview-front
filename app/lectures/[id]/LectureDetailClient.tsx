@@ -1,5 +1,5 @@
 'use client'
-import ReactStars from 'react-stars'
+import StarRating from '@/app/_components/StarRating'
 import { useState } from 'react';
 import type { LectureReviewsResponse, ReviewAccessState, ReviewSchema } from '@/app/_types/ReviewSchema';
 import Link from 'next/link';
@@ -118,7 +118,7 @@ const LectureDetailClient = ({
                         <>
                           <div className="flex items-center justify-center gap-3">
                             <h3 className="text-3xl font-bold text-yellow-500">{reviews.avgRating}</h3>
-                            <ReactStars
+                            <StarRating
                               value={parseFloat(reviews.avgRating)}
                               edit={false}
                               size={24}
@@ -185,7 +185,7 @@ const LectureDetailClient = ({
                   {/* レビューヘッダー */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 pb-4 border-b border-gray-100">
                     <div className="flex items-center gap-3 mb-2 sm:mb-0">
-                      <ReactStars
+                      <StarRating
                         value={review.rating}
                         edit={false}
                         size={20}

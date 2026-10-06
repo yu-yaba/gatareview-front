@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Modal from 'react-modal'
-import ReactStars from 'react-stars'
+import StarRating from '@/app/_components/StarRating'
 import { FaTimes, FaSave, FaTrash } from 'react-icons/fa'
 import { success, error } from '@/app/_helpers/notifications'
 import { getModalAppElement } from '@/app/_helpers/modalAppElement'
@@ -163,7 +163,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   </span>
                 </p>
                 <div className="flex flex-col items-center justify-center p-8 rounded-3xl shadow-lg border border-yellow-200/50 backdrop-blur-sm">
-                  <ReactStars
+                  <StarRating
                     count={5}
                     value={formData.rating}
                     onChange={(rating) => handleInputChange('rating', rating)}

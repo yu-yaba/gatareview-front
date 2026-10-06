@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../../_helpers/helpers';
 import { getReviewYearOptions } from '../../../_helpers/reviewYears';
 import { success } from '@/app/_helpers/notifications';

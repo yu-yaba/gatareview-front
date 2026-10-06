@@ -38,7 +38,6 @@ import {
   FaList,
   FaSpinner
 } from 'react-icons/fa'
-import ReactStars from 'react-stars'
 import ReviewEditModal from '../_components/ReviewEditModal'
 
 interface MypageData {
