@@ -57,3 +57,13 @@
 - `NEXT_PUBLIC_ENV` に `/api/v1` を含めない
 - frontend の再デプロイだけでは `site_settings` は作られない
 - review access 不具合は frontend ではなく backend の migration / env 不備が原因のことがある
+
+## 2026年10月のセキュリティ更新
+
+- Node.js 24 / Next.js 15.5.27を使用する。
+- 再ログインと通常のログアウトで、APIの失効を確認してからNextAuthのセッションを終了する。APIが401の場合は終了できる。通信障害や5xxの場合はセッションを保持して再試行する。
+- `/api/auth/signout` の標準経路でもCSRF検証後にAPIトークンを失効する。アカウント変更にも同じ失効処理を適用する。
+- PWA・画像設定を変更した場合は、`npm run build` 後に `npm run e2e:security` を実行する。この検証は生成済みの実Service Workerと偽セッションだけを使い、ログアウト後の機密キャッシュ残存と画像取得の許可範囲を確認する。
+- backendの `token_version` migration と32バイト以上の専用JWT鍵を先に確認する。
+- 回帰テストはローカルの専用モックAPI（3101番）を使う。授業のサーバー表示も同じモックを利用するため、テストは順次実行する。
+- Dockerイメージには `.playwright-cli`、確認画像を含む `output`、テスト結果、環境変数ファイル、ローカルの秘密鍵を含めない。

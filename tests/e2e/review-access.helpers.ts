@@ -1,4 +1,11 @@
 import type { Page } from "@playwright/test";
+import { encode } from 'next-auth/jwt';
+
+const mockApiURL = `http://127.0.0.1:${process.env.PLAYWRIGHT_MOCK_API_PORT || '3101'}`;
+
+async function mockServerResponse(page: Page, path: string, body: unknown, status = 200) {
+  await page.request.post(`${mockApiURL}/_test/response`, { data: { path, body, status } });
+}
 
 type SessionState =
   | { authenticated: false }
@@ -222,6 +229,19 @@ export async function dismissInstallPromptIfVisible(page: Page) {
 }
 
 export async function mockSession(page: Page, sessionState: SessionState) {
+  await page.request.post(`${mockApiURL}/_test/reset`);
+  await page.context().clearCookies({ name: /^(__Secure-)?next-auth\.session-token(\.\d+)?$/ });
+  if (sessionState.authenticated) {
+    const value = await encode({
+      secret: 'playwright-nextauth-secret',
+      token: { backendToken: sessionState.backendToken, user: sessionState.user },
+    });
+    await page.context().addCookies([{
+      name: 'next-auth.session-token', value, url: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080',
+    }]);
+  }
+  // Next dev honors a hard refresh for its server fetch cache between scenarios.
+  await page.setExtraHTTPHeaders({ 'Cache-Control': 'no-cache' });
   await page.route("**/api/auth/session**", async (route) => {
     if (!sessionState.authenticated) {
       await route.fulfill({
@@ -245,6 +265,7 @@ export async function mockSession(page: Page, sessionState: SessionState) {
 }
 
 export async function mockLectureDetail(page: Page, lecture: typeof lectureResponse, lectureId: number = lecture.id) {
+  await mockServerResponse(page, `/api/v1/lectures/${lectureId}`, lecture);
   await page.route(`**/api/v1/lectures/${lectureId}`, async (route) => {
     await route.fulfill({
       status: 200,
@@ -255,6 +276,7 @@ export async function mockLectureDetail(page: Page, lecture: typeof lectureRespo
 }
 
 export async function mockLectureReviews(page: Page, response: ReviewAccessResponse | "fail", lectureIdOverride: number = Number(lectureId)) {
+  await mockServerResponse(page, `/api/v1/lectures/${lectureIdOverride}/reviews`, response === 'fail' ? { error: 'failed' } : response, response === 'fail' ? 500 : 200);
   await page.route(`**/api/v1/lectures/${lectureIdOverride}/reviews**`, async (route) => {
     if (response === "fail") {
       await route.fulfill({
@@ -348,6 +370,10 @@ export async function mockHomePageData(page: Page, options?: {
   popularLectures?: Array<Record<string, unknown>>;
   noReviewsLectures?: Array<Record<string, unknown>>;
 }) {
+  await mockServerResponse(page, '/api/v1/reviews/total', { count: options?.totalReviewsCount ?? 1234 });
+  await mockServerResponse(page, '/api/v1/reviews/latest', options?.latestReviews ?? [latestReview]);
+  await mockServerResponse(page, '/api/v1/lectures/popular', { lectures: options?.popularLectures ?? [lectureResponse] });
+  await mockServerResponse(page, '/api/v1/lectures/no_reviews', { lectures: options?.noReviewsLectures ?? [lectureAResponse] });
   await page.route("**/api/v1/reviews/total**", async (route) => {
     await route.fulfill({
       status: 200,

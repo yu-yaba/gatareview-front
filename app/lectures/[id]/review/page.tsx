@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import ReactStars from 'react-stars';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../../_helpers/helpers';
 import { getReviewYearOptions } from '../../../_helpers/reviewYears';
 import { success } from '@/app/_helpers/notifications';
 import type { ReviewData } from '@/app/_types/ReviewData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useParams, useRouter } from 'next/navigation';
-import { reviewApi } from '../../../_helpers/api';
+import { reviewApi, SessionChangedError } from '../../../_helpers/api';
+import { useMutationRequest, type MutationRequest } from '../../../_hooks/useMutationRequest';
 import Loading from '../../../_components/Loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
 
@@ -27,6 +27,7 @@ const ReviewPage = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [ratingValue, setRatingValue] = useState(3);
   const router = useRouter();
+  const { beginMutation, isSessionLoading } = useMutationRequest();
 
   // フィールド設定の型定義
   interface SelectFieldConfig {
@@ -55,7 +56,7 @@ const ReviewPage = () => {
       id: 'textbook',
       name: 'textbook',
       label: '教科書',
-      options: ['必要', '不要', 'その他・不明']
+      options: ['必要', '不要', 'どちらでも', 'その他・不明']
     },
     {
       id: 'attendance',
@@ -322,14 +323,14 @@ const ReviewPage = () => {
   });
   SelectField.displayName = 'SelectField';
 
-  const addReview = useCallback(async (newReview: ReviewData, token: string) => {
-    if (!lecture) return;
+  const addReview = useCallback(async (newReview: ReviewData, token: string, request: MutationRequest) => {
+    if (!lecture || request.signal.aborted) return;
     try {
-      setIsLoading(true);
       const res = await reviewApi.createReview(lecture.id.toString(), {
         review: newReview,
         token,
-      });
+      }, request);
+      if (request.signal.aborted) return;
 
       if (res.data.success) {
         success('レビューを登録しました');
@@ -338,6 +339,11 @@ const ReviewPage = () => {
         handleAjaxError(res.data.message || res.data.errors?.[0] || "レビューの登録に失敗しました");
       }
     } catch (error: any) {
+      if (request.signal.aborted) return;
+      if (error instanceof SessionChangedError) {
+        handleAjaxError(error.message);
+        return;
+      }
       // セキュリティ: AxiosError の全体出力はAuthorizationヘッダー等が含まれ得るため避ける
       console.error('Review creation error:', error?.response?.status, error?.message);
 
@@ -353,8 +359,6 @@ const ReviewPage = () => {
       } else {
         handleAjaxError("レビューの登録に失敗しました");
       }
-    } finally {
-      setIsLoading(false);
     }
   }, [lecture, router]);
 
@@ -370,16 +374,24 @@ const ReviewPage = () => {
         setFormErrors({ recaptcha: 'reCAPTCHAが読み込まれていません。ページをリロードしてください。' });
         return;
       }
+      const request = beginMutation();
+      if (!request) return;
+      setIsLoading(true);
       try {
         const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
         const token = await window.grecaptcha.execute(SITE_KEY, { action: 'submit' });
-        addReview(review, token);
+        if (request.signal.aborted) return;
+        await addReview(review, token, request);
       } catch (error) {
+        if (request.signal.aborted) return;
         handleAjaxError("reCAPTCHAの取得に失敗しました");
         setFormErrors({ recaptcha: 'reCAPTCHAの検証に失敗しました。' });
+      } finally {
+        request.finish();
+        if (!request.signal.aborted) setIsLoading(false);
       }
     }
-  }, [review, addReview]);
+  }, [review, addReview, beginMutation]);
 
   const handleBack = useCallback(() => {
     router.push(`/lectures/${params.id}`);
@@ -511,7 +523,7 @@ const ReviewPage = () => {
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || isSessionLoading}
                 className="flex-1 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

@@ -91,6 +91,10 @@ export default function PrivacyPolicyPage() {
                 <span className="font-semibold">Googleフォーム：</span>
                 お問い合わせ・削除依頼の受付のために利用する場合があります。
               </li>
+              <li>
+                <span className="font-semibold">A8.net（株式会社ファンコミュニケーションズ）：</span>
+                アフィリエイトプログラムによる広告配信のために利用します。広告の表示・クリック等の成果計測のためにCookie等が利用されることがありますが、当事務局が個人を特定できる情報を取得することはありません。
+              </li>
             </ul>
 
             <p className="mt-4 text-sm text-gray-700">
@@ -135,6 +139,16 @@ export default function PrivacyPolicyPage() {
                     Googleアナリティクス利用規約
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="https://www.fancs.com/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    株式会社ファンコミュニケーションズ プライバシーポリシー
+                  </a>
+                </li>
               </ul>
             </div>
           </section>
@@ -142,7 +156,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="font-bold text-xl mb-3">5. Cookie等の利用について</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Cookie等は、ログイン状態の維持、機能提供、アクセス解析等のために利用します。</li>
+              <li>Cookie等は、ログイン状態の維持、機能提供、アクセス解析、広告の成果計測等のために利用します。</li>
               <li>ブラウザ設定によりCookieを無効化できますが、その場合はログイン等の機能が利用できない、または正しく動作しないことがあります。</li>
             </ul>
           </section>

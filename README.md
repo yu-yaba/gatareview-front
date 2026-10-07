@@ -28,8 +28,8 @@ UI、検索、レビュー投稿導線、Google ログイン、PWA、SEO を担�
 
 | 領域 | 技術 |
 | --- | --- |
-| Framework | Next.js 13.4.19 |
-| UI | React 18, Tailwind CSS |
+| Framework | Next.js 15.5.27 |
+| UI | React 19, Tailwind CSS 3 |
 | Language | TypeScript |
 | Auth | NextAuth |
 | Data Fetching | `fetch`, `axios` |
@@ -54,7 +54,7 @@ docs/            実装ベースの仕様書
 
 ## 前提
 
-- Node.js 18 以上を推奨
+- Node.js 24系
 - npm
 - 別途、Rails API が起動していること
 
@@ -138,7 +138,7 @@ npm run e2e:install
 npm run e2e:smoke
 ```
 
-Playwright は `playwright.config.ts` から `Next.js` 開発サーバーを自動起動します。  
+Playwright は `playwright.config.ts` から開発サーバーと専用モックAPI（3101番）を自動起動します。実際のRails APIやGoogleアカウントはテストに使いません。
 デフォルトでは `http://localhost:8080` を見に行きます。対象授業を変えたいときは以下を指定します。
 
 ```bash

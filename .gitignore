@@ -27,9 +27,14 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
-.env.development
-.env.production
+.env
+.env.*
+!.env*.example
+
+# local browser sessions and security review artifacts
+.playwright-cli/
+output/
+*.key
 
 # vercel
 .vercel

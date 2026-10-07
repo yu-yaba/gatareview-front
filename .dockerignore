@@ -12,3 +12,14 @@ node_modules
 .next
 npm-debug.log*
 yarn-debug.log*
+
+# Local browser sessions and review output are not deployment inputs.
+.playwright-cli
+output
+playwright-report
+test-results
+.vercel
+*.pem
+*.key
+*.sql
+*.sql.gz

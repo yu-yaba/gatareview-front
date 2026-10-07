@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState, memo } from 'react'
 import Link from 'next/link'
 import Loading from '../../_components/Loading'
-import ReactStars from 'react-stars'
+import StarRating from '@/app/_components/StarRating'
 import { mypageApi } from '../../_helpers/api'
 import {
   FaArrowLeft,
@@ -287,7 +287,7 @@ export default function MyReviewsPage() {
 
                   <div className="flex items-center justify-between lg:flex-col lg:items-end gap-4">
                     <div className="flex items-center gap-3">
-                      <ReactStars
+                      <StarRating
                         value={review.rating}
                         edit={false}
                         size={20}

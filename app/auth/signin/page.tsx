@@ -6,10 +6,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { FaBookOpen, FaStar, FaHeart, FaUsers, FaCheckCircle, FaBolt, FaShieldAlt, FaRocket, FaBookmark, FaEdit } from 'react-icons/fa'
 import Cookies from 'js-cookie'
+import { signOutWithRevocation } from '../../_helpers/signOut'
 
 function SignInPageContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [signInError, setSignInError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -20,7 +22,7 @@ function SignInPageContent() {
     if (!forceLogin) {
       // 既にログイン済みの場合はホームページにリダイレクト
       getSession().then((session) => {
-        if (session) {
+        if (session?.user && session.backendToken) {
           router.push('/mypage')
         }
       })
@@ -29,11 +31,18 @@ function SignInPageContent() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
+    setSignInError(null)
     try {
+      if (searchParams.get('force') === 'true') {
+        const session = await getSession()
+        if (session?.backendToken) {
+          await signOutWithRevocation({ redirect: false, callbackUrl: '/auth/signin?force=true' })
+        }
+      }
       Cookies.set('remember_me', rememberMe ? 'true' : 'false', { expires: 1 }) // Cookieに1日間保存
       await signIn('google', { callbackUrl: '/mypage' })
     } catch (error) {
-      console.error('ログインエラー:', error)
+      setSignInError(error instanceof Error ? error.message : 'ログインに失敗しました。再度お試しください。')
     } finally {
       setIsLoading(false)
     }
@@ -134,6 +143,7 @@ function SignInPageContent() {
                       </div>
                     )}
                   </button>
+                  {signInError && <p role="alert" className="mt-3 text-sm text-red-600">{signInError}</p>}
                 </div>
 
                 <div className="relative">

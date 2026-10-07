@@ -11,6 +11,10 @@ self.addEventListener('activate', (event) => {
     // next-pwa のデフォルト設定で作られ得るキャッシュ名（念のため）
     'apis',
     'others',
+    // APIレスポンスが拡張子付きクエリで混入し得た旧キャッシュ。
+    // 新しいSWは別名のv2キャッシュを使用するため、新規データは削除しない。
+    'images',
+    'static-resources',
   ]
 
   event.waitUntil(
@@ -24,4 +28,3 @@ self.addEventListener('activate', (event) => {
     })()
   )
 })
-

@@ -8,14 +8,14 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_ENV: http://127.0.0.1:3001
+      NEXT_PUBLIC_ENV: http://127.0.0.1:3101
       NEXTAUTH_URL: http://127.0.0.1:8080
       NEXTAUTH_SECRET: ci-nextauth-secret
       GOOGLE_CLIENT_ID: ci-google-client-id
       GOOGLE_CLIENT_SECRET: ci-google-client-secret
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ci-recaptcha-site-key
       NEXT_PUBLIC_GA_ID: ""
-      DOCKER_BACKEND_URL: http://127.0.0.1:3001
+      DOCKER_BACKEND_URL: http://127.0.0.1:3101
 
     steps:
       - name: Checkout code
@@ -24,7 +24,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -35,3 +35,14 @@ jobs:
 
       - name: Run frontend verify
         run: npm run verify
+
+      - name: Run all application and authentication regression tests
+        run: npm run e2e
+
+      - name: Build and test the production service worker
+        run: |
+          node tests/e2e/mock-backend.mjs &
+          mock_backend_pid=$!
+          trap 'kill "$mock_backend_pid"' EXIT
+          npm run build
+          npm run e2e:security

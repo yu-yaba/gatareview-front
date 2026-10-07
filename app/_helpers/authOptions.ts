@@ -30,6 +30,9 @@ export const authOptions: NextAuthOptions = {
           const backendUrl = process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV;
           const response = await fetch(`${backendUrl}/api/v1/auth/google`, {
             method: 'POST',
+            cache: 'no-store',
+            redirect: 'error',
+            signal: AbortSignal.timeout(10000),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -47,11 +50,10 @@ export const authOptions: NextAuthOptions = {
               token.user = data.user;
             }
           } else {
-            const errorText = await response.text();
-            console.error('Backend authentication failed:', response.status, errorText);
+            console.error('Backend authentication failed:', response.status);
           }
-        } catch (error) {
-          console.error('Network error calling backend:', error);
+        } catch {
+          console.error('Network error calling backend authentication');
         }
       }
 

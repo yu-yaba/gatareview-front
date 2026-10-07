@@ -1,31 +1,24 @@
 'use client'
 
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import Link from 'next/link'
-import { authApi } from '../../_helpers/api'
+import { signOutWithRevocation } from '../../_helpers/signOut'
 import { FaSignOutAlt, FaUser, FaHome, FaSpinner, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa'
 
 export default function SignOutPage() {
   const { data: session, status } = useSession()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSignOut = async () => {
     setIsLoggingOut(true)
+    setError(null)
 
     try {
-      await authApi.logout()
-    } catch (error: any) {
-      // 失効済みのトークンは再ログイン不要なので、そのままローカルセッションも終了する
-      if (error?.response?.status !== 401) {
-        console.error('バックエンドトークンの失効に失敗:', error?.response?.status, error?.message)
-      }
-    }
-
-    try {
-      await signOut({ callbackUrl: '/' })
+      await signOutWithRevocation({ callbackUrl: '/' })
     } catch (error) {
-      console.error('ログアウトエラー:', error)
+      setError('ログアウトに失敗しました。通信状態を確認して再度お試しください。')
       setIsLoggingOut(false)
     }
   }
@@ -101,6 +94,7 @@ export default function SignOutPage() {
 
             {/* アクションボタン */}
             <div className="space-y-4">
+              {error && <p role="alert" className="text-red-600">{error}</p>}
               {session ? (
                 <button
                   onClick={handleSignOut}

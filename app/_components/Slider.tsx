@@ -5,7 +5,6 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "../globals.css";
 import Link from "next/link";
-import ReactStars from "react-stars";
 import { handleAjaxError } from '../_helpers/helpers';
 import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { ReviewWithLecture } from "../_types/ReviewWithLecture";

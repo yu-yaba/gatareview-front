@@ -6,7 +6,9 @@ import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import { FaLock, FaShieldAlt, FaUnlockAlt } from 'react-icons/fa'
 import { error as notifyError, success as notifySuccess } from '@/app/_helpers/notifications'
-import { reviewAccessAdminApi, type AdminReviewAccessState } from '@/app/_helpers/api'
+import { reviewAccessAdminApi, SessionChangedError, type AdminReviewAccessState } from '@/app/_helpers/api'
+
+import { useMutationRequest } from '@/app/_hooks/useMutationRequest'
 
 const enableConfirmationMessage = [
   'レビュー閲覧制限を有効にしますか？',
@@ -35,6 +37,7 @@ const formatUpdatedAt = (updatedAt: string | null) => {
 export default function ReviewAccessAdminPage() {
   const router = useRouter()
   const { status } = useSession()
+  const { beginMutation } = useMutationRequest()
   const [reviewAccessState, setReviewAccessState] = useState<AdminReviewAccessState | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -87,10 +90,13 @@ export default function ReviewAccessAdminPage() {
     const shouldUpdate = window.confirm(nextEnabled ? enableConfirmationMessage : disableConfirmationMessage)
 
     if (!shouldUpdate) return
+    const request = beginMutation()
+    if (!request) return
 
     try {
       setIsSaving(true)
-      const response = await reviewAccessAdminApi.updateReviewAccess(nextEnabled)
+      const response = await reviewAccessAdminApi.updateReviewAccess(nextEnabled, request)
+      if (request.signal.aborted) return
       setReviewAccessState(response.data)
       notifySuccess(
         nextEnabled
@@ -98,13 +104,17 @@ export default function ReviewAccessAdminPage() {
           : 'レビュー閲覧制限を無効にしました'
       )
     } catch (requestError) {
-      if (axios.isAxiosError(requestError) && !requestError.response) {
+      if (request.signal.aborted) return
+      if (requestError instanceof SessionChangedError) {
+        notifyError(requestError.message)
+      } else if (axios.isAxiosError(requestError) && !requestError.response) {
         notifyError('通信エラーが発生しました。時間をおいて再度お試しください')
       } else {
         notifyError('レビュー閲覧制限の更新に失敗しました')
       }
     } finally {
-      setIsSaving(false)
+      request.finish()
+      if (!request.signal.aborted) setIsSaving(false)
     }
   }
 

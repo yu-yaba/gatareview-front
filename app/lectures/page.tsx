@@ -1,6 +1,6 @@
 'use client'
 import { Suspense, useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import ReactStars from 'react-stars'
+import StarRating from '@/app/_components/StarRating'
 import type { LectureSchema } from '../_types/LectureSchema';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
@@ -8,6 +8,7 @@ import { getReviewYearOptions } from '../_helpers/reviewYears';
 import Loading from '../_components/Loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import AffiliateSlot from '../_components/AffiliateSlot';
 
 interface PaginationInfo {
   current_page: number;
@@ -501,7 +502,7 @@ const LectureList = () => {
                         <h2 className="text-xl text-yellow-500 font-bold">
                           {lecture.avg_rating.toFixed(1)}
                         </h2>
-                        <ReactStars
+                        <StarRating
                           value={lecture.avg_rating}
                           size={16}
                           edit={false}
@@ -517,7 +518,7 @@ const LectureList = () => {
                         <h2 className="text-lg text-gray-400 font-medium">
                           未評価
                         </h2>
-                        <ReactStars
+                        <StarRating
                           value={0}
                           size={16}
                           edit={false}
@@ -891,6 +892,8 @@ const LectureList = () => {
                   <div className="space-y-0">
                     {lectureElements}
                   </div>
+
+                  <AffiliateSlot placement="lectures_list" />
 
                   {/* ページネーション */}
                   {paginationElements}
