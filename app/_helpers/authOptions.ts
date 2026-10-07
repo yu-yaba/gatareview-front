@@ -30,6 +30,9 @@ export const authOptions: NextAuthOptions = {
           const backendUrl = process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV;
           const response = await fetch(`${backendUrl}/api/v1/auth/google`, {
             method: 'POST',
+            cache: 'no-store',
+            redirect: 'error',
+            signal: AbortSignal.timeout(10000),
             headers: {
               'Content-Type': 'application/json',
             },

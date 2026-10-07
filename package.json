@@ -8,13 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run lint && npm run typecheck && npm run test:auth-options && npm run e2e:smoke",
+    "verify": "npm run lint && npm run typecheck && npm run test:auth-options && npm run test:mutations && npm run e2e:smoke",
     "test:auth-options": "node --test tests/unit/auth-options-log.test.cjs",
     "e2e:install": "playwright install chromium",
     "e2e": "playwright test",
     "e2e:security": "playwright test -c playwright.security.config.ts",
     "e2e:headed": "playwright test --headed",
-    "e2e:smoke": "playwright test tests/e2e/review-access.smoke.spec.ts --project=chromium"
+    "e2e:smoke": "playwright test tests/e2e/review-access.smoke.spec.ts --project=chromium",
+    "test:mutations": "node --test tests/unit/api-mutations.test.cjs"
   },
   "dependencies": {
     "@types/grecaptcha": "^3.0.9",

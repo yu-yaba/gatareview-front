@@ -14,33 +14,60 @@ const apiClient: AxiosInstance = axios.create({
   },
 })
 
-// リクエストインターセプター: 認証トークンを自動付与
-apiClient.interceptors.request.use(
-  async (config: any) => {
-    try {
-      // NextAuthセッションから認証トークンを取得
-      const session = await getSession()
-      
-      // セッションがあり、有効なトークンがある場合のみAuthorizationヘッダーを付与
-      if (session?.backendToken && session.backendToken.trim() !== '') {
-        config.headers = {
-          ...config.headers,
-          Authorization: `Bearer ${session.backendToken}`,
-        }
-      }
-      // セッションがない場合やトークンが無効な場合は、Authorizationヘッダーを付与しない
-      // これにより匿名リクエストとして送信される
-    } catch (error) {
-      console.error('Failed to get session:', error)
-      // エラーが発生した場合も認証ヘッダーを付与しない（匿名として扱う）
-    }
-    
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
+export interface SessionBoundRequestConfig extends AxiosRequestConfig {
+  expectedBackendToken: string | null
+}
+
+export class SessionChangedError extends Error {
+  constructor() {
+    super('アカウントが変更されました。内容を確認して再度お試しください。')
+    this.name = 'SessionChangedError'
   }
-)
+}
+
+const normalizeToken = (token: unknown): string | null =>
+  typeof token === 'string' && token.trim() !== '' ? token.trim() : null
+
+// getSessionは通信失敗もnullにするため、更新時は正常な匿名応答と区別する。
+async function mutationSessionToken(signal?: AbortSignal): Promise<string | null> {
+  const controller = new AbortController()
+  const cancel = () => controller.abort()
+  const timeout = setTimeout(cancel, 10000)
+  signal?.addEventListener('abort', cancel, { once: true })
+  if (signal?.aborted) cancel()
+  try {
+    const response = await fetch('/api/auth/session', {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      redirect: 'error',
+      signal: controller.signal,
+    })
+    if (!response.ok) throw new Error('セッションの確認に失敗しました。')
+    const session = await response.json()
+    if (session !== null && (typeof session !== 'object' || Array.isArray(session) ||
+        (session.backendToken != null && typeof session.backendToken !== 'string'))) {
+      throw new Error('セッションの確認に失敗しました。')
+    }
+    return normalizeToken(session?.backendToken)
+  } finally {
+    clearTimeout(timeout)
+    signal?.removeEventListener('abort', cancel)
+  }
+}
+
+apiClient.interceptors.request.use(async config => {
+  const bound = config as typeof config & Partial<SessionBoundRequestConfig>
+  const isBound = Object.prototype.hasOwnProperty.call(bound, 'expectedBackendToken')
+  const token = isBound
+    ? await mutationSessionToken(config.signal as AbortSignal | undefined)
+    : normalizeToken((await getSession())?.backendToken)
+  if (isBound && token !== normalizeToken(bound.expectedBackendToken)) throw new SessionChangedError()
+
+  // Cookie切替の通知がまだ届いていなくても、開始時と異なる権限では更新しない。
+  if (token) config.headers.set('Authorization', `Bearer ${token}`)
+  else config.headers.delete('Authorization')
+  return config
+})
 
 // レスポンスインターセプター: エラーハンドリング
 apiClient.interceptors.response.use(
@@ -94,19 +121,19 @@ export interface AdminReviewAccessState {
 
 // 汎用API呼び出し関数
 export const apiRequest = {
-  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+  get: <T = any>(url: string, config?: AxiosRequestConfig | SessionBoundRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.get(url, config),
 
-  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig | SessionBoundRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.post(url, data, config),
 
-  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig | SessionBoundRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.put(url, data, config),
 
-  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig | SessionBoundRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.patch(url, data, config),
 
-  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> =>
+  delete: <T = any>(url: string, config?: AxiosRequestConfig | SessionBoundRequestConfig): Promise<AxiosResponse<T>> =>
     apiClient.delete(url, config),
 }
 
@@ -122,8 +149,8 @@ export const authApi = {
 // レビュー関連のAPI関数
 export const reviewApi = {
   // レビューを作成（匿名投稿可能、ログイン時は自動的にユーザーに紐付け）
-  createReview: (lectureId: string, reviewData: any) =>
-    apiRequest.post<CreateReviewResponse>(`/lectures/${lectureId}/reviews`, reviewData),
+  createReview: (lectureId: string, reviewData: any, config: SessionBoundRequestConfig) =>
+    apiRequest.post<CreateReviewResponse>(`/lectures/${lectureId}/reviews`, reviewData, config),
 
   // ユーザーのレビュー一覧を取得（認証必須）
   getUserReviews: () => apiRequest.get('/users/reviews'),
@@ -132,12 +159,12 @@ export const reviewApi = {
 export const reviewAccessAdminApi = {
   getReviewAccess: () => apiRequest.get<AdminReviewAccessState>('/admin/review-access'),
 
-  updateReviewAccess: (enabled: boolean) =>
+  updateReviewAccess: (enabled: boolean, config: SessionBoundRequestConfig) =>
     apiRequest.patch<AdminReviewAccessState>('/admin/review-access', {
       review_access: {
         lecture_review_restriction_enabled: enabled,
       },
-    }),
+    }, config),
 }
 
 // マイページ関連のAPI関数

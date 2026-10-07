@@ -76,3 +76,28 @@ test('failed backend authentication creates no backend identity from a new OAuth
   assert.equal(token.user, undefined)
   assert.equal(session.backendToken, null)
 })
+
+test('backend authentication has a deadline, bypasses caches, and rejects redirects', async t => {
+  const controller = new AbortController()
+  const deadlines = []
+  const calls = []
+  t.mock.method(AbortSignal, 'timeout', milliseconds => {
+    deadlines.push(milliseconds)
+    return controller.signal
+  })
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls.push({ url, options })
+    return new Response(JSON.stringify({ token: 'local-backend-token', user: { id: '102' } }), { status: 200 })
+  })
+
+  const token = await authOptions.callbacks.jwt(signInArguments())
+
+  assert.deepEqual(deadlines, [10000])
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].url, 'http://127.0.0.1:1/api/v1/auth/google')
+  assert.equal(calls[0].options.method, 'POST')
+  assert.equal(calls[0].options.cache, 'no-store')
+  assert.equal(calls[0].options.redirect, 'error')
+  assert.equal(calls[0].options.signal, controller.signal)
+  assert.equal(token.backendToken, 'local-backend-token')
+})
