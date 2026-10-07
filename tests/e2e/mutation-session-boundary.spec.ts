@@ -75,13 +75,14 @@ test.beforeEach(async ({ page }) => {
     const hostname = new URL(route.request().url()).hostname
     return ['127.0.0.1', 'localhost'].includes(hostname) ? route.continue() : route.abort()
   })
-  await page.setExtraHTTPHeaders({ 'Cache-Control': 'no-cache' })
   await page.request.post(`${mockApiURL}/_test/reset`)
   await page.request.post(`${mockApiURL}/_test/response`, { data: { path: '/api/v1/lectures/3886', body: lecture } })
   await page.request.post(`${mockApiURL}/_test/response`, { data: {
     path: '/api/v1/lectures/3886/reviews',
     body: { reviews: [], access: { restriction_enabled: false, access_granted: true } },
   } })
+  // The review form loads this public API in the browser, unlike SSR detail pages.
+  await page.route('**/api/v1/lectures/3886', route => route.fulfill({ json: lecture }))
   await page.route('**/api/v1/auth/me', route => {
     const identity = route.request().headers().authorization === `Bearer ${tokenFor('A')}` ? 'A' : 'B'
     return route.fulfill({ json: { user: userFor(identity) } })
