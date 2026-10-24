@@ -57,13 +57,14 @@ const server = createServer(async (request, response) => {
     } else if (pathname === '/_test/response') {
       const chunks = [];
       for await (const chunk of request) chunks.push(chunk);
-      const { path, status = 200, body: mockBody, disconnect = false } = JSON.parse(Buffer.concat(chunks).toString());
-      mockResponses.set(path, { status, body: mockBody, disconnect });
+      const { path, status = 200, body: mockBody, disconnect = false, delayMs = 0 } = JSON.parse(Buffer.concat(chunks).toString());
+      mockResponses.set(path, { status, body: mockBody, disconnect, delayMs });
     }
     body = { ok: true };
   } else if (mockResponses.has(pathname)) {
     const mock = mockResponses.get(pathname);
     if (mock.disconnect) { request.socket.destroy(); return; }
+    if (mock.delayMs > 0) await new Promise(resolve => setTimeout(resolve, Math.min(mock.delayMs, 5000)));
     response.writeHead(mock.status, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(mock.body));
     return;
