@@ -14,6 +14,7 @@
     "e2e": "playwright test",
     "e2e:security": "playwright test -c playwright.security.config.ts",
     "test:public-cache": "node tests/cache/public-lecture-cache.mjs",
+    "test:lecture-streaming": "node tests/cache/lecture-streaming.mjs",
     "e2e:headed": "playwright test --headed",
     "e2e:smoke": "playwright test tests/e2e/review-access.smoke.spec.ts --project=chromium",
     "test:mutations": "node --test tests/unit/api-mutations.test.cjs"
