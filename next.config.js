@@ -93,6 +93,11 @@ const nextConfig = {
   // React strictMode
   reactStrictMode: true,
 
+  // OGP生成はNode.js実行環境からロゴを読むため、公開配信とは別に同梱する。
+  outputFileTracingIncludes: {
+    '/lectures/*/opengraph-image': ['./public/green-footer-title.png'],
+  },
+
   // Webpack設定を最小限に抑制
   webpack: (config, { isServer }) => {
     // Canvas依存関係の問題を解決

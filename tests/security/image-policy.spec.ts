@@ -1,9 +1,17 @@
 import { expect, test } from '@playwright/test'
 import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 // Installed Next.js validation is the same path used by /_next/image.
 const { ImageOptimizerCache } = require('next/dist/server/image-optimizer')
 const { imageConfigDefault } = require('next/dist/shared/lib/image-config')
+
+test('授業OGPの実行環境に必要なロゴを同梱する', () => {
+  const tracePath = '.next/server/app/lectures/[id]/opengraph-image/route.js.nft.json'
+  const trace = JSON.parse(readFileSync(tracePath, 'utf8'))
+  const files = trace.files.map((file: string) => resolve(dirname(tracePath), file))
+  expect(files).toContain(resolve('public/green-footer-title.png'))
+})
 
 test('本番画像最適化はlocalhost・HTTP・任意ポートを拒否する', () => {
   const { config } = JSON.parse(readFileSync('.next/required-server-files.json', 'utf8'))
