@@ -5,6 +5,8 @@ import { once } from 'node:events';
 import { setTimeout as delay } from 'node:timers/promises';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
+const { encode } = require('next-auth/jwt');
+const privateToken = 'isolated-streaming-api-token-never-render-this';
 const baseline = process.env.STREAM_TEST_BASELINE === '1';
 const appDirectory = process.env.STREAM_TEST_APP_DIR || process.cwd();
 const port = Number(process.env.STREAM_TEST_PORT || 3189);
@@ -14,6 +16,7 @@ const reviewDelayMs = 900;
 const backend = createServer(async (request, response) => {
   const path = new URL(request.url, 'http://localhost').pathname;
   const isReviews = path.endsWith('/reviews');
+  const viewer = request.headers.authorization === `Bearer ${privateToken}` ? 'signed-in' : 'anonymous';
   const id = Number(path.split('/')[4]);
   const item = { path, started: performance.now(), completed: null, bytes: 0 };
   requests.push(item);
@@ -22,7 +25,7 @@ const backend = createServer(async (request, response) => {
   let status = 200;
   if (id === 999999) { status = 404; body = {error:'not found'}; }
   else if (isReviews && id === 999998) { status = 503; body = {error:'test failure'}; }
-  else if (isReviews) body = {reviews:[{id:1,lecture_id:id,rating:4,content:`公開レビューの表示を確認するための本文です。stream-review-${id}`,thanks_count:0}],access:{restriction_enabled:false,access_granted:true}};
+  else if (isReviews) body = {reviews:[{id:1,lecture_id:id,rating:4,content:`公開レビューの表示を確認するための本文です。stream-review-${id}-${viewer}`,thanks_count:0}],access:{restriction_enabled:false,access_granted:true}};
   else body = {id,title:`表示速度の検証${id}`,lecturer:'テスト教員',faculty:'工学部',avg_rating:4,review_count:1};
   const json = JSON.stringify(body);
   item.completed = performance.now();item.bytes = Buffer.byteLength(json);
@@ -37,9 +40,9 @@ const child = spawn(process.execPath, [require.resolve('next/dist/bin/next'),'st
 });
 let output = '';
 child.stdout.on('data', x => {output += x;});child.stderr.on('data',x => {output += x;});
-async function readPage(id, userAgent = 'Mozilla/5.0 Chrome/131.0.0.0 Safari/537.36') {
+async function readPage(id, userAgent = 'Mozilla/5.0 Chrome/131.0.0.0 Safari/537.36', cookie = null) {
   const started = performance.now();
-  const response = await fetch(`${base}/lectures/${id}`,{headers:{'User-Agent':userAgent}});
+  const response = await fetch(`${base}/lectures/${id}`,{headers:{'User-Agent':userAgent,...(cookie ? {Cookie:cookie} : {})}});
   const reader = response.body.getReader();
   const decoder = new TextDecoder();let html = '';let summaryMs = null;
   while(true) {
@@ -72,6 +75,13 @@ try {
   }
   assert.equal(requests.filter(x=>x.path===`/api/v1/lectures/${firstId}`).length,1,'public cache must remain shared');
   assert.equal(requests.filter(x=>x.path===`/api/v1/lectures/${firstId}/reviews`).length,4,'reviews must never be cached');
+  const session = await encode({secret:'local-stream-test-secret',token:{backendToken:privateToken,user:{id:'A',name:'A',email:'a@example.test'}}});
+  const signedIn = await readPage(firstId,undefined,`next-auth.session-token=${session}`);
+  assert.ok(signedIn.html.includes(`stream-review-${firstId}-signed-in`));
+  assert.ok(!signedIn.html.includes(privateToken),'a server component must never serialize the API bearer token');
+  const signedOut = await readPage(firstId);
+  assert.ok(signedOut.html.includes(`stream-review-${firstId}-anonymous`));
+  assert.ok(!signedOut.html.includes(`stream-review-${firstId}-signed-in`));
   const crawler = await readPage(firstId,'Twitterbot/1.0');
   assert.equal(crawler.status,200);assert.ok(crawler.html.includes('<title>表示速度の検証'));assert.ok(crawler.html.includes(`stream-review-${firstId}`));
   const failure = await readPage(999998);
@@ -79,6 +89,6 @@ try {
   const missing = await readPage(999999,'Twitterbot/1.0');
   assert.equal(missing.status,404);
   assert.ok(!requests.some(x=>x.path==='/api/v1/lectures/999999/reviews'),'missing lectures must not start a review request');
-  console.log(JSON.stringify({baseline,publicDelayMs,reviewDelayMs,samples,checks:['early public summary','uncached reviews','public cache sharing','crawler metadata and content','review error recovery UI','404 before review fetch']}));
+  console.log(JSON.stringify({baseline,publicDelayMs,reviewDelayMs,samples,checks:['early public summary','uncached reviews','public cache sharing','server bearer token not serialized','sign-out isolation','crawler metadata and content','review error recovery UI','404 before review fetch']}));
 } catch(error) {console.error(output.slice(-3000));throw error;}
 finally {child.kill('SIGTERM');if(child.exitCode===null)await once(child,'exit');await new Promise(resolve=>backend.close(resolve));}
