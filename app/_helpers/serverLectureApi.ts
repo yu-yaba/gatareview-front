@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 
 import type { HomeLectureItem, HomePageData } from '@/app/_types/HomePageData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
@@ -57,20 +58,19 @@ async function fetchJson<T>(
   return null;
 }
 
-export async function getLectureForMetadata(id: string): Promise<LectureSchema | null> {
+// Metadata, the page, and the OGP route use the same public Data Cache key.
+// React also shares the parsed result within a server render. Never add a
+// session token here: viewer-specific reviews must keep using no-store below.
+const getPublicLecture = cache(async (id: string): Promise<LectureSchema | null> => {
   return fetchJson<LectureSchema>(`/api/v1/lectures/${id}`, {
     headers: {
       'User-Agent': 'GataReview-NextJS-Metadata/1.0',
     },
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
   });
-}
+});
 
-export async function getLectureForPage(id: string): Promise<LectureSchema | null> {
-  return fetchJson<LectureSchema>(`/api/v1/lectures/${id}`, {
-    next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
-  });
-}
+export { getPublicLecture as getLectureForMetadata, getPublicLecture as getLectureForPage };
 
 export async function getLectureReviewsForPage(
   id: string,
