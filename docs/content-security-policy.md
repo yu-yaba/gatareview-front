@@ -7,6 +7,7 @@
 - 同一サイトのNext.js、API、画像、PWA。
 - `NEXT_PUBLIC_ENV` で指定したAPIのオリジン。サーバー専用の `DOCKER_BACKEND_URL` は公開しない。
 - GoogleのreCAPTCHA、計測、アバター、フォントとGoogleログインへのフォーム送信。
+- 本番のCloudflareが追加する既存のWeb Analyticsスクリプト。送信先は同一サイトの `/cdn-cgi/rum` で、外部の接続先は増やさない。
 - Next.jsの初期化とストリーミングに必要なインラインscript、および既存のインラインstyle。
 
 その他の外部スクリプト・接続先、HTMLイベント属性、eval、objectの埋め込み、他サイトからのフレーム表示は拒否する。本番でunsafe-evalは許可せず、開発時のHMRだけに許可する。
@@ -24,3 +25,5 @@ nonce生成用のMiddlewareは追加しない。公開情報の300秒キャッ�
 CSPのブラウザ試験ではダミー環境を使い、不許可のスクリプト・接続・イベント属性・evalを拒否し、必要な初期化と通信を維持することを確認する。本番反映後は主要画面、Googleログイン画面、reCAPTCHA読み込み、計測、SWの登録、CSP違反を確認する。
 
 仕様: [Next.js 15のCSP](https://nextjs.org/docs/15/app/guides/content-security-policy)、[Google reCAPTCHAのCSP](https://developers.google.com/recaptcha/docs/faq#im_using_content-security-policy_csp_on_my_website_how_can_i_configure_it_to_work_with_recaptcha)。
+
+Cloudflare: [CSPの必要な許可先](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/content-security-policies/)、[計測の配信元と送信先](https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/)。実際の本番で配信元と同一サイトの送信先を照合している。

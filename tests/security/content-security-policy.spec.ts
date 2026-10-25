@@ -38,9 +38,12 @@ test('CSPは外部スクリプト・外部接続・インラインイベント�
   expect(externalRequests).toEqual([])
 })
 
-test('必要なインライン初期化・同一サイト通信・Googleの許可先を利用できる', async ({ page }) => {
+test('必要な初期化・同一サイト通信・GoogleとCloudflareの許可先を利用できる', async ({ page }) => {
   await page.route('https://www.google.com/recaptcha/api.js*', route => route.fulfill({
     contentType: 'application/javascript', body: 'window.recaptchaScriptLoaded = true',
+  }))
+  await page.route('https://static.cloudflareinsights.com/**', route => route.fulfill({
+    contentType: 'application/javascript', body: 'window.cloudflareScriptLoaded = true',
   }))
   await page.goto('/')
   const result = await page.evaluate(async () => {
@@ -51,10 +54,14 @@ test('必要なインライン初期化・同一サイト通信・Googleの許�
     google.src = 'https://www.google.com/recaptcha/api.js?render=test-only'
     const loaded = new Promise(resolve => { google.onload = () => resolve(true); google.onerror = () => resolve(false) })
     document.body.appendChild(google)
-    return { inline: Boolean((window as any).frameworkInlineExecuted), google: await loaded,
+    const cloudflare = document.createElement('script')
+    cloudflare.src = 'https://static.cloudflareinsights.com/beacon.min.js/test-version'
+    const cloudflareLoaded = new Promise(resolve => { cloudflare.onload = () => resolve(true); cloudflare.onerror = () => resolve(false) })
+    document.body.appendChild(cloudflare)
+    return { inline: Boolean((window as any).frameworkInlineExecuted), google: await loaded, cloudflare: await cloudflareLoaded,
       apiStatus: (await fetch('/api/auth/session')).status }
   })
-  expect(result).toEqual({ inline: true, google: true, apiStatus: 200 })
+  expect(result).toEqual({ inline: true, google: true, cloudflare: true, apiStatus: 200 })
 })
 
 test('API環境変数をCSPの追加命令に使えず、本番ではevalと開発用接続を許可しない', () => {

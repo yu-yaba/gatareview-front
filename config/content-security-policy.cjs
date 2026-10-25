@@ -14,7 +14,10 @@ function createContentSecurityPolicy({ production = true, apiBaseUrl = '' } = {}
     // Next.js 15 streams inline hydration scripts. Nonces would require dynamic
     // rendering for cached pages; keep this limitation explicit in the docs.
     'script-src': ["'self'", "'unsafe-inline'", ...(!production ? ["'unsafe-eval'"] : []),
-      'https://www.googletagmanager.com', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/'],
+      'https://www.googletagmanager.com', 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/',
+      // Cloudflare injects this existing Web Analytics script at the edge.
+      // Its beacon goes to the same-origin /cdn-cgi/rum endpoint.
+      'https://static.cloudflareinsights.com'],
     'script-src-attr': ["'none'"],
     'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
     'img-src': ["'self'", 'data:', 'blob:', 'https://lh3.googleusercontent.com',
