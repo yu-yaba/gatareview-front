@@ -44,6 +44,15 @@ const reviews = {
 };
 
 const server = createServer(async (request, response) => {
+  // Loopback-only dummy API; production-mode browser tests use real fetches.
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  if (request.method === 'OPTIONS') {
+    response.writeHead(204);
+    response.end();
+    return;
+  }
   const pathname = new URL(request.url || '/', 'http://127.0.0.1').pathname;
   let body;
   if (!pathname.startsWith('/_test/')) requests.push({ method: request.method, path: pathname });

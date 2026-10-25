@@ -48,3 +48,4 @@ jobs:
           npm run test:public-cache
           npm run test:lecture-streaming
           npm run e2e:security
+          npm run e2e:csp
