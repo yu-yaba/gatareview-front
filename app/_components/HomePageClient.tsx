@@ -163,7 +163,11 @@ const useSearch = () => {
   const handleSearch = useCallback(() => {
     sessionStorage.setItem('searchWord', searchWord);
     sessionStorage.setItem('selectedFaculty', selectedFaculty);
-    router.push('/lectures');
+    const params = new URLSearchParams();
+    if (searchWord) params.set('search', searchWord);
+    if (selectedFaculty) params.set('faculty', selectedFaculty);
+    const query = params.toString();
+    router.push(`/lectures${query ? `?${query}` : ''}`);
   }, [searchWord, selectedFaculty, router]);
 
   const handleKeyUp = useCallback((e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => {

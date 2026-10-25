@@ -1,12 +1,15 @@
 /** @type {import('next').NextConfig} */
 const { createContentSecurityPolicy } = require('./config/content-security-policy.cjs');
+const { excludeUnusedRouteJavaScript } = require('./config/pwa-precache.cjs');
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
   skipWaiting: true,
   // App Router's build manifest is internal and returns 404 on Vercel.
   // Precaching it would abort installation of the entire service worker.
-  buildExcludes: [/app-build-manifest\.json$/],
+  buildExcludes: [/app-build-manifest\.json$/, excludeUnusedRouteJavaScript],
+  // Social-preview assets remain publicly served; they are not needed offline.
+  publicExcludes: ['!noprecache/**/*', '!gatareview_ogp.png', '!ogp.png', '!green-title.svg', '!white-title.svg'],
   disable: process.env.NODE_ENV === 'development',
   // 既に配布済みの古いSWが作成したキャッシュ（api-cache/pages等）を削除する
   importScripts: ['/sw-cache-cleanup.js'],

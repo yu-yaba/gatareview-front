@@ -53,9 +53,12 @@ const server = createServer(async (request, response) => {
     response.end();
     return;
   }
-  const pathname = new URL(request.url || '/', 'http://127.0.0.1').pathname;
+  const url = new URL(request.url || '/', 'http://127.0.0.1');
+  const pathname = url.pathname;
+  const responseKey = mockResponses.has(pathname + url.search) ? pathname + url.search : pathname;
   let body;
-  if (!pathname.startsWith('/_test/')) requests.push({ method: request.method, path: pathname });
+  if (!pathname.startsWith('/_test/')) requests.push({ method: request.method, path: pathname, query: url.search,
+    authenticated: Boolean(request.headers.authorization), cookie: Boolean(request.headers.cookie) });
 
   if (request.method === 'GET' && pathname === '/_test/requests') {
     body = requests;
@@ -70,8 +73,8 @@ const server = createServer(async (request, response) => {
       mockResponses.set(path, { status, body: mockBody, disconnect, delayMs });
     }
     body = { ok: true };
-  } else if (mockResponses.has(pathname)) {
-    const mock = mockResponses.get(pathname);
+  } else if (mockResponses.has(responseKey)) {
+    const mock = mockResponses.get(responseKey);
     if (mock.disconnect) { request.socket.destroy(); return; }
     if (mock.delayMs > 0) await new Promise(resolve => setTimeout(resolve, Math.min(mock.delayMs, 5000)));
     response.writeHead(mock.status, { 'Content-Type': 'application/json' });
@@ -79,6 +82,9 @@ const server = createServer(async (request, response) => {
     return;
   } else if (pathname === '/health') {
     body = { ok: true };
+  } else if (pathname === '/api/v1/lectures') {
+    body = { lectures: [lecture], pagination: { current_page: Number(url.searchParams.get('page') || 1),
+      total_pages: 1, total_count: 1, per_page: 20 } };
   } else if (pathname === `/api/v1/lectures/${lectureId}`) {
     body = lecture;
   } else if (pathname === '/api/v1/lectures/4001' || pathname === '/api/v1/lectures/4002') {

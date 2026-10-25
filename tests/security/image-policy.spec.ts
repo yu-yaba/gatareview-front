@@ -9,6 +9,16 @@ const { imageConfigDefault } = require('next/dist/shared/lib/image-config')
 test('SWの事前保存に配信されないApp Router内部manifestを含めない', () => {
   const worker = readFileSync('public/sw.js', 'utf8')
   expect(worker).not.toContain('/_next/app-build-manifest.json')
+  expect(worker).not.toMatch(/url:"\/_next\/(?:server\/|build-manifest\.json|react-loadable-manifest\.json)/)
+})
+
+test('SWは未閲覧の管理・マイページ・投稿のプログラムを事前保存しない', () => {
+  const worker = readFileSync('public/sw.js', 'utf8')
+  const urls = Array.from(worker.matchAll(/url:"([^"]+)"/g), match => match[1])
+  expect(urls.some(url => /chunks\/app\/(admin|mypage)\//.test(url))).toBe(false)
+  expect(urls.some(url => /chunks\/app\/lectures\/.*\/review\//.test(url))).toBe(false)
+  expect(urls).not.toContain('/gatareview_ogp.png')
+  expect(urls.some(url => /chunks\/app\/page-/.test(url))).toBe(true)
 })
 
 test('授業OGPの実行環境に必要なロゴを同梱する', () => {
