@@ -272,8 +272,9 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
       });
     }
 
-    // Reuse SSR data only for the same query and while it is still fresh.
-    const restoredParams = new URLSearchParams(initialQuery);
+    // Back can restore an older server payload after a shallow URL change.
+    // Compare every current URL condition before reusing that payload.
+    const restoredParams = new URLSearchParams(searchParams.toString());
     restoredParams.set('search', initialState.searchWord);
     restoredParams.set('faculty', initialState.selectedFaculty);
     let useInitialData = false;
