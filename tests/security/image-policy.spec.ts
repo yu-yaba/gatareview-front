@@ -6,6 +6,11 @@ import { execFileSync } from 'node:child_process'
 const { ImageOptimizerCache } = require('next/dist/server/image-optimizer')
 const { imageConfigDefault } = require('next/dist/shared/lib/image-config')
 
+test('SWの事前保存に配信されないApp Router内部manifestを含めない', () => {
+  const worker = readFileSync('public/sw.js', 'utf8')
+  expect(worker).not.toContain('/_next/app-build-manifest.json')
+})
+
 test('授業OGPの実行環境に必要なロゴを同梱する', () => {
   const tracePath = '.next/server/app/lectures/[id]/opengraph-image/route.js.nft.json'
   const trace = JSON.parse(readFileSync(tracePath, 'utf8'))

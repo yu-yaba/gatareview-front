@@ -46,8 +46,15 @@ test('本番ページを操作でき、CSP適用中も検索・詳細・認証�
 test('本番のNext.js初期化とSWを維持し、許可していないスクリプトを読み込まない', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByPlaceholder('授業名、教授名、学部名で検索...')).toBeEditable()
-  const scope = await page.evaluate(async () => (await navigator.serviceWorker.register('/sw.js')).scope)
+  const scope = await page.evaluate(async () => {
+    await navigator.serviceWorker.register('/sw.js')
+    const ready = await navigator.serviceWorker.ready
+    return ready.scope
+  })
   expect(scope).toBe(new URL('/', page.url()).href)
+  await expect.poll(() => page.evaluate(async () =>
+    (await navigator.serviceWorker.getRegistration())?.active?.state
+  )).toBe('activated')
   const result = await page.evaluate(async () => {
     const script = document.createElement('script')
     script.src = 'https://untrusted.example/csp-test.js'

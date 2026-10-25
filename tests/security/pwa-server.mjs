@@ -12,7 +12,10 @@ createServer((request, response) => {
   const url = new URL(request.url, 'http://127.0.0.1:39597')
   response.setHeader('Cache-Control', 'no-store')
   response.setHeader('Content-Security-Policy', createContentSecurityPolicy({ apiBaseUrl: 'http://127.0.0.1:39597' }))
-  if (url.pathname === '/_test/csp-probe') {
+  if (url.pathname === '/_next/app-build-manifest.json') {
+    // Match Next.js/Vercel: this build manifest is internal, not a public asset.
+    response.writeHead(404).end('Not found')
+  } else if (url.pathname === '/_test/csp-probe') {
     response.setHeader('Content-Type', 'text/html')
     response.end(`<!doctype html><title>CSP probe</title><script>
       window.cspViolations = [];

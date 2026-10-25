@@ -18,6 +18,8 @@ Next.js 15のストリーミングは動的なインラインscriptを使う。�
 
 nonce生成用のMiddlewareは追加しない。公開情報の300秒キャッシュと、レビューを待たずに授業概要を表示する処理を維持する。外部の有料CSP収集サービスは使わない。許可先を追加するときは用途と配信元を確認し、広いhttps:や*を追加しない。
 
+本番確認でSWのインストールを妨げていた `/_next/app-build-manifest.json` の404も確認した。これは配信されない内部ファイルなので、next-pwaのbuildExcludesで事前保存から除外する。CSPの許可範囲は広げず、実際の本番用Next.jsサーバーでSWがactivatedになるまで確認する。
+
 ## 検証
 
 `npm run verify` と `npm run e2e` の後、本番ビルドで `npm run test:public-cache`、`npm run test:lecture-streaming`、`npm run e2e:security` を実行する。ビルド時と同じ公開API設定のモックを起動したまま `npm run e2e:csp` を実行し、実際の本番用Next.jsサーバーで操作・CSPヘッダー・SW登録も確認する。通常のE2Eは開発用のモック変更を即座に表示する前提なので、300秒キャッシュが有効な本番モードの検証とは分ける。

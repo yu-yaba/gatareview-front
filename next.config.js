@@ -4,6 +4,9 @@ const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
   skipWaiting: true,
+  // App Router's build manifest is internal and returns 404 on Vercel.
+  // Precaching it would abort installation of the entire service worker.
+  buildExcludes: [/app-build-manifest\.json$/],
   disable: process.env.NODE_ENV === 'development',
   // 既に配布済みの古いSWが作成したキャッシュ（api-cache/pages等）を削除する
   importScripts: ['/sw-cache-cleanup.js'],
