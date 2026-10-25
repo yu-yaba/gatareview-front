@@ -46,6 +46,7 @@ jobs:
           trap 'kill "$mock_backend_pid"' EXIT
           npm run build
           npm run test:public-cache
+          npm run test:search-cache
           npm run test:lecture-streaming
           npm run e2e:security
           npm run e2e:csp

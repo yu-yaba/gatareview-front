@@ -64,3 +64,43 @@ test('本番のNext.js初期化とSWを維持し、許可していないスク�
   })
   expect(result).toBe('blocked')
 })
+
+test('事前保存を絞っても、有効化後に表示したホームをオフラインで再表示できる', async ({ page, context }) => {
+  const failedScripts: string[] = []
+  let requiredScripts = new Set<string>()
+  page.on('requestfailed', request => {
+    const url = new URL(request.url())
+    if (url.origin === new URL(page.url()).origin && requiredScripts.has(url.pathname)) failedScripts.push(url.pathname)
+  })
+  await page.goto('/')
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.register('/sw.js')
+    await navigator.serviceWorker.ready
+  })
+  await expect.poll(() => page.evaluate(async () => (await navigator.serviceWorker.getRegistration())?.active?.state)).toBe('activated')
+  // The existing start-url policy caches HTML on a controlled online visit.
+  // Keep its NetworkFirst freshness policy instead of precaching stale HTML.
+  await page.reload()
+  await expect.poll(() => page.evaluate(async () =>
+    Boolean(await (await caches.open('start-url')).match('/'))
+  )).toBe(true)
+  // Link prefetch can also append scripts for unvisited routes. Only the scripts
+  // in the actual home HTML are required for this offline page.
+  const html = await (await page.request.get('/')).text()
+  requiredScripts = new Set(Array.from(html.matchAll(/<script[^>]+src="([^"]+)"/g), match =>
+    new URL(match[1], page.url())).filter(url => url.origin === new URL(page.url()).origin).map(url => url.pathname))
+  const session = await context.newCDPSession(page)
+  await session.send('Network.enable')
+  await session.send('Network.setCacheDisabled', { cacheDisabled: true })
+  await context.setOffline(true)
+  try {
+    await page.reload()
+    await expect(page.getByPlaceholder('授業名、教授名、学部名で検索...')).toBeEditable()
+    await expect(page.locator('main h1')).toBeVisible()
+    expect(failedScripts).toEqual([])
+    await page.evaluate(() => window.dispatchEvent(new Event('beforeinstallprompt', { cancelable: true })))
+    await expect(page.getByRole('button', { name: '後で', exact: true })).toBeVisible()
+    await page.getByRole('button', { name: '後で', exact: true }).click()
+    await expect(page.getByRole('button', { name: '後で', exact: true })).toHaveCount(0)
+  } finally { await context.setOffline(false); await session.detach() }
+})
