@@ -173,12 +173,12 @@ export const mypageApi = {
   getMypage: () => apiRequest.get('/mypage'),
   
   // ユーザーのレビュー一覧を取得（認証必須、ページネーション付き）
-  getReviews: (page = 1, perPage = 10) => 
-    apiRequest.get(`/mypage/reviews?page=${page}&per_page=${perPage}`),
+  getReviews: (page = 1, perPage = 10, config?: AxiosRequestConfig) =>
+    apiRequest.get(`/mypage/reviews?page=${page}&per_page=${perPage}`, config),
     
   // ユーザーのブックマーク一覧を取得（認証必須、ページネーション付き）
-  getBookmarks: (page = 1, perPage = 10) => 
-    apiRequest.get(`/mypage/bookmarks?page=${page}&per_page=${perPage}`),
+  getBookmarks: (page = 1, perPage = 10, config?: AxiosRequestConfig) =>
+    apiRequest.get(`/mypage/bookmarks?page=${page}&per_page=${perPage}`, config),
 }
 
 export default apiClient

@@ -137,6 +137,26 @@ test('reCAPTCHA待機中に投稿画面を離れると投稿と遅れた成功�
   await expect(page).toHaveURL(/\/lectures\/3886$/)
 })
 
+for (const target of ['/', '/lectures/3886']) test(`${target}の表示待ちでも投稿開始後の未送信処理を取り消す`, async ({ page, context, baseURL }) => {
+  await installSession(context, baseURL!, 'A')
+  const posts = await prepareSubmission(page, 'A')
+  let releaseHome!: () => void, seenHome!: () => void
+  const pending = new Promise<void>(r => { releaseHome = r }), received = new Promise<void>(r => { seenHome = r })
+  await page.route(url => url.pathname === target && url.searchParams.has('_rsc'), async route => {
+    seenHome(); await pending; await route.continue()
+  })
+  try {
+    if (target === '/') await page.locator('a[href="/"]').first().click()
+    else await page.getByRole('button', { name: '授業詳細に戻る', exact: true }).click()
+    await received
+    await releaseCaptcha(page)
+    await page.waitForTimeout(500)
+    expect(posts).toHaveLength(0)
+  } finally { releaseHome() }
+  await expect(page).toHaveURL(target)
+  await expectNoSubmission(page, posts)
+})
+
 test('変更通知前にCookieがBへ切り替わってもAのフォームをBで投稿しない', async ({ page, context, baseURL }) => {
   await installSession(context, baseURL!, 'A')
   const posts = await prepareSubmission(page, 'A')

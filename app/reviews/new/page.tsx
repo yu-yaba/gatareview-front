@@ -4,29 +4,34 @@ import { Suspense, useState, useEffect, useRef, useCallback, useMemo, memo } fro
 import { handleAjaxError } from '../../_helpers/helpers';
 import Link from 'next/link';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Loading from '../../_components/Loading';
 import { debounce } from 'lodash';
+import { readPageNumber } from '../../_helpers/pagination';
+import { useCancelOnNavigation } from '../../_hooks/useCancelOnNavigation';
 import { useAuth } from '../../_hooks/useAuth';
 import { signIn } from 'next-auth/react';
 
 const NewReviewPage = () => {
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
-  const [searchWord, setSearchWord] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [searchWord, setSearchWord] = useState(searchParams.get('search') || '');
   const [fetchedLectures, setFetchedLectures] = useState<Array<LectureSchema>>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(readPageNumber(searchParams.get('page')));
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
   const [lastSearchTerm, setLastSearchTerm] = useState('');
   const searchInput = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-  const searchParams = useSearchParams();
 
   // 検索結果キャッシュ
   const searchCache = useRef<Map<string, { lectures: LectureSchema[], pagination: any, timestamp: number }>>(new Map());
   const abortControllerRef = useRef<AbortController | null>(null);
+  const redirectRequest = useRef<AbortController | null>(null);
+  const ownQuery = useRef<string | null>(null);
 
   // キャッシュ有効期限（5分）
   const CACHE_DURATION = 5 * 60 * 1000;
@@ -35,41 +40,38 @@ const NewReviewPage = () => {
   const observerTarget = useRef<HTMLDivElement>(null);
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 10 });
 
-  // URLパラメータから特定の授業を取得する関数
-  const fetchSpecificLecture = async (lectureId: string) => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lectureId}`);
-      if (!response.ok) throw new Error(response.statusText);
-      const data = await response.json();
-      // 直接レビューページに遷移
-      router.push(`/lectures/${lectureId}/review`);
-      return data;
-    } catch (error) {
-      handleAjaxError("指定された授業の取得に失敗しました");
-      return null;
-    }
-  };
-
   useEffect(() => {
     const lectureId = searchParams.get('lectureId');
-
-    if (lectureId) {
-      // URLパラメータで授業IDが指定されている場合、その授業のレビューページに遷移
-      fetchSpecificLecture(lectureId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!lectureId) return;
+    const controller = new AbortController();
+    redirectRequest.current = controller;
+    const openLecture = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lectureId}`, { signal: controller.signal });
+        if (!response.ok) throw new Error('Lecture unavailable');
+        await response.json();
+        if (!controller.signal.aborted) router.replace(`/lectures/${lectureId}/review`);
+      } catch {
+        if (!controller.signal.aborted) handleAjaxError('指定された授業の取得に失敗しました');
+      }
+    };
+    openLecture();
+    return () => controller.abort();
   }, [searchParams, router]);
 
   // 最適化された授業検索関数
-  const fetchLectures = useCallback(async (search: string, page: number = 1, fromPageChange: boolean = false) => {
+  const fetchLectures = useCallback(async (search: string, page: number = 1) => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
     // 空文字の場合のみ何もしない
     if (!search.trim()) {
-      if (!fromPageChange) {
-        setFetchedLectures([]);
-        setTotalPages(0);
-        setTotalCount(0);
-        setHasSearched(false);
-      }
+      setFetchedLectures([]);
+      setTotalPages(0);
+      setTotalCount(0);
+      setHasSearched(false);
+      setCurrentPage(1);
+      setLastSearchTerm('');
+      setIsLoading(false);
       return;
     }
 
@@ -86,6 +88,7 @@ const NewReviewPage = () => {
         setCurrentPage(page);
         setHasSearched(true);
         setLastSearchTerm(search.trim());
+        setIsLoading(false);
         return;
       } else {
         // 期限切れキャッシュを削除
@@ -93,19 +96,15 @@ const NewReviewPage = () => {
       }
     }
 
-    // 進行中のリクエストをキャンセル
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     try {
       setIsLoading(true);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures?search=${encodeURIComponent(search.trim())}&page=${page}`,
         { 
-          signal: abortControllerRef.current.signal,
+          signal: controller.signal,
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
@@ -118,6 +117,7 @@ const NewReviewPage = () => {
       }
 
       const data = await response.json();
+      if (controller.signal.aborted) return;
 
       // キャッシュに保存
       searchCache.current.set(cacheKey, {
@@ -141,7 +141,7 @@ const NewReviewPage = () => {
       setHasSearched(true);
       setLastSearchTerm(search.trim());
     } catch (error: any) {
-      if (error.name === 'AbortError') {
+      if (controller.signal.aborted || error.name === 'AbortError') {
         return; // リクエストがキャンセルされた場合は何もしない
       }
 
@@ -165,45 +165,82 @@ const NewReviewPage = () => {
       setTotalCount(0);
       setHasSearched(true);
     } finally {
-      setIsLoading(false);
-      abortControllerRef.current = null;
+      if (abortControllerRef.current === controller && !controller.signal.aborted) {
+        setIsLoading(false);
+        abortControllerRef.current = null;
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 最適化されたdebounce（1つのみ）
-  const debouncedFetchLectures = useMemo(
-    () => debounce((search: string) => {
-      fetchLectures(search, 1);
-    }, 300),
-    [fetchLectures]
-  );
+  const commitSearch = useCallback((search: string, page = 1) => {
+    if (window.location.pathname !== pathname) return;
+    const params = new URLSearchParams(window.location.search);
+    params.delete('lectureId');
+    if (search.trim()) params.set('search', search.trim());
+    else params.delete('search');
+    if (page > 1) params.set('page', String(page));
+    else params.delete('page');
+    const query = params.toString();
+    const nextURL = pathname + (query ? '?' + query : '');
+    if (nextURL !== window.location.pathname + window.location.search) {
+      ownQuery.current = query;
+      window.history.pushState(null, '', nextURL);
+    }
+    else fetchLectures(search, page);
+  }, [pathname, fetchLectures]);
+
+  const debouncedFetchLectures = useMemo(() => debounce((search: string) => commitSearch(search), 300), [commitSearch]);
+  const cancelPending = useCallback(() => {
+    debouncedFetchLectures.cancel();
+    abortControllerRef.current?.abort();
+    redirectRequest.current?.abort();
+  }, [debouncedFetchLectures]);
+  const cancelHistory = useCallback(() => debouncedFetchLectures.cancel(), [debouncedFetchLectures]);
+  useCancelOnNavigation(cancelPending, cancelHistory);
+
+  useEffect(() => {
+    const query = searchParams.toString();
+    if (query !== new URLSearchParams(window.location.search).toString()) return;
+    if (searchParams.get('lectureId')) return;
+    const search = searchParams.get('search') || '';
+    // An earlier debounced URL update must not discard the next typed search.
+    if (ownQuery.current !== query) {
+      debouncedFetchLectures.cancel();
+      setSearchWord(search);
+    }
+    ownQuery.current = null;
+    fetchLectures(search, readPageNumber(searchParams.get('page')));
+    return () => abortControllerRef.current?.abort();
+  }, [searchParams, fetchLectures, debouncedFetchLectures]);
+
+  useEffect(() => () => debouncedFetchLectures.cancel(), [debouncedFetchLectures]);
 
   const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchWord(value);
-
-    if (value.length >= 1) {
-      debouncedFetchLectures(value);
-    } else if (value.length === 0) {
+    abortControllerRef.current?.abort();
+    setIsLoading(false);
+    if (value.trim()) debouncedFetchLectures(value);
+    else {
+      debouncedFetchLectures.cancel();
       setFetchedLectures([]);
       setTotalPages(0);
       setTotalCount(0);
       setHasSearched(false);
-      debouncedFetchLectures.cancel(); // debounceをキャンセル
+      commitSearch('');
     }
-  }, [debouncedFetchLectures]);
+  }, [debouncedFetchLectures, commitSearch]);
 
   const handlePageChange = useCallback((page: number) => {
-    if (lastSearchTerm.length >= 1) {
-      fetchLectures(lastSearchTerm, page, true);
-    }
-  }, [lastSearchTerm, fetchLectures]);
+    if (lastSearchTerm) commitSearch(lastSearchTerm, page);
+  }, [lastSearchTerm, commitSearch]);
 
   // 講義選択ハンドラー
   const handleLectureSelect = useCallback((lecture: LectureSchema) => {
+    cancelPending();
     router.push(`/lectures/${lecture.id}/review`);
-  }, [router]);
+  }, [router, cancelPending]);
 
   // 講義カードコンポーネント（メモ化）
   const LectureCard = memo<{ lecture: LectureSchema }>(({ lecture }) => (
@@ -415,7 +452,7 @@ const NewReviewPage = () => {
         <input
           type="text"
           ref={searchInput}
-          defaultValue={searchWord}
+          value={searchWord}
           onChange={handleSearchInputChange}
           placeholder="授業名、講師名で検索..."
           className="w-full p-3 border rounded-md shadow focus:border-green-500 outline-none"

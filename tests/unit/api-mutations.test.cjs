@@ -158,6 +158,7 @@ function hookFixture(initialSession) {
   let session = initialSession
   let refIndex = 0
   let effectIndex = 0
+  let cancelNavigation
   const refs = []
   const effects = []
   const react = {
@@ -175,6 +176,8 @@ function hookFixture(initialSession) {
   const { useMutationRequest } = loadSource('app/_hooks/useMutationRequest.ts', {
     react,
     'next-auth/react': { useSession: () => session },
+    // Real DOM navigation events are covered by the browser regression tests.
+    './useCancelOnNavigation': { useCancelOnNavigation: cancel => { cancelNavigation = cancel } },
   })
   const render = nextSession => {
     if (nextSession) session = nextSession
@@ -182,7 +185,7 @@ function hookFixture(initialSession) {
     effectIndex = 0
     return useMutationRequest()
   }
-  return { render, unmount: () => effects.forEach(effect => effect.cleanup?.()) }
+  return { render, navigate: () => cancelNavigation(), unmount: () => effects.forEach(effect => effect.cleanup?.()) }
 }
 
 const authenticated = token => ({ data: { backendToken: token }, status: 'authenticated' })
@@ -207,6 +210,14 @@ test('mutation hook aborts pending work when its component unmounts', () => {
   fixture.unmount()
   assert.equal(started.signal.aborted, true)
   assert.equal(hook.beginMutation(), null)
+})
+
+test('mutation hook aborts pending work when navigation starts before unmount', () => {
+  const fixture = hookFixture(anonymous)
+  const started = fixture.render().beginMutation()
+  fixture.navigate()
+  assert.equal(started.signal.aborted, true)
+  fixture.unmount()
 })
 
 test('mutation hook guards duplicate submissions and releases the guard on finish', () => {

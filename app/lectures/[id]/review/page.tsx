@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import { isEmptyObject, validateReview, handleAjaxError } from '../../../_helpers/helpers';
 import { getReviewYearOptions } from '../../../_helpers/reviewYears';
 import { success } from '@/app/_helpers/notifications';
@@ -9,6 +9,7 @@ import type { LectureSchema } from '@/app/_types/LectureSchema';
 import { useParams, useRouter } from 'next/navigation';
 import { reviewApi, SessionChangedError } from '../../../_helpers/api';
 import { useMutationRequest, type MutationRequest } from '../../../_hooks/useMutationRequest';
+import { useCancelOnNavigation } from '../../../_hooks/useCancelOnNavigation';
 import Loading from '../../../_components/Loading';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
 
@@ -27,7 +28,10 @@ const ReviewPage = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [ratingValue, setRatingValue] = useState(3);
   const router = useRouter();
-  const { beginMutation, isSessionLoading } = useMutationRequest();
+  const lectureRequest = useRef<AbortController | null>(null);
+  const cancelLecture = useCallback(() => lectureRequest.current?.abort(), []);
+  useCancelOnNavigation(cancelLecture);
+  const { beginMutation, cancelMutations, isSessionLoading } = useMutationRequest();
 
   // フィールド設定の型定義
   interface SelectFieldConfig {
@@ -86,12 +90,15 @@ const ReviewPage = () => {
 
   // 講義詳細取得
   useEffect(() => {
+    const controller = new AbortController();
+    lectureRequest.current = controller;
     const fetchLecture = async () => {
       try {
         setIsLoadingLecture(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`, { signal: controller.signal });
         if (!response.ok) throw new Error(response.statusText);
         const data = await response.json();
+        if (controller.signal.aborted) return;
         setLecture(data);
 
         // レビューデータの初期化
@@ -109,14 +116,16 @@ const ReviewPage = () => {
         });
         setRatingValue(3);
       } catch (error) {
+        if (controller.signal.aborted) return;
         handleAjaxError("授業の取得に失敗しました");
         router.push('/reviews/new');
       } finally {
-        setIsLoadingLecture(false);
+        if (!controller.signal.aborted) setIsLoadingLecture(false);
       }
     };
 
     fetchLecture();
+    return () => controller.abort();
   }, [params.id, router]);
 
   // レビューフォームのロジック（最適化）
@@ -394,8 +403,10 @@ const ReviewPage = () => {
   }, [review, addReview, beginMutation]);
 
   const handleBack = useCallback(() => {
+    cancelLecture();
+    cancelMutations();
     router.push(`/lectures/${params.id}`);
-  }, [params.id, router]);
+  }, [params.id, router, cancelLecture, cancelMutations]);
 
   if (isLoadingLecture || !lecture) {
     return (
