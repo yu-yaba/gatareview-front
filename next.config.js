@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const { createContentSecurityPolicy } = require('./config/content-security-policy.cjs');
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
@@ -110,6 +111,16 @@ const nextConfig = {
   // PWA関連ヘッダー設定
   async headers() {
     return [
+      {
+        source: '/:path*',
+        headers: [{
+          key: 'Content-Security-Policy',
+          value: createContentSecurityPolicy({
+            production: process.env.NODE_ENV === 'production',
+            apiBaseUrl: process.env.NEXT_PUBLIC_ENV,
+          }),
+        }],
+      },
       {
         source: '/sw.js',
         headers: [

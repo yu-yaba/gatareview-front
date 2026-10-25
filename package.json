@@ -13,6 +13,7 @@
     "e2e:install": "playwright install chromium",
     "e2e": "playwright test",
     "e2e:security": "playwright test -c playwright.security.config.ts",
+    "e2e:csp": "playwright test -c playwright.csp.config.ts",
     "test:public-cache": "node tests/cache/public-lecture-cache.mjs",
     "test:lecture-streaming": "node tests/cache/lecture-streaming.mjs",
     "e2e:headed": "playwright test --headed",

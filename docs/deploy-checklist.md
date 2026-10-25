@@ -74,3 +74,10 @@
 - [表示速度の方針と測定方法](page-speed.md)に従い、レビューを待つ間に公開の授業情報が表示されることを確認する。
 - 本番ビルド後は `test:public-cache`、`test:lecture-streaming`、`e2e:security` を実行する。
 - 実行地域はAPIに近い単一の `iad1`。本番のデプロイ情報と照合し、主要画面、セッションAPI、表示速度を確認する。
+
+## CSPの確認
+
+- [CSPの許可範囲と制約](content-security-policy.md)を確認する。
+- 本番では外部の不許可スクリプト・接続先・HTMLイベント属性・evalを拒否する。
+- Googleログイン、reCAPTCHA、計測、PWA、主要画面の操作時にCSP違反がないことを確認する。
+- インラインscriptを全面禁止する方式ではない。既存の静的描画・公開情報キャッシュ・先行表示を維持する。
