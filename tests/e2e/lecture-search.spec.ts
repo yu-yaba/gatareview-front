@@ -117,3 +117,58 @@ test('遅い検索の途中で戻っても、後から届いた結果で上書�
   await page.waitForTimeout(1400)
   await expect(page.getByRole('heading', { name: '遅れて届く授業', exact: true })).toHaveCount(0)
 })
+
+async function visitDetailAndReturn(page: Page, expectedTitle: string, params: URLSearchParams) {
+  const expectedURL = page.url()
+  await page.locator('main a[href="/lectures/4001"]').first().click()
+  await expect(page).toHaveURL(/\/lectures\/4001$/)
+  await expect(page.locator('main h1')).toContainText('レビュー0件の授業')
+  await page.goBack()
+  await expect(page).toHaveURL(expectedURL)
+  await expect(page.getByRole('heading', { name: expectedTitle, exact: true })).toBeVisible()
+  for (const [key, value] of Array.from(params.entries())) {
+    expect(new URL(page.url()).searchParams.get(key)).toBe(value)
+  }
+}
+
+test('一覧2ページ目から詳細へ移動して戻っても2ページ目の内容を復元する', async ({ page }) => {
+  await list(page, 'page=2', '2ページ目の授業', 2)
+  await page.goto('/lectures')
+  await page.getByRole('button', { name: '2', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '2ページ目の授業', exact: true })).toBeVisible()
+  await visitDetailAndReturn(page, '2ページ目の授業', new URLSearchParams({ page: '2' }))
+  await expect(page.getByRole('status').filter({ hasText: '件の授業' })).toContainText('2 / 2')
+  await page.goForward()
+  await expect(page).toHaveURL(/\/lectures\/4001$/)
+  await page.goBack()
+  await expect(page.getByRole('heading', { name: '2ページ目の授業', exact: true })).toBeVisible()
+})
+
+test('並び順を変えて詳細から戻っても表示内容と並び順を復元する', async ({ page }) => {
+  const params = new URLSearchParams({ sort: 'highestRating' })
+  await list(page, publicLectureQuery(params), '評価順の授業')
+  await page.goto('/lectures')
+  await page.locator('#sort-select').selectOption('highestRating')
+  await page.getByRole('button', { name: '現在の検索条件で授業を検索' }).click()
+  await expect(page.getByRole('heading', { name: '評価順の授業', exact: true })).toBeVisible()
+  await visitDetailAndReturn(page, '評価順の授業', params)
+  await expect(page.locator('#sort-select')).toHaveValue('highestRating')
+})
+
+test('全詳細条件を変えて詳細から戻っても条件と表示内容を復元する', async ({ page }) => {
+  const fields = {
+    'period-year': String(new Date().getFullYear()), 'period-term': '1ターム', textbook: '必要',
+    attendance: '毎回確認', 'grading-type': 'テストのみ', 'content-difficulty': '楽', 'content-quality': '良い',
+  }
+  const params = new URLSearchParams()
+  for (const [id, value] of Object.entries(fields)) params.set(id.replaceAll('-', '_'), value)
+  await list(page, publicLectureQuery(params), '詳細条件で絞った授業')
+  await page.goto('/lectures')
+  await page.getByRole('button', { name: '詳細検索', exact: true }).click()
+  for (const [id, value] of Object.entries(fields)) await page.locator('#' + id).selectOption(value)
+  await page.getByRole('button', { name: '現在の検索条件で授業を検索' }).click()
+  await expect(page.getByRole('heading', { name: '詳細条件で絞った授業', exact: true })).toBeVisible()
+  await visitDetailAndReturn(page, '詳細条件で絞った授業', params)
+  await page.getByRole('button', { name: '詳細検索', exact: true }).click()
+  for (const [id, value] of Object.entries(fields)) await expect(page.locator('#' + id)).toHaveValue(value)
+})
