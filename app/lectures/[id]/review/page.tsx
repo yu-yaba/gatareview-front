@@ -86,12 +86,14 @@ const ReviewPage = () => {
 
   // 講義詳細取得
   useEffect(() => {
+    const controller = new AbortController();
     const fetchLecture = async () => {
       try {
         setIsLoadingLecture(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${params.id}`, { signal: controller.signal });
         if (!response.ok) throw new Error(response.statusText);
         const data = await response.json();
+        if (controller.signal.aborted) return;
         setLecture(data);
 
         // レビューデータの初期化
@@ -109,14 +111,16 @@ const ReviewPage = () => {
         });
         setRatingValue(3);
       } catch (error) {
+        if (controller.signal.aborted) return;
         handleAjaxError("授業の取得に失敗しました");
         router.push('/reviews/new');
       } finally {
-        setIsLoadingLecture(false);
+        if (!controller.signal.aborted) setIsLoadingLecture(false);
       }
     };
 
     fetchLecture();
+    return () => controller.abort();
   }, [params.id, router]);
 
   // レビューフォームのロジック（最適化）

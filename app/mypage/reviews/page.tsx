@@ -2,11 +2,12 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, memo } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, memo } from 'react'
 import Link from 'next/link'
 import Loading from '../../_components/Loading'
 import StarRating from '@/app/_components/StarRating'
 import { mypageApi } from '../../_helpers/api'
+import { useUrlPage } from '../../_hooks/useUrlPage'
 import {
   FaArrowLeft,
   FaComments,
@@ -34,13 +35,15 @@ const LoadingSpinner = memo(() => (
 ));
 LoadingSpinner.displayName = 'LoadingSpinner';
 
-export default function MyReviewsPage() {
+function MyReviewsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [reviewsData, setReviewsData] = useState<ReviewsApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useUrlPage()
+  const pendingRequest = useRef<AbortController | null>(null)
+  const backendToken = session?.backendToken
   const [editingReview, setEditingReview] = useState<UserReviewData | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
@@ -51,7 +54,7 @@ export default function MyReviewsPage() {
     }
   }, [status, router])
 
-  const validateReviewsResponse = (data: any): data is ReviewsApiResponse => {
+  const validateReviewsResponse = useCallback((data: any): data is ReviewsApiResponse => {
     return data &&
            typeof data === 'object' &&
            Array.isArray(data.reviews) &&
@@ -60,24 +63,28 @@ export default function MyReviewsPage() {
            typeof data.pagination.total_pages === 'number' &&
            data.statistics &&
            typeof data.statistics.total_reviews === 'number'
-  }
+  }, [])
 
-  const fetchReviews = async (page = 1) => {
+  const fetchReviews = useCallback(async (page = 1) => {
+    pendingRequest.current?.abort()
+    const controller = new AbortController()
+    pendingRequest.current = controller
     try {
       setLoading(true)
       setError(null)
 
-      const response = await mypageApi.getReviews(page, 10)
+      const response = await mypageApi.getReviews(page, 10, { signal: controller.signal })
+      if (controller.signal.aborted) return
       
       // レスポンス構造の検証
       if (!validateReviewsResponse(response.data)) {
-        console.error('無効なレスポンス構造:', response.data)
+        console.error('無効なレスポンス構造')
         throw new Error('INVALID_RESPONSE_STRUCTURE')
       }
 
       setReviewsData(response.data)
-      setCurrentPage(page)
     } catch (error: any) {
+      if (controller.signal.aborted) return
       // セキュリティ: AxiosError の全体出力はAuthorizationヘッダー等が含まれ得るため避ける
       console.error('レビューデータの取得に失敗:', error?.response?.status, error?.message)
 
@@ -122,15 +129,16 @@ export default function MyReviewsPage() {
         }
       }
     } finally {
-      setLoading(false)
+      if (pendingRequest.current === controller && !controller.signal.aborted) setLoading(false)
     }
-  }
+  }, [validateReviewsResponse])
 
   useEffect(() => {
-    if (session && status === 'authenticated') {
+    if (status === 'authenticated') {
       fetchReviews(currentPage)
     }
-  }, [session, status, currentPage])
+    return () => pendingRequest.current?.abort()
+  }, [backendToken, status, currentPage, fetchReviews])
 
   // レビュー編集機能
   const handleEditReview = (review: UserReviewData) => {
@@ -172,7 +180,7 @@ export default function MyReviewsPage() {
 
       // 現在のページにレビューがなくなった場合、前のページに戻る
       if (updatedReviews.length === 0 && currentPage > 1) {
-        fetchReviews(currentPage - 1)
+        setCurrentPage(currentPage - 1)
       }
     }
     setIsEditModalOpen(false)
@@ -182,7 +190,7 @@ export default function MyReviewsPage() {
   // ページネーション
   const handlePageChange = (page: number) => {
     if (page >= 1 && reviewsData && reviewsData.pagination && page <= (reviewsData.pagination.total_pages || 0)) {
-      fetchReviews(page)
+      setCurrentPage(page)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
@@ -474,4 +482,8 @@ export default function MyReviewsPage() {
       )}
     </div>
   )
+}
+
+export default function MyReviewsPageWithSuspense() {
+  return <Suspense fallback={<LoadingSpinner />}><MyReviewsPage /></Suspense>
 }

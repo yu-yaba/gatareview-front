@@ -2,10 +2,11 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, memo } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, memo } from 'react'
 import Link from 'next/link'
 import Loading from '../../_components/Loading'
 import { mypageApi } from '../../_helpers/api'
+import { useUrlPage } from '../../_hooks/useUrlPage'
 import {
   FaArrowLeft,
   FaBookmark,
@@ -28,13 +29,15 @@ const LoadingSpinner = memo(() => (
 ));
 LoadingSpinner.displayName = 'LoadingSpinner';
 
-export default function MyBookmarksPage() {
+function MyBookmarksPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [bookmarksData, setBookmarksData] = useState<BookmarksApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useUrlPage()
+  const pendingRequest = useRef<AbortController | null>(null)
+  const backendToken = session?.backendToken
 
   useEffect(() => {
     // 未認証の場合はログインページにリダイレクト
@@ -43,7 +46,7 @@ export default function MyBookmarksPage() {
     }
   }, [status, router])
 
-  const validateBookmarksResponse = (data: any): data is BookmarksApiResponse => {
+  const validateBookmarksResponse = useCallback((data: any): data is BookmarksApiResponse => {
     return data &&
            typeof data === 'object' &&
            Array.isArray(data.bookmarks) &&
@@ -52,24 +55,28 @@ export default function MyBookmarksPage() {
            typeof data.pagination.total_pages === 'number' &&
            data.statistics &&
            typeof data.statistics.total_bookmarks === 'number'
-  }
+  }, [])
 
-  const fetchBookmarks = async (page = 1) => {
+  const fetchBookmarks = useCallback(async (page = 1) => {
+    pendingRequest.current?.abort()
+    const controller = new AbortController()
+    pendingRequest.current = controller
     try {
       setLoading(true)
       setError(null)
 
-      const response = await mypageApi.getBookmarks(page, 10)
+      const response = await mypageApi.getBookmarks(page, 10, { signal: controller.signal })
+      if (controller.signal.aborted) return
       
       // レスポンス構造の検証
       if (!validateBookmarksResponse(response.data)) {
-        console.error('無効なレスポンス構造:', response.data)
+        console.error('無効なレスポンス構造')
         throw new Error('INVALID_RESPONSE_STRUCTURE')
       }
 
       setBookmarksData(response.data)
-      setCurrentPage(page)
     } catch (error: any) {
+      if (controller.signal.aborted) return
       // セキュリティ: AxiosError の全体出力はAuthorizationヘッダー等が含まれ得るため避ける
       console.error('ブックマークデータの取得に失敗:', error?.response?.status, error?.message)
 
@@ -114,15 +121,16 @@ export default function MyBookmarksPage() {
         }
       }
     } finally {
-      setLoading(false)
+      if (pendingRequest.current === controller && !controller.signal.aborted) setLoading(false)
     }
-  }
+  }, [validateBookmarksResponse])
 
   useEffect(() => {
-    if (session && status === 'authenticated') {
+    if (status === 'authenticated') {
       fetchBookmarks(currentPage)
     }
-  }, [session, status, currentPage])
+    return () => pendingRequest.current?.abort()
+  }, [backendToken, status, currentPage, fetchBookmarks])
 
   // ブックマーク削除機能
   const handleBookmarkRemoved = (lectureId: number) => {
@@ -134,7 +142,7 @@ export default function MyBookmarksPage() {
   // ページネーション
   const handlePageChange = (page: number) => {
     if (page >= 1 && bookmarksData && bookmarksData.pagination && page <= (bookmarksData.pagination.total_pages || 0)) {
-      fetchBookmarks(page)
+      setCurrentPage(page)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
@@ -335,4 +343,8 @@ export default function MyBookmarksPage() {
       </div>
     </div>
   )
+}
+
+export default function MyBookmarksPageWithSuspense() {
+  return <Suspense fallback={<LoadingSpinner />}><MyBookmarksPage /></Suspense>
 }
