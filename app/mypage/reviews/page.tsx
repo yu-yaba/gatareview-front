@@ -8,6 +8,7 @@ import Loading from '../../_components/Loading'
 import StarRating from '@/app/_components/StarRating'
 import { mypageApi } from '../../_helpers/api'
 import { useUrlPage } from '../../_hooks/useUrlPage'
+import { useCancelOnNavigation } from '../../_hooks/useCancelOnNavigation'
 import {
   FaArrowLeft,
   FaComments,
@@ -43,6 +44,8 @@ function MyReviewsPage() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useUrlPage()
   const pendingRequest = useRef<AbortController | null>(null)
+  const cancelPending = useCallback(() => pendingRequest.current?.abort(), [])
+  useCancelOnNavigation(cancelPending)
   const backendToken = session?.backendToken
   const [editingReview, setEditingReview] = useState<UserReviewData | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)

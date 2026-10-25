@@ -141,7 +141,7 @@ test('授業ID指定の投稿リンクからブラウザで戻っても自動転
   await expect(page).toHaveURL('/')
 })
 
-test('投稿授業検索の連続入力を保持し、画面を離れた後の入力待ち処理でURLを変えない', async ({ page }) => {
+for (const target of ['/', '/lectures/3886/review']) test(`投稿授業検索の連続入力を保持し、${target}への移動中にURLを上書きしない`, async ({ page }) => {
   await page.route('**/api/v1/lectures?**', route => {
     const word = new URL(route.request().url()).searchParams.get('search') || ''
     return route.fulfill({ json: list(word + 'の結果') })
@@ -151,9 +151,15 @@ test('投稿授業検索の連続入力を保持し、画面を離れた後の�
   await input.pressSequentially('continuous', { delay: 40 })
   await expect(page.getByRole('heading', { name: 'continuousの結果', exact: true })).toBeVisible()
   await expect(input).toHaveValue('continuous')
+  // Keep the old page mounted while the next page's server payload is delayed.
+  await page.route(url => url.pathname === target && url.searchParams.has('_rsc'), async route => {
+    await new Promise(resolve => setTimeout(resolve, 800))
+    await route.continue()
+  })
   await input.fill('離れた後に反映しない')
-  await page.locator('a[href="/"]').first().click()
-  await expect(page).toHaveURL('/')
+  if (target === '/') await page.locator('a[href="/"]').first().click()
+  else await page.getByRole('button').filter({ has: page.getByRole('heading', { name: 'continuousの結果', exact: true }) }).click()
+  await expect(page).toHaveURL(target)
   await page.waitForTimeout(500)
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL(target)
 })

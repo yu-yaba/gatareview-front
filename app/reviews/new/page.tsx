@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Loading from '../../_components/Loading';
 import { debounce } from 'lodash';
 import { readPageNumber } from '../../_helpers/pagination';
+import { useCancelOnNavigation } from '../../_hooks/useCancelOnNavigation';
 import { useAuth } from '../../_hooks/useAuth';
 import { signIn } from 'next-auth/react';
 
@@ -29,6 +30,7 @@ const NewReviewPage = () => {
   // 検索結果キャッシュ
   const searchCache = useRef<Map<string, { lectures: LectureSchema[], pagination: any, timestamp: number }>>(new Map());
   const abortControllerRef = useRef<AbortController | null>(null);
+  const redirectRequest = useRef<AbortController | null>(null);
   const ownQuery = useRef<string | null>(null);
 
   // キャッシュ有効期限（5分）
@@ -42,6 +44,7 @@ const NewReviewPage = () => {
     const lectureId = searchParams.get('lectureId');
     if (!lectureId) return;
     const controller = new AbortController();
+    redirectRequest.current = controller;
     const openLecture = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_ENV}/api/v1/lectures/${lectureId}`, { signal: controller.signal });
@@ -171,6 +174,7 @@ const NewReviewPage = () => {
   }, []);
 
   const commitSearch = useCallback((search: string, page = 1) => {
+    if (window.location.pathname !== pathname) return;
     const params = new URLSearchParams(window.location.search);
     params.delete('lectureId');
     if (search.trim()) params.set('search', search.trim());
@@ -187,6 +191,13 @@ const NewReviewPage = () => {
   }, [pathname, fetchLectures]);
 
   const debouncedFetchLectures = useMemo(() => debounce((search: string) => commitSearch(search), 300), [commitSearch]);
+  const cancelPending = useCallback(() => {
+    debouncedFetchLectures.cancel();
+    abortControllerRef.current?.abort();
+    redirectRequest.current?.abort();
+  }, [debouncedFetchLectures]);
+  const cancelHistory = useCallback(() => debouncedFetchLectures.cancel(), [debouncedFetchLectures]);
+  useCancelOnNavigation(cancelPending, cancelHistory);
 
   useEffect(() => {
     const query = searchParams.toString();
@@ -227,8 +238,9 @@ const NewReviewPage = () => {
 
   // 講義選択ハンドラー
   const handleLectureSelect = useCallback((lecture: LectureSchema) => {
+    cancelPending();
     router.push(`/lectures/${lecture.id}/review`);
-  }, [router]);
+  }, [router, cancelPending]);
 
   // 講義カードコンポーネント（メモ化）
   const LectureCard = memo<{ lecture: LectureSchema }>(({ lecture }) => (

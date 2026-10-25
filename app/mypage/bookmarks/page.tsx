@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Loading from '../../_components/Loading'
 import { mypageApi } from '../../_helpers/api'
 import { useUrlPage } from '../../_hooks/useUrlPage'
+import { useCancelOnNavigation } from '../../_hooks/useCancelOnNavigation'
 import {
   FaArrowLeft,
   FaBookmark,
@@ -37,6 +38,8 @@ function MyBookmarksPage() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useUrlPage()
   const pendingRequest = useRef<AbortController | null>(null)
+  const cancelPending = useCallback(() => pendingRequest.current?.abort(), [])
+  useCancelOnNavigation(cancelPending)
   const backendToken = session?.backendToken
 
   useEffect(() => {

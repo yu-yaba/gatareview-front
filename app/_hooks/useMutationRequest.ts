@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import type { SessionBoundRequestConfig } from '../_helpers/api'
+import { useCancelOnNavigation } from './useCancelOnNavigation'
 
 export interface MutationRequest extends SessionBoundRequestConfig {
   signal: AbortSignal
@@ -13,6 +14,10 @@ export function useMutationRequest() {
   const backendToken = session?.backendToken?.trim() || null
   const active = useRef(new Set<AbortController>())
   const mounted = useRef(true)
+  const cancelMutations = useCallback(() => {
+    active.current.forEach(controller => controller.abort())
+  }, [])
+  useCancelOnNavigation(cancelMutations, cancelMutations)
 
   useEffect(() => {
     mounted.current = true
@@ -35,5 +40,5 @@ export function useMutationRequest() {
     }
   }, [backendToken, status])
 
-  return { beginMutation, isSessionLoading: status === 'loading' }
+  return { beginMutation, cancelMutations, isSessionLoading: status === 'loading' }
 }
