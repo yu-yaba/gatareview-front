@@ -1,6 +1,7 @@
 'use client'
 
 import * as Sentry from '@sentry/nextjs'
+import Link from 'next/link'
 import { useEffect } from 'react'
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
@@ -12,7 +13,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           <h1>エラーが発生しました</h1>
           <p>しばらく時間をおいてから、再度お試しください。</p>
           <button onClick={reset}>再試行</button>
-          <p><a href="/">ホームへ戻る</a></p>
+          <p><Link href="/">ホームへ戻る</Link></p>
         </main>
       </body>
     </html>
