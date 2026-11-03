@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run lint && npm run typecheck && npm run test:auth-options && npm run test:mutations && npm run test:lecture-search && npm run test:monitoring && npm run e2e:smoke",
+    "verify": "npm run lint && npm run typecheck && npm run test:auth-options && npm run test:mutations && npm run test:lecture-search && npm run test:monitoring && npm run test:pwa-domains && npm run e2e:smoke",
     "test:auth-options": "node --test tests/unit/auth-options-log.test.cjs",
     "e2e:install": "playwright install chromium",
     "e2e": "playwright test",
@@ -21,7 +21,8 @@
     "test:mutations": "node --test tests/unit/api-mutations.test.cjs",
     "test:lecture-search": "node --test tests/unit/lecture-search.test.cjs",
     "test:search-cache": "node tests/cache/lecture-search-cache.mjs",
-    "test:monitoring": "node --test tests/unit/monitoring.test.cjs"
+    "test:monitoring": "node --test tests/unit/monitoring.test.cjs",
+    "test:pwa-domains": "node --test tests/unit/pwa-advertising-hosts.test.cjs"
   },
   "dependencies": {
     "@sentry/nextjs": "11.10.0",
@@ -68,7 +69,10 @@
     "uuid": "11.1.1",
     "sharp": "0.35.5",
     "postcss-selector-parser": "7.1.6",
-    "browserslist": "^4.28.7"
+    "browserslist": "^4.28.7",
+    "@sentry/bundler-plugins@11.10.0": {
+      "glob": "14.0.3"
+    }
   },
   "engines": {
     "node": ">=24.22.1 <25"

@@ -22,7 +22,7 @@ const withPWA = require('next-pwa')({
     {
       // アフィリエイト広告(A8.net)はキャッシュしない。
       // 特に1x1の計測ピクセルがキャッシュされると成果計測が壊れるため、画像ルールより先に置く。
-      urlPattern: ({ url }) => url.hostname.endsWith('a8.net'),
+      urlPattern: ({ url }) => url.hostname === 'a8.net' || url.hostname.endsWith('.a8.net'),
       handler: 'NetworkOnly',
     },
     {
