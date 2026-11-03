@@ -1,27 +1,13 @@
-# Dependency and code security checks
+# 脆弱性の検査と更新
 
-GitHub Dependabot checks npm and GitHub Actions every Monday at 09:00 Asia/Tokyo.
-Routine minor/patch updates and security updates use separate PR groups. Updates
-still require review and passing checks before release.
+Dependabotは毎週月曜の日本時間9時にnpmとGitHub Actionsの更新を確認します。通常のminor・patch更新とセキュリティ更新は別のPRにまとめます。
 
-The `Security checks` workflow runs `npm audit` against the lockfile and fails on
-high or critical findings. Moderate and low findings remain visible in the log;
-a successful workflow does not mean that every dependency advisory is resolved.
-Both workflows use a read-only repository token, and checkout does not persist it.
+PRでは `npm audit` がロックファイルを検査し、high・criticalの指摘で失敗します。medium・lowの指摘もログに表示します。GitHub Actionsには読み取り権限を指定し、チェックアウト後に認証情報を残しません。
 
-The PWA advertising rule accepts `a8.net` and hostname suffix `.a8.net`. The
-regression test also checks unrelated lookalike domains, paths and URL credentials.
+サービスワーカーの広告用ルールは `a8.net` と `.a8.net` で終わるサブドメインに適用します。別ドメインの末尾やURLのパス・ユーザー情報に `a8.net` が現れるケースは回帰テストで確認します。
 
-## Advisories requiring an upstream-compatible update
+## 間接依存の対応（2026-11-03）
 
-Reviewed on 2026-11-03 against the current application and lockfile:
-
-| Advisory | Dependency path and exposure | Follow-up |
-| --- | --- | --- |
-| [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) | `minimatch` is used by build/lint tooling, including Workbox, ESLint and the Sentry bundler. Application routes do not accept user-supplied glob patterns. | The published fix is 11.0.1. Older callers, including callable CommonJS consumers, cannot all be replaced with that major version without a tooling migration. Keep the alert open. |
-| [GHSA-3g3m-2fjr-6pw4](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4) | Affected `glob` versions are pulled in by Sentry's bundler and Sucrase. The application does not expose glob traversal or cancellation to requests; source-map uploads are disabled. | The published fix is 14.0.2, outside those packages' declared ranges. Track compatible upstream updates rather than forcing an unreviewed global major-version override. |
-| [GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4) | `deepmerge` is pulled in by Rollup's node-resolve plugin. It merges build configuration, not user request objects in this application. | No patched version is published. Keep the alert open and track the upstream fix. |
-
-These exposure findings do not remove the advisories. Reassess them when the
-dependency chain or the application's input paths change. Do not dismiss alerts
-solely because their severity is below the CI failure threshold.
+- **glob**（[GHSA-3g3m-2fjr-6pw4](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4)）。Tailwindが使うSucraseを互換性のある3.35.1に更新しました。この版はファイル探索にtinyglobbyを使用します。Sentryのビルドツール11.10.0はglob 13系を指定しているため、このバージョンの依存だけに修正版14.0.3を適用します。Sentryが修正版を直接サポートしたら、この指定を外して再検証します。
+- **minimatch**（[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)）。Sentry経由のコピーは修正版11系に更新されます。Workbox・ESLintなどには旧API向けの依存が残り、11系への一括置換は互換性がありません。公開APIからユーザーがファイル探索パターンを指定する経路は確認されていません。依存元の対応を追跡します。
+- **deepmerge**（[GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4)）。Rollupのnode-resolveプラグインがビルド設定の結合に使います。公開APIから渡されたオブジェクトをここで結合する経路は確認されていません。公開済みの修正版がないため、アラートを開いたままにします。
