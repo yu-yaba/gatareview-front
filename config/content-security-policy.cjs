@@ -1,4 +1,4 @@
-function createContentSecurityPolicy({ production = true, apiBaseUrl = '' } = {}) {
+function createContentSecurityPolicy({ production = true, apiBaseUrl = '', sentryDsn = '' } = {}) {
   const apiSources = [];
   if (apiBaseUrl) {
     if (/[\s;]/.test(apiBaseUrl)) throw new Error('Invalid public API URL for CSP');
@@ -7,6 +7,16 @@ function createContentSecurityPolicy({ production = true, apiBaseUrl = '' } = {}
       throw new Error('Invalid public API URL for CSP');
     }
     apiSources.push(url.origin);
+  }
+
+  const sentrySources = [];
+  if (sentryDsn) {
+    if (/[\s;]/.test(sentryDsn)) throw new Error('Invalid Sentry DSN for CSP');
+    const url = new URL(sentryDsn);
+    if (url.protocol !== 'https:' || !/^o\d+\.ingest(?:\.[a-z]+)?\.sentry\.io$/.test(url.hostname) || url.port || url.password) {
+      throw new Error('Invalid Sentry DSN for CSP');
+    }
+    sentrySources.push(`https://${url.hostname}`);
   }
 
   const directives = {
@@ -23,7 +33,7 @@ function createContentSecurityPolicy({ production = true, apiBaseUrl = '' } = {}
     'img-src': ["'self'", 'data:', 'blob:', 'https://lh3.googleusercontent.com',
       'https://*.google-analytics.com', 'https://*.googletagmanager.com'],
     'font-src': ["'self'", 'https://fonts.gstatic.com'],
-    'connect-src': ["'self'", ...apiSources, ...(!production ? ['ws:', 'http://localhost:3001'] : []),
+    'connect-src': ["'self'", ...apiSources, ...sentrySources, ...(!production ? ['ws:', 'http://localhost:3001'] : []),
       'https://*.google-analytics.com', 'https://*.analytics.google.com',
       'https://*.googletagmanager.com', 'https://www.google.com/recaptcha/'],
     'frame-src': ['https://www.google.com/recaptcha/', 'https://recaptcha.google.com/recaptcha/'],

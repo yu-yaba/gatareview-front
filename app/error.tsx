@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import Link from 'next/link'
 import { FaExclamationTriangle, FaHome, FaRedo, FaQuestionCircle } from 'react-icons/fa'
 
@@ -12,7 +13,7 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('エラーが発生しました:', error)
+    Sentry.captureException(error)
   }, [error])
 
   return (
