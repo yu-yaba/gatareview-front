@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from 'next-auth';
+import * as Sentry from '@sentry/nextjs';
 import GoogleProvider from 'next-auth/providers/google';
 import { cookies } from 'next/headers';
 
@@ -50,9 +51,13 @@ export const authOptions: NextAuthOptions = {
               token.user = data.user;
             }
           } else {
+            if (response.status >= 500) {
+              Sentry.captureException(new Error('Backend authentication unavailable'), { tags: { operation: 'auth.backend' } });
+            }
             console.error('Backend authentication failed:', response.status);
           }
-        } catch {
+        } catch (error) {
+          Sentry.captureException(error, { tags: { operation: 'auth.backend' } });
           console.error('Network error calling backend authentication');
         }
       }
