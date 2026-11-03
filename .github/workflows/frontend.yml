@@ -6,7 +6,7 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NEXT_PUBLIC_ENV: http://127.0.0.1:3101
       NEXTAUTH_URL: http://127.0.0.1:8080

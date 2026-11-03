@@ -124,6 +124,7 @@ const nextConfig = {
           value: createContentSecurityPolicy({
             production: process.env.NODE_ENV === 'production',
             apiBaseUrl: process.env.NEXT_PUBLIC_ENV,
+            sentryDsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
           }),
         }],
       },
@@ -166,4 +167,8 @@ const nextConfig = {
   },
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = require('@sentry/nextjs/config').withSentryConfig(withPWA(nextConfig), {
+  silent: true,
+  telemetry: false,
+  sourcemaps: { disable: true },
+});

@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import * as Sentry from '@sentry/nextjs'
 import { getSession } from 'next-auth/react'
 import { CreateReviewResponse } from '../_types/ReviewSchema'
 
@@ -95,6 +96,7 @@ apiClient.interceptors.response.use(
 
     // 500エラー（サーバーエラー）の場合
     if (error.response?.status >= 500) {
+      Sentry.captureException(error, { tags: { operation: 'api.request' } })
       console.error('Server error occurred. Please try again later.')
     }
 
