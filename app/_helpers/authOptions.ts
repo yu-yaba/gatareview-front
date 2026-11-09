@@ -106,7 +106,11 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.backendToken = token.backendToken || null;
       const expiresAt = sessionExpiresAt(token);
-      if (expiresAt !== null) session.expires = new Date(expiresAt * 1000).toISOString();
+      if (expiresAt !== null) {
+        session.expires = new Date(expiresAt * 1000).toISOString();
+        // ブラウザの時計がずれていても終了時刻に再確認できるよう、サーバー基準の残り秒数も返す。
+        session.expiresIn = Math.max(0, expiresAt - nowInSeconds());
+      }
       if (token.user) {
         session.user = {
           ...session.user,

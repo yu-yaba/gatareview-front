@@ -198,3 +198,52 @@ test('開いたままのタブも、「記憶しない」セッションの終�
   await expect(page.getByText(user.name, { exact: true })).toHaveCount(0, { timeout: 30_000 })
   expect(await sessionCookie(context)).toBeUndefined()
 })
+
+test('ブラウザの時計が5時間進んでいても、セッションを繰り返し再取得しない', async ({ page, context, baseURL }) => {
+  test.setTimeout(60_000)
+  await installSession(context, baseURL!, activeSessionFields({ remember: false, ageSeconds: 60, ttlSeconds: 6 * 24 * 60 * 60 }))
+  let sessionRequests = 0
+  page.on('request', request => { if (new URL(request.url()).pathname === '/api/auth/session') sessionRequests += 1 })
+  await page.clock.install({ time: Date.now() + 5 * 60 * 60 * 1000 })
+
+  await page.goto('/lectures/3886')
+  await expect(page.getByText(user.name, { exact: true })).toBeVisible({ timeout: firstLoadTimeout })
+  const afterLoad = sessionRequests
+  await page.waitForTimeout(12_000)
+
+  expect(sessionRequests).toBe(afterLoad)
+  await expect(page.getByText(user.name, { exact: true })).toBeVisible()
+})
+
+test('ブラウザの時計が2時間遅れていても、終了時刻の直後にログアウト表示になる', async ({ page, context, baseURL }) => {
+  test.setTimeout(60_000)
+  await installSession(context, baseURL!, activeSessionFields({ remember: false, ageSeconds: 4 * 60 * 60 - 8, ttlSeconds: 6 * 24 * 60 * 60 }))
+  await page.clock.install({ time: Date.now() - 2 * 60 * 60 * 1000 })
+
+  await page.goto('/lectures/3886')
+  await expect(page.getByText(user.name, { exact: true })).toBeVisible({ timeout: firstLoadTimeout })
+  await expect(page.getByText(user.name, { exact: true })).toHaveCount(0, { timeout: 30_000 })
+  expect(await sessionCookie(context)).toBeUndefined()
+})
+
+test('401後のセッション確認が一度失敗しても、次の401でサインアウトできる', async ({ page, context, baseURL }) => {
+  await installSession(context, baseURL!, activeSessionFields({ remember: true }))
+  await page.route('**/api/v1/lectures/3886/bookmarks', route => route.request().method() === 'GET'
+    ? route.fulfill({ json: { bookmarked: false } })
+    : route.fulfill({ status: 401, json: { error: '認証が必要です' } }))
+
+  await page.goto('/lectures/3886')
+  await expect(page.getByText(user.name, { exact: true })).toBeVisible({ timeout: firstLoadTimeout })
+  let aborted = 0
+  await page.route('**/api/auth/session', route => {
+    if (aborted === 0) { aborted += 1; return route.abort() }
+    return route.continue()
+  })
+  await page.getByRole('button', { name: 'ブックマーク', exact: true }).click()
+  await expect(page.getByText('ログイン状態を更新できませんでした')).toBeVisible()
+  await expect(page).toHaveURL(/\/lectures\/3886$/)
+
+  await page.getByRole('button', { name: 'ブックマーク', exact: true }).click()
+  await expectSignedOutWithReason(page, context)
+  expect(aborted).toBe(1)
+})

@@ -76,13 +76,12 @@ test('deletion cookies and responses without a session cookie are left untouched
 
 const { sessionRefetchInterval } = loadTs('app/_helpers/sessionRefetch.ts')
 
-test('open tabs re-check the session just after it ends, not periodically', () => {
-  const at = Date.parse('2026-11-09T00:00:00Z')
-  const iso = seconds => new Date(at + seconds * 1000).toISOString()
-  assert.equal(sessionRefetchInterval(iso(4 * hour), at), 4 * hour + 5)
-  assert.equal(sessionRefetchInterval(iso(10), at), 15)
-  assert.equal(sessionRefetchInterval(iso(-60), at), 5)
-  // setInterval cannot wait 30 days; long sessions are checked daily instead.
-  assert.equal(sessionRefetchInterval(iso(30 * day), at), day)
-  for (const expires of [null, undefined, '', 'not-a-date']) assert.equal(sessionRefetchInterval(expires, at), 0)
+test('open tabs re-check the session just after it ends (server-relative), not periodically', () => {
+  assert.equal(sessionRefetchInterval(4 * hour), 4 * hour + 5)
+  assert.equal(sessionRefetchInterval(10), 15)
+  assert.equal(sessionRefetchInterval(0), 5)
+  assert.equal(sessionRefetchInterval(2.2), 8)
+  // setInterval cannot wait 30 days; long sessions are checked daily, each check updating the remaining time.
+  assert.equal(sessionRefetchInterval(30 * day), day)
+  for (const expiresIn of [null, undefined, -1, Number.NaN, Infinity, '60']) assert.equal(sessionRefetchInterval(expiresIn), 0)
 })

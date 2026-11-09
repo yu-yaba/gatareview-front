@@ -5,9 +5,18 @@ import { error as notifyError } from './notifications'
 export const SESSION_EXPIRED_SIGNIN_URL = '/auth/signin?error=SessionExpired'
 
 let pending: Promise<void> | null = null
-// 同じトークンへの対応はページ読み込みごとに1回だけ。サインアウトに失敗したときに
+// サインアウトを試みたトークンには、ページ読み込みごとに1回しか試みない。失敗したときに
 // （セッション再取得→各画面の再取得→401→再サインアウト…）と繰り返さないため。
-const handledTokens = new Set<string>()
+const signOutAttempted = new Set<string>()
+let lastFailureNoticeAt = 0
+const FAILURE_NOTICE_INTERVAL_MS = 10_000
+
+function notifyFailure() {
+  const now = Date.now()
+  if (now - lastFailureNoticeAt < FAILURE_NOTICE_INTERVAL_MS) return
+  lastFailureNoticeAt = now
+  notifyError('ログイン状態を更新できませんでした。通信状態を確認して、ページを再読み込みしてください。')
+}
 
 const normalizeToken = (token: unknown): string | null =>
   typeof token === 'string' && token.trim() !== '' ? token.trim() : null
@@ -38,6 +47,7 @@ async function endRejectedSession(rejectedToken: string) {
 
   if (current === rejectedToken) {
     // サインアウトAPIはサーバー側でもバックエンドの失効（401は成功扱い）を行ってからCookieを消す。
+    signOutAttempted.add(rejectedToken)
     const result = await signOut({ redirect: false, callbackUrl: SESSION_EXPIRED_SIGNIN_URL })
     if (!result?.url) throw new Error('sign-out failed')
   }
@@ -51,14 +61,18 @@ export function handleBackendUnauthorized(rejectedToken: unknown): Promise<void>
   if (!token || typeof window === 'undefined') return Promise.resolve()
   // 同時に複数の401が届いても、サインアウトと遷移は一度だけ行う。
   if (pending) return pending
-  if (handledTokens.has(token)) return Promise.resolve()
-  handledTokens.add(token)
+  // サインアウトに失敗済み（セッションは保持）なら、再試行せず理由だけ知らせる。
+  if (signOutAttempted.has(token)) {
+    notifyFailure()
+    return Promise.resolve()
+  }
 
+  // セッションの確認に失敗しただけなら、次の401で再試行する（状態は変わらないので繰り返しは起きない）。
   pending = endRejectedSession(token).then(
     navigating => { if (!navigating) pending = null },
     () => {
       pending = null
-      notifyError('ログイン状態を更新できませんでした。通信状態を確認して、ページを再読み込みしてください。')
+      notifyFailure()
     },
   )
   return pending

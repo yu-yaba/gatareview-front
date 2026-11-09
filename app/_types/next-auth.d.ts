@@ -14,6 +14,8 @@ export interface CustomUser {
 declare module "next-auth" {
   interface Session {
     backendToken: string | null
+    // サーバー基準のセッション終了までの秒数（取得時点）
+    expiresIn?: number
     user: CustomUser & DefaultSession["user"]
   }
 

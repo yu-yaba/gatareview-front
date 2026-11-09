@@ -121,7 +121,10 @@ test('an active session is kept and reports when it really ends', async () => {
     session: { user: { name: 'テスト利用者' }, expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() },
   })
   assert.equal(session.backendToken, 'local-backend-token')
-  assert.equal(session.expires, new Date(Math.min(token.backendExp, token.authTime + 4 * 60 * 60) * 1000).toISOString())
+  const expiresAt = Math.min(token.backendExp, token.authTime + 4 * 60 * 60)
+  assert.equal(session.expires, new Date(expiresAt * 1000).toISOString())
+  // Remaining seconds by the server clock, so a wrong browser clock cannot shift the re-check.
+  assert.ok(Math.abs(session.expiresIn - (expiresAt - nowSeconds())) <= 1, String(session.expiresIn))
 })
 
 test('expected session ends are not logged as errors, and other errors omit details', async t => {

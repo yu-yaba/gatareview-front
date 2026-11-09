@@ -48,17 +48,29 @@ test('a session that already ended server-side just moves to the sign-in page', 
 })
 
 // A failed sign-out refreshes the session, which re-runs page requests and yields more 401s.
-// Handling each token once per page load keeps that from becoming a sign-out storm.
-for (const [name, options] of [['the session check fails', { sessionFails: true }], ['sign-out fails (revocation 503/429)', { signOutUrl: null }]]) {
-  test(`when ${name}, the user is told once and later 401s for that token do not retry`, async t => {
-    const { expiry, calls } = fixture(t, options)
-    for (let i = 0; i < 5; i += 1) await expiry.handleBackendUnauthorized('token-A')
-    assert.deepEqual(calls.navigations, [])
-    assert.equal(calls.toasts.length, 1)
-    assert.equal(calls.sessionChecks, 1)
-    assert.ok(calls.signOut.length <= 1)
-  })
-}
+// Trying sign-out once per token per page load keeps that from becoming a sign-out storm.
+test('when sign-out fails (revocation 503/429), later 401s do not retry it and notices are throttled', async t => {
+  const { expiry, calls } = fixture(t, { signOutUrl: null })
+  for (let i = 0; i < 5; i += 1) await expiry.handleBackendUnauthorized('token-A')
+  assert.equal(calls.signOut.length, 1)
+  assert.equal(calls.sessionChecks, 1)
+  assert.deepEqual(calls.navigations, [])
+  assert.equal(calls.toasts.length, 1)
+})
+
+test('when only the session check fails, the next 401 retries and can still sign out', async t => {
+  const { expiry, calls } = fixture(t, { sessionFails: true })
+  await expiry.handleBackendUnauthorized('token-A')
+  await expiry.handleBackendUnauthorized('token-A')
+  assert.equal(calls.sessionChecks, 2)
+  assert.equal(calls.toasts.length, 1)
+  assert.deepEqual(calls.signOut, [])
+  // The check works again: the rejected session ends.
+  t.mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ backendToken: 'token-A' }), { status: 200 }))
+  await expiry.handleBackendUnauthorized('token-A')
+  assert.equal(calls.signOut.length, 1)
+  assert.deepEqual(calls.navigations, ['/auth/signin?error=SessionExpired'])
+})
 
 test('401 without a sent token (anonymous request) is left to the caller', async t => {
   const { expiry, calls } = fixture(t)
