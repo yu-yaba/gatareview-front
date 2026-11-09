@@ -46,9 +46,9 @@ const withPWA = require('next-pwa')({
     },
     {
       // ホーム('/')への画面遷移だけは、前回表示した公開HTMLをオフライン時に再表示する。
-      // クエリ付き・リダイレクト・エラー・private/no-store の応答は保存しない。
-      urlPattern: ({ url, request }) => request.mode === 'navigate' && url.origin === self.location.origin
-        && url.pathname === '/' && url.search === '',
+      // クエリ付き（'/?' を含む）・リダイレクト・エラー・private/no-store の応答は保存しない。
+      // 古いビルドのHTMLが新しい事前保存と食い違わないよう、新しいSWの有効化時に削除する（sw-cache-cleanup.js）。
+      urlPattern: ({ url, request }) => request.mode === 'navigate' && url.href === `${self.location.origin}/`,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'start-url-v2',

@@ -23,7 +23,7 @@ test('only a plain navigation to the home page uses the home cache', () => {
   const home = route('/', navigate);
   assert.equal(home.handler, 'NetworkFirst');
   assert.equal(home.options.cacheName, 'start-url-v2');
-  for (const target of ['/?from=pwa', '/lectures', '/lectures/123', '/mypage', '/mypage/reviews', '/auth/signin', '/faq', '/privacy']) {
+  for (const target of ['/?', '/?from=pwa', '/lectures', '/lectures/123', '/mypage', '/mypage/reviews', '/auth/signin', '/faq', '/privacy']) {
     const rule = route(target, navigate);
     assert.equal(rule.handler, 'NetworkOnly', target);
     assert.equal(rule.options?.cacheName, undefined, target);

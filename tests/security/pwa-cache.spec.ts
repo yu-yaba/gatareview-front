@@ -30,11 +30,15 @@ test('クエリが画像・JSに見える認証APIをキャッシュせず、ア
   expect(after.sensitiveCached).toBe(false)
 })
 
-test('SW更新で旧機密キャッシュを削除し、新しい公開画像キャッシュを保持する', async ({ page }) => {
+test('SW更新で旧機密キャッシュと前のビルドのホームを削除し、新しい公開画像キャッシュを保持する', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(async () => {
     for (const name of ['images', 'static-resources']) {
       await (await caches.open(name)).put('/api/auth/session?cache-test=.png', new Response('test-only-sensitive-response'))
+    }
+    // Home HTML saved by an older worker or an older build references chunks the new precache no longer has.
+    for (const name of ['start-url', 'start-url-v2']) {
+      await (await caches.open(name)).put('/', new Response('<!doctype html><p>test-only-previous-build-home</p>', { headers: { 'Content-Type': 'text/html' } }))
     }
     await (await caches.open('images-v2')).put('/test-public-image.png', new Response('test-only-public-image'))
     await navigator.serviceWorker.register('/sw.js')
@@ -42,6 +46,8 @@ test('SW更新で旧機密キャッシュを削除し、新しい公開画像キ
   })
   await expect.poll(() => page.evaluate(() => caches.keys())).not.toContain('images')
   await expect.poll(() => page.evaluate(() => caches.keys())).not.toContain('static-resources')
+  await expect.poll(() => page.evaluate(() => caches.keys())).not.toContain('start-url')
+  await expect.poll(() => page.evaluate(() => caches.keys())).not.toContain('start-url-v2')
   expect(await page.evaluate(async () => (await (await caches.open('images-v2')).match('/test-public-image.png'))?.text())).toBe('test-only-public-image')
 })
 
