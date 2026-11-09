@@ -73,3 +73,16 @@ test('deletion cookies and responses without a session cookie are left untouched
   const other = response(['next-auth.callback-url=%2F; Path=/'])
   assert.equal(lifetime.applySessionCookieLifetime(other, null), other)
 })
+
+const { sessionRefetchInterval } = loadTs('app/_helpers/sessionRefetch.ts')
+
+test('open tabs re-check the session just after it ends, not periodically', () => {
+  const at = Date.parse('2026-11-09T00:00:00Z')
+  const iso = seconds => new Date(at + seconds * 1000).toISOString()
+  assert.equal(sessionRefetchInterval(iso(4 * hour), at), 4 * hour + 5)
+  assert.equal(sessionRefetchInterval(iso(10), at), 15)
+  assert.equal(sessionRefetchInterval(iso(-60), at), 5)
+  // setInterval cannot wait 30 days; long sessions are checked daily instead.
+  assert.equal(sessionRefetchInterval(iso(30 * day), at), day)
+  for (const expires of [null, undefined, '', 'not-a-date']) assert.equal(sessionRefetchInterval(expires, at), 0)
+})

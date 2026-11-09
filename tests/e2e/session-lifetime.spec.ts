@@ -145,3 +145,56 @@ for (const [path, code] of [
     await expect(page.getByRole('button', { name: /Googleでログイン/ })).toBeVisible()
   })
 }
+
+test('401の後のサインアウトが失効失敗（503）でも、サインアウトを繰り返さない', async ({ page, context, baseURL }) => {
+  await installSession(context, baseURL!, activeSessionFields({ remember: true }))
+  await backend(page, '/api/v1/auth/me', 401, { error: 'ユーザーが見つかりません' })
+  await backend(page, '/api/v1/auth/logout', 503, { error: 'unavailable' })
+  let signOutPosts = 0
+  page.on('request', request => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/auth/signout') signOutPosts += 1
+  })
+
+  await page.goto('/lectures/3886')
+  await expect(page.getByText('ログイン状態を更新できませんでした')).toBeVisible({ timeout: firstLoadTimeout })
+  await page.waitForTimeout(3000)
+
+  expect(signOutPosts).toBe(1)
+  expect(await backendRequests(page, '/api/v1/auth/logout')).toHaveLength(1)
+  // 失敗後のセッション再取得で各画面が一度再取得しても、その後は増え続けない。
+  const meCalls = (await backendRequests(page, '/api/v1/auth/me')).length
+  await page.waitForTimeout(2000)
+  expect(await backendRequests(page, '/api/v1/auth/me')).toHaveLength(meCalls)
+  expect(signOutPosts).toBe(1)
+  await expect(page.getByText('ログイン状態を更新できませんでした')).toHaveCount(1)
+  await expect(page).toHaveURL(/\/lectures\/3886$/)
+  // 失効できなかったセッションは保持する（再読み込みで再試行できる）。
+  expect(await sessionCookie(context)).toBeDefined()
+})
+
+test('ログイン中に定期的なセッション再取得をしない（編集中の画面を再読み込みしない）', async ({ page, context, baseURL }) => {
+  await installSession(context, baseURL!, activeSessionFields({ remember: true, ttlSeconds: 10 * 24 * 60 * 60 }))
+  let sessionRequests = 0
+  page.on('request', request => { if (new URL(request.url()).pathname === '/api/auth/session') sessionRequests += 1 })
+  await page.clock.install()
+
+  await page.goto('/lectures/3886')
+  await expect(page.getByText(user.name, { exact: true })).toBeVisible({ timeout: firstLoadTimeout })
+  const before = sessionRequests
+  const meBefore = (await backendRequests(page, '/api/v1/auth/me')).length
+  await page.clock.fastForward('10:00')
+  await page.waitForTimeout(1000)
+
+  expect(sessionRequests).toBe(before)
+  expect(await backendRequests(page, '/api/v1/auth/me')).toHaveLength(meBefore)
+})
+
+test('開いたままのタブも、「記憶しない」セッションの終了時刻を過ぎると操作なしでログアウト表示になる', async ({ page, context, baseURL }) => {
+  test.setTimeout(60_000)
+  await installSession(context, baseURL!, activeSessionFields({ remember: false, ageSeconds: 4 * 60 * 60 - 8, ttlSeconds: 6 * 24 * 60 * 60 }))
+
+  await page.goto('/lectures/3886')
+  await expect(page.getByText(user.name, { exact: true })).toBeVisible({ timeout: firstLoadTimeout })
+  await expect(page.getByText(user.name, { exact: true })).toHaveCount(0, { timeout: 30_000 })
+  expect(await sessionCookie(context)).toBeUndefined()
+})

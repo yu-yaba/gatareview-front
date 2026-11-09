@@ -47,14 +47,16 @@ test('a session that already ended server-side just moves to the sign-in page', 
   assert.deepEqual(calls.navigations, ['/auth/signin?error=SessionExpired'])
 })
 
-for (const [name, options] of [['the session check fails', { sessionFails: true }], ['sign-out fails', { signOutUrl: null }]]) {
-  test(`when ${name}, the user is told and a later 401 retries`, async t => {
+// A failed sign-out refreshes the session, which re-runs page requests and yields more 401s.
+// Handling each token once per page load keeps that from becoming a sign-out storm.
+for (const [name, options] of [['the session check fails', { sessionFails: true }], ['sign-out fails (revocation 503/429)', { signOutUrl: null }]]) {
+  test(`when ${name}, the user is told once and later 401s for that token do not retry`, async t => {
     const { expiry, calls } = fixture(t, options)
-    await expiry.handleBackendUnauthorized('token-A')
+    for (let i = 0; i < 5; i += 1) await expiry.handleBackendUnauthorized('token-A')
     assert.deepEqual(calls.navigations, [])
     assert.equal(calls.toasts.length, 1)
-    await expiry.handleBackendUnauthorized('token-A')
-    assert.equal(calls.sessionChecks, 2)
+    assert.equal(calls.sessionChecks, 1)
+    assert.ok(calls.signOut.length <= 1)
   })
 }
 

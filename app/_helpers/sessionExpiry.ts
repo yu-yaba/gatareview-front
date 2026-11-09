@@ -5,6 +5,9 @@ import { error as notifyError } from './notifications'
 export const SESSION_EXPIRED_SIGNIN_URL = '/auth/signin?error=SessionExpired'
 
 let pending: Promise<void> | null = null
+// 同じトークンへの対応はページ読み込みごとに1回だけ。サインアウトに失敗したときに
+// （セッション再取得→各画面の再取得→401→再サインアウト…）と繰り返さないため。
+const handledTokens = new Set<string>()
 
 const normalizeToken = (token: unknown): string | null =>
   typeof token === 'string' && token.trim() !== '' ? token.trim() : null
@@ -48,12 +51,14 @@ export function handleBackendUnauthorized(rejectedToken: unknown): Promise<void>
   if (!token || typeof window === 'undefined') return Promise.resolve()
   // 同時に複数の401が届いても、サインアウトと遷移は一度だけ行う。
   if (pending) return pending
+  if (handledTokens.has(token)) return Promise.resolve()
+  handledTokens.add(token)
 
   pending = endRejectedSession(token).then(
     navigating => { if (!navigating) pending = null },
     () => {
       pending = null
-      notifyError('ログイン状態を確認できませんでした。ページを再読み込みして、もう一度ログインしてください。')
+      notifyError('ログイン状態を更新できませんでした。通信状態を確認して、ページを再読み込みしてください。')
     },
   )
   return pending
