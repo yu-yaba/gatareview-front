@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { encode } from 'next-auth/jwt'
+import { activeSessionFields } from './session-token'
 
 const mockApiURL = `http://127.0.0.1:${process.env.PLAYWRIGHT_MOCK_API_PORT || '3101'}`
 
@@ -7,7 +8,7 @@ test.beforeEach(async ({ context, request, baseURL }) => {
   await request.post(`${mockApiURL}/_test/reset`)
   const cookie = await encode({
     secret: 'playwright-nextauth-secret',
-    token: { backendToken: 'test-only-backend-token', user: { id: '1', name: 'テスト利用者', email: 'test@example.com' } },
+    token: { backendToken: 'test-only-backend-token', user: { id: '1', name: 'テスト利用者', email: 'test@example.com' }, ...activeSessionFields() },
   })
   await context.addCookies([{ name: 'next-auth.session-token', value: cookie, url: baseURL! }])
 })

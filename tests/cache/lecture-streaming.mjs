@@ -6,6 +6,11 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { encode } = require('next-auth/jwt');
+// jwtコールバックが有効なセッションとして扱う寿命情報（app/_helpers/sessionLifetime.ts）。
+const activeSessionFields = () => {
+  const now = Math.floor(Date.now() / 1000);
+  return { remember: true, authTime: now, backendExp: now + 3600 };
+};
 const privateToken = 'isolated-streaming-api-token-never-render-this';
 const baseline = process.env.STREAM_TEST_BASELINE === '1';
 const appDirectory = process.env.STREAM_TEST_APP_DIR || process.cwd();
@@ -75,7 +80,7 @@ try {
   }
   assert.equal(requests.filter(x=>x.path===`/api/v1/lectures/${firstId}`).length,1,'public cache must remain shared');
   assert.equal(requests.filter(x=>x.path===`/api/v1/lectures/${firstId}/reviews`).length,4,'reviews must never be cached');
-  const session = await encode({secret:'local-stream-test-secret',token:{backendToken:privateToken,user:{id:'A',name:'A',email:'a@example.test'}}});
+  const session = await encode({secret:'local-stream-test-secret',token:{backendToken:privateToken,user:{id:'A',name:'A',email:'a@example.test'},...activeSessionFields()}});
   const signedIn = await readPage(firstId,undefined,`next-auth.session-token=${session}`);
   assert.ok(signedIn.html.includes(`stream-review-${firstId}-signed-in`));
   assert.ok(!signedIn.html.includes(privateToken),'a server component must never serialize the API bearer token');

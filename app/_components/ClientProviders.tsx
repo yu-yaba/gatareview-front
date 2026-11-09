@@ -20,9 +20,12 @@ function SessionBoundary({ children }: ClientProvidersProps) {
   return <Fragment key={identity.version}>{children}</Fragment>
 }
 
+// 開いたままのタブでも、期限切れで終了したセッションをログイン済みとして表示し続けない。
+const SESSION_REFETCH_INTERVAL_SECONDS = 5 * 60
+
 export default function ClientProviders({ children }: ClientProvidersProps) {
   return (
-    <SessionProvider>
+    <SessionProvider refetchInterval={SESSION_REFETCH_INTERVAL_SECONDS}>
       <SessionBoundary>{children}</SessionBoundary>
     </SessionProvider>
   )

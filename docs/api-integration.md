@@ -12,7 +12,7 @@
   - `getSession()` で NextAuth session を取得する。
   - `session.backendToken` が空でない場合のみ `Authorization: Bearer <token>` を付与する。
 - response interceptor:
-  - `401`: 認証失敗としてログ出力する。
+  - `401`: Authorization を付けたリクエストなら、APIトークンが無効になったとみなし、`app/_helpers/sessionExpiry.ts` でサインアウトしてログイン画面（`?error=SessionExpired`）へ移動する。トークンなし（未ログイン）の401とログアウトAPI自体の401は呼び出し元に任せる。直接 `fetch` する箇所（ブックマーク、ありがとう、レビュー編集、`/auth/me`）も同じ処理を呼ぶ。
   - `403`: 権限不足としてログ出力する。
   - `5xx`: サーバーエラーとしてログ出力する。
 

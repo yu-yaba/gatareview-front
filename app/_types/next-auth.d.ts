@@ -24,6 +24,12 @@ declare module "next-auth/jwt" {
   interface JWT {
     backendToken?: string | null
     user?: CustomUser
+    // 「ログイン状態を記憶する」を選んだか
+    remember?: boolean
+    // サインインした時刻（秒）
+    authTime?: number
+    // バックエンドAPIトークンの有効期限（秒）
+    backendExp?: number
     iat?: number
     exp?: number
   }

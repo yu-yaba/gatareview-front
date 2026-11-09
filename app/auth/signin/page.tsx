@@ -8,12 +8,35 @@ import { FaBookOpen, FaStar, FaHeart, FaUsers, FaCheckCircle, FaBolt, FaShieldAl
 import Cookies from 'js-cookie'
 import { signOutWithRevocation } from '../../_helpers/signOut'
 
+// NextAuthのエラーコード（pages.error もこの画面）と、401時のセッション終了を利用者向けに説明する。
+const signInErrorMessage = (code: string | null): string | null => {
+  switch (code) {
+    case null:
+    case '':
+      return null
+    case 'SessionExpired':
+      return 'ログインの有効期限が切れたか、別の端末でログアウトされました。もう一度ログインしてください。'
+    // NextAuth 4はGoogleでのキャンセルもバックエンド認証の失敗も Callback として返す。
+    case 'Callback':
+    case 'OAuthCallback':
+    case 'OAuthSignin':
+      return 'ログインを完了できませんでした。Googleでの操作をキャンセルした場合は、もう一度お試しください。繰り返し失敗する場合は、時間をおいて再度お試しください。'
+    default:
+      return 'ログインに失敗しました。再度お試しください。'
+  }
+}
+
 function SignInPageContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  const [signInError, setSignInError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const errorCode = searchParams.get('error')
+  const [signInError, setSignInError] = useState<string | null>(() => signInErrorMessage(errorCode))
+
+  useEffect(() => {
+    setSignInError(signInErrorMessage(errorCode))
+  }, [errorCode])
 
   useEffect(() => {
     // 強制ログインフラグをチェック（複数アカウントログイン対応）
@@ -39,7 +62,8 @@ function SignInPageContent() {
           await signOutWithRevocation({ redirect: false, callbackUrl: '/auth/signin?force=true' })
         }
       }
-      Cookies.set('remember_me', rememberMe ? 'true' : 'false', { expires: 1 }) // Cookieに1日間保存
+      // サインイン完了時にサーバーが読む（記憶しない場合はブラウザを閉じると消えるセッションになる）
+      Cookies.set('remember_me', rememberMe ? 'true' : 'false', { expires: 1, sameSite: 'lax' })
       await signIn('google', { callbackUrl: '/mypage' })
     } catch (error) {
       setSignInError(error instanceof Error ? error.message : 'ログインに失敗しました。再度お試しください。')

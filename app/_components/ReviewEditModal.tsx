@@ -8,6 +8,7 @@ import { FaTimes, FaSave, FaTrash } from 'react-icons/fa'
 import { success, error } from '@/app/_helpers/notifications'
 import { getModalAppElement } from '@/app/_helpers/modalAppElement'
 import { getReviewYearOptions } from '@/app/_helpers/reviewYears'
+import { handleBackendUnauthorized } from '@/app/_helpers/sessionExpiry'
 
 interface ReviewEditModalProps {
   isOpen: boolean
@@ -68,7 +69,11 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
         },
         body: JSON.stringify({ review: formData })
       })
-      
+      if (res.status === 401) {
+        void handleBackendUnauthorized(session.backendToken)
+        return
+      }
+
       const responseData = await res.json();
       
       if (res.ok) {
@@ -120,6 +125,8 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
         }
         onClose()
         success('レビューが削除されました')
+      } else if (res.status === 401) {
+        void handleBackendUnauthorized(session.backendToken)
       } else {
         const errorData = await res.json()
         error(errorData.message || 'レビューの削除に失敗しました')
