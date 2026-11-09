@@ -71,7 +71,8 @@ let output = '';
 child.stdout.on('data', value => { output += value; });
 child.stderr.on('data', value => { output += value; });
 
-const decode = value => value.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+// &amp; last, so "&amp;quot;" decodes to "&quot;" (not '"').
+const decode = value => value.replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 const attr = (tag, name) => { const match = tag.match(new RegExp(`\\s${name}="([^"]*)"`)); return match ? decode(match[1]) : null; };
 const tags = (html, pattern) => Array.from(html.matchAll(pattern), match => match[0]);
 function inspect(html) {
