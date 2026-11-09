@@ -122,7 +122,8 @@ const LECTURE_LIST_FILTER_KEYS = [
 // - 不正な page: /lectures
 export function lectureListCanonicalPath(params: URLSearchParams): string {
   const hasFilter = LECTURE_LIST_FILTER_KEYS.some((key) => {
-    const value = params.get(key)?.trim();
+    // backend と同じく、前後の空白・ゼロ幅スペース（U+200B）・BOM（U+FEFF）だけの値は条件なしとみなす。
+    const value = params.get(key)?.replace(/^[\s\u200B\uFEFF]+|[\s\u200B\uFEFF]+$/g, '');
     return Boolean(value) && !(key === 'sort' && value === 'newest');
   });
   if (hasFilter) return LECTURE_LIST_PATH;

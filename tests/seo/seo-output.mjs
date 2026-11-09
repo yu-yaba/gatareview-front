@@ -15,11 +15,13 @@ const SITE = 'https://www.gatareview.com';
 const HOME_TITLE = 'ガタレビュ！ - 新潟大学の授業レビューサイト';
 const MISSING_LECTURE_ID = 999999;
 const UAS = {
-  googlebot: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+  // Google crawls with the smartphone Googlebot by default.
+  googlebot: 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.204 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
   browser: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 };
 
-let sitemapFailing = true;
+// 'error' (503), 'html' (200 with a non-JSON body), or 'ok'.
+let sitemapMode = 'error';
 let sitemapCalls = 0;
 const lectureJson = id => ({ id, title: `SEO検証授業${id}`, lecturer: 'テスト教員', faculty: '工学部', avg_rating: 4, review_count: 1 });
 // Next's Data Cache persists in .next/cache across runs. A unique path prefix per
@@ -32,12 +34,18 @@ const backend = createServer((request, response) => {
   let body;
   if (path === '/api/v1/lectures/sitemap') {
     sitemapCalls += 1;
-    if (sitemapFailing) { status = 503; body = { error: 'temporary test failure' }; }
-    else body = { lectures: [
+    if (sitemapMode === 'error') { status = 503; body = { error: 'temporary test failure' }; }
+    else if (sitemapMode === 'html') {
+      response.writeHead(200, { 'Content-Type': 'text/html' });
+      response.end('<!doctype html><title>maintenance</title>');
+      return;
+    } else body = { lectures: [
       { id: 3886, lastmod: '2026-11-01' },
       { id: 12, lastmod: '2026-10-05' },
       { id: 12, lastmod: '2026-10-05' }, // duplicate: listed once
       { id: 77, lastmod: '2026-13-45T00:00:00Z' }, // not a plain date: no lastmod
+      { id: 78, lastmod: '2026-02-30' }, // not a real date: no lastmod
+      { id: 79, lastmod: '9999-12-31' }, // in the future: no lastmod (and not used for / or /lectures)
       { id: 'x', lastmod: '2026-01-01' }, // invalid id: skipped
       { id: -1, lastmod: '2026-01-01' },
     ] };
@@ -79,7 +87,7 @@ function inspect(html) {
   const links = tags(html, /<link\b[^>]*>/g);
   const metas = tags(html, /<meta\b[^>]*>/g);
   const metaContents = key => metas.filter(tag => attr(tag, 'name') === key || attr(tag, 'property') === key).map(tag => attr(tag, 'content'));
-  const jsonLd = Array.from(html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g), match => JSON.parse(match[1]))
+  const jsonLd = Array.from(html.matchAll(/<script\b[^>]*\btype="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g), match => JSON.parse(match[1]))
     .flatMap(value => (Array.isArray(value) ? value : [value]));
   return {
     canonicals: links.filter(tag => attr(tag, 'rel') === 'canonical').map(tag => attr(tag, 'href')),
@@ -95,6 +103,20 @@ function inspect(html) {
     types: jsonLd.map(item => item['@type']),
   };
 }
+// Google only uses rel=canonical from <head>; Next 15 may stream metadata into <body>
+// unless the UA is in htmlLimitedBots. For Googlebot, everything must be in <head>.
+function assertInHead(html, label) {
+  const headEnd = html.indexOf('</head>');
+  assert.ok(headEnd > 0, `${label}: has </head>`);
+  const all = inspect(html);
+  const head = inspect(html.slice(0, headEnd));
+  assert.deepEqual(head.canonicals, all.canonicals, `${label}: canonical must be in <head>`);
+  assert.deepEqual(head.robots, all.robots, `${label}: robots meta must be in <head>`);
+  assert.deepEqual(head.titles, all.titles, `${label}: <title> must be in <head>`);
+  assert.deepEqual(head.ogUrl, all.ogUrl, `${label}: og:url must be in <head>`);
+}
+// Visible text only: drop scripts (JSON-LD, RSC payload) before looking for FAQ text.
+const withoutScripts = html => html.replace(/<script\b[\s\S]*?<\/script>/g, '');
 async function get(path, ua = UAS.googlebot) {
   const response = await fetch(`${base}${path}`, { headers: { 'User-Agent': ua }, redirect: 'manual' });
   return { response, body: await response.text() };
@@ -114,6 +136,8 @@ const INDEXABLE = [
   { path: '/lectures?page=abc', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: `/lectures?faculty=${encodeURIComponent('工学部')}&page=3`, canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: '/lectures?search=abc', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
+  // The backend ignores a search of only spaces / zero-width spaces, so this is plain page 2.
+  { path: '/lectures?search=%E2%80%8B%E3%80%80&page=2', canonical: `${SITE}/lectures?page=2`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: '/lectures?sort=highestRating&page=2', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: '/lectures?textbook=%E4%B8%8D%E8%A6%81', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: '/faq', canonical: `${SITE}/faq`, breadcrumb: ['ホーム', 'よくある質問'], faq: true },
@@ -168,7 +192,11 @@ try {
   // sitemap.xml: a cold cache plus a failing API is an error (Google retries), not an empty sitemap.
   const failed = await get('/sitemap.xml');
   assert.ok(failed.response.status >= 500, `cold sitemap with failing API must be 5xx, got ${failed.response.status}`);
-  sitemapFailing = false;
+  // A 200 with a broken body must not be cached: the next request after the API recovers succeeds.
+  sitemapMode = 'html';
+  const broken = await get('/sitemap.xml');
+  assert.ok(broken.response.status >= 500, `cold sitemap with a non-JSON 200 must be 5xx, got ${broken.response.status}`);
+  sitemapMode = 'ok';
   const callsBefore = sitemapCalls;
   const sitemap = await get('/sitemap.xml');
   assert.equal(sitemap.response.status, 200, sitemap.body);
@@ -179,7 +207,7 @@ try {
   }));
   const locs = entries.map(entry => entry.loc);
   assert.deepEqual(locs, [SITE, `${SITE}/lectures`, `${SITE}/faq`, `${SITE}/privacy`, `${SITE}/terms`,
-    `${SITE}/lectures/3886`, `${SITE}/lectures/12`, `${SITE}/lectures/77`]);
+    `${SITE}/lectures/3886`, `${SITE}/lectures/12`, `${SITE}/lectures/77`, `${SITE}/lectures/78`, `${SITE}/lectures/79`]);
   assert.equal(new Set(locs).size, locs.length, 'sitemap URLs are unique');
   const lastmod = Object.fromEntries(entries.map(entry => [entry.loc, entry.lastmod]));
   assert.equal(lastmod[SITE], '2026-11-01', 'home lastmod = newest review date');
@@ -188,6 +216,8 @@ try {
   assert.equal(lastmod[`${SITE}/lectures/3886`], '2026-11-01');
   assert.equal(lastmod[`${SITE}/lectures/12`], '2026-10-05');
   assert.equal(lastmod[`${SITE}/lectures/77`], null, 'malformed lastmod is dropped');
+  assert.equal(lastmod[`${SITE}/lectures/78`], null, 'impossible date is dropped');
+  assert.equal(lastmod[`${SITE}/lectures/79`], null, 'future date is dropped');
   assert.ok(!sitemap.body.includes('/reviews'), 'the 404 /reviews URL is not listed');
   assert.ok(!/<changefreq>|<priority>/.test(sitemap.body), 'Google ignores changefreq/priority');
   const callsAfterFirst = sitemapCalls;
@@ -200,6 +230,7 @@ try {
     const { response, body } = await get(loc.replace(SITE, '') || '/');
     assert.equal(response.status, 200, `${loc} in sitemap must be 200`);
     const result = inspect(body);
+    assertInHead(body, loc);
     assert.deepEqual(result.canonicals, [loc], `${loc}: canonical must be itself`);
     assert.ok(!result.robots.some(value => /noindex/.test(value)), `${loc}: must be indexable`);
   }
@@ -211,6 +242,7 @@ try {
       assert.equal(response.status, 200, label);
       const result = inspect(body);
       assertSiteWide(result, label);
+      if (ua === UAS.googlebot) assertInHead(body, label);
       assert.deepEqual(result.canonicals, [page.canonical], `${label}: canonical`);
       assert.deepEqual(result.robots, [], `${label}: indexable pages carry no robots meta`);
       assert.deepEqual(result.ogUrl, [page.canonical], `${label}: og:url matches canonical`);
@@ -232,9 +264,10 @@ try {
         assert.equal(faqs.length, 1, `${label}: FAQPage on /faq`);
         const questions = faqs[0].mainEntity.map(item => item.name);
         assert.equal(questions.length, 8, `${label}: every visible question is marked up`);
+        const visible = withoutScripts(body);
         for (const item of faqs[0].mainEntity) {
-          assert.ok(body.includes(`>${item.name}<`), `${label}: FAQ question is visible: ${item.name}`);
-          assert.ok(body.includes(item.acceptedAnswer.text), `${label}: FAQ answer is visible`);
+          assert.ok(visible.includes(`>${item.name}<`), `${label}: FAQ question is visible: ${item.name}`);
+          assert.ok(visible.includes(`>${item.acceptedAnswer.text}<`), `${label}: FAQ answer is visible: ${item.name}`);
         }
       } else {
         assert.equal(faqs.length, 0, `${label}: FAQPage only on /faq`);
@@ -247,6 +280,7 @@ try {
       assert.equal(response.status, 200, label);
       const result = inspect(body);
       assertSiteWide(result, label);
+      if (ua === UAS.googlebot) assertInHead(body, label);
       assert.deepEqual(result.robots, ['noindex, follow'], `${label}: noindex`);
       assert.deepEqual(result.canonicals, [], `${label}: noindex pages must not declare a canonical`);
       assert.ok(!result.types.includes('FAQPage') && !result.types.includes('BreadcrumbList'), label);
@@ -258,6 +292,7 @@ try {
       assert.equal(response.status, 404, label);
       const result = inspect(body);
       assertSiteWide(result, label, { notFound: true });
+      if (ua === UAS.googlebot) assertInHead(body, label);
       assert.deepEqual(result.robots, ['noindex'], `${label}: exactly one noindex robots meta`);
       assert.deepEqual(result.canonicals, [], `${label}: 404 must not declare a canonical`);
       assert.deepEqual(result.ogUrl, [], `${label}: 404 must not declare og:url`);

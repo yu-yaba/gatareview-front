@@ -3,7 +3,7 @@ import { absoluteUrl } from './_helpers/seo'
 import { getSitemapLectures } from './_helpers/sitemapLectures'
 
 // ビルド時に backend へ問い合わせないよう、リクエストごとに生成する。
-// 授業一覧の取得結果は Data Cache に1時間保存されるので、backend への問い合わせは1時間に1回程度。
+// 授業一覧の取得結果は1時間キャッシュするので、backend への問い合わせは1時間に1回程度。
 export const dynamic = 'force-dynamic'
 
 // 1つのサイトマップに載せられる URL の上限（sitemaps.org）。授業は約6,000件なので分割していない。
