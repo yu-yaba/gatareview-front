@@ -15,6 +15,7 @@ import { useSession } from 'next-auth/react';
 import { useAuth } from '../../_hooks/useAuth';
 import AffiliateSlot from '../../_components/AffiliateSlot';
 import { ANONYMOUS_REVIEW_VIEWER, getReviewViewerKey } from '@/app/_helpers/reviewViewerKey';
+import { toPublicReview } from '@/app/_helpers/publicReview';
 
 interface LectureDetailClientProps {
   initialViewerKey: string;
@@ -84,10 +85,12 @@ const LectureDetailClient = ({
     setIsEditModalOpen(true);
   };
 
-  // 編集後のレビュー更新
+  // 編集後のレビュー更新（更新 API の応答からも投稿者情報は持ち込まず、本人判定は維持する）
   const handleReviewUpdated = (updatedReview: ReviewSchema) => {
     const updatedReviews = reviews.reviews.map((review: ReviewSchema) =>
-      review.id === updatedReview.id ? updatedReview : review
+      review.id === updatedReview.id
+        ? { ...review, ...toPublicReview(updatedReview, review.is_own === true) }
+        : review
     );
     let avgRating = "0.0";
     if (updatedReviews.length > 0) {
@@ -262,7 +265,7 @@ const LectureDetailClient = ({
                     </div>
 
                     {/* 編集ボタン（自分のレビューの場合のみ） */}
-                    {session && user && review.user_id && Number(review.user_id) === Number(user.id) && (
+                    {session && user && review.is_own === true && (
                       <button
                         onClick={() => handleEditReview(review)}
                         className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"

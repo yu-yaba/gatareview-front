@@ -5,6 +5,7 @@ import type { HomeLectureItem, HomePageData } from '@/app/_types/HomePageData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
 import type { LectureReviewsResponse } from '@/app/_types/ReviewSchema';
 import type { ReviewWithLecture } from '@/app/_types/ReviewWithLecture';
+import { toPublicLatestReviews, toPublicLectureReviews } from './publicReview';
 
 const DEFAULT_LOCAL_BACKEND_URL = 'http://localhost:3001';
 export const PUBLIC_REVALIDATE_SECONDS = 300;
@@ -72,18 +73,26 @@ const getPublicLecture = cache(async (id: string): Promise<LectureSchema | null>
 
 export { getPublicLecture as getLectureForMetadata, getPublicLecture as getLectureForPage };
 
+// The result is passed to a client component, so it is serialized into the HTML
+// and RSC payload. Only whitelisted review fields leave the server.
 export async function getLectureReviewsForPage(
   id: string,
   backendToken?: string | null,
+  viewerUserId?: string | number | null,
 ): Promise<LectureReviewsResponse | null> {
   const headers = backendToken
     ? { Authorization: `Bearer ${backendToken}` }
     : undefined;
 
-  return fetchJson<LectureReviewsResponse>(`/api/v1/lectures/${id}/reviews`, {
+  const body = await fetchJson<unknown>(`/api/v1/lectures/${id}/reviews`, {
     cache: 'no-store',
     headers,
   });
+  if (body === null) return null;
+
+  // The viewer ID is only a fallback for backends that do not send is_own yet,
+  // and only counts when the request was made with that viewer's token.
+  return toPublicLectureReviews(body, backendToken ? viewerUserId : null);
 }
 
 async function getTotalReviews() {
@@ -110,10 +119,12 @@ async function getNoReviewsLectures() {
   return response?.lectures ?? null;
 }
 
-async function getLatestReviews() {
-  return fetchJson<ReviewWithLecture[]>('/api/v1/reviews/latest', {
+async function getLatestReviews(): Promise<ReviewWithLecture[] | null> {
+  const body = await fetchJson<unknown>('/api/v1/reviews/latest', {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
   });
+
+  return body === null ? null : toPublicLatestReviews(body);
 }
 
 export async function getHomePageData(): Promise<HomePageData> {
