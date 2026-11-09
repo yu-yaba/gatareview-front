@@ -51,6 +51,8 @@ test('本番画像最適化はGoogleのプロフィール画像のパスだけ�
     'https://lh3.googleusercontent.com/-legacy/AAAAAAAAAAI/AAAAAAAAAAA/xyz/s96-c/photo.jpg',
     'https://lh3.googleusercontent.com/a/nested/arbitrary=s4000',
     'https://lh3.googleusercontent.com/a/ACg8ocAvatar=s96-c?cache-bust=1',
+    'https://lh3.googleusercontent.com/a-/x/y',
+    // URLの解析で/d/…に正規化されてから照合されることの確認（/a/の下に見せかけても通らない）。
     'https://lh3.googleusercontent.com/a/../d/arbitrary-drive-file-id',
     'https://lh3.googleusercontent.com/a/%2e%2e/d/arbitrary-drive-file-id',
     'https://lh4.googleusercontent.com/a/ACg8ocAvatar=s96-c',

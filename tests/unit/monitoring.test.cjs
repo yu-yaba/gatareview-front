@@ -56,6 +56,8 @@ test('a forced sampled sentry-trace header cannot make the SDK send spans or tra
     { sentryTrace: `${traceId}-0123456789abcdef-1`, baggage: undefined },
     { sentryTrace: `${traceId}-0123456789abcdef-1`,
       baggage: `sentry-trace_id=${traceId},sentry-sampled=true,sentry-sample_rate=1,sentry-sample_rand=0.000001` },
+    // No sampled flag in sentry-trace, but the baggage claims the trace was sampled.
+    { sentryTrace: `${traceId}-0123456789abcdef`, baggage: `sentry-trace_id=${traceId},sentry-sampled=true` },
   ]
   async function sentItems(options) {
     const envelopes = []
