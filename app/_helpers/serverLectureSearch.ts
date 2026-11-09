@@ -1,11 +1,15 @@
 import 'server-only';
 import { unstable_cache } from 'next/cache';
+import { BACKEND_TIMEOUT_MS, clientIpSigner, type ClientIpSigner } from './backendRequest';
 import { LECTURE_LIST_CACHE_SECONDS, publicLectureQuery, type LectureSearchResponse } from './lectureSearch';
 
-async function fetchPublicList(query: string, base: string): Promise<LectureSearchResponse> {
+async function fetchPublicList(query: string, base: string, signClientIp: ClientIpSigner): Promise<LectureSearchResponse> {
   // Never read or forward cookies, Authorization, or viewer-specific API data.
-  const response = await fetch(`${base}/api/v1/lectures?${query}`, {
-    cache: 'no-store', headers: { Accept: 'application/json' },
+  // The signed visitor IP only lets the API count this request against the visitor.
+  const url = `${base}/api/v1/lectures?${query}`;
+  const response = await fetch(url, {
+    cache: 'no-store', headers: { Accept: 'application/json', ...signClientIp(url) },
+    signal: AbortSignal.timeout(BACKEND_TIMEOUT_MS),
   });
   if (!response.ok) throw new Error('Lecture search unavailable');
   const body = await response.json();
@@ -31,15 +35,18 @@ async function fetchPublicList(query: string, base: string): Promise<LectureSear
   };
 }
 
-// Only successful, validated public data is cached; failures are thrown, not saved.
-const cachedPublicList = unstable_cache(fetchPublicList, ['public-lecture-search-v1'], {
-  revalidate: LECTURE_LIST_CACHE_SECONDS,
-});
-
-export function getPublicLectureList(input: URLSearchParams): Promise<LectureSearchResponse> {
+export async function getPublicLectureList(input: URLSearchParams): Promise<LectureSearchResponse> {
   const query = publicLectureQuery(input);
   // Include the backend in the cache arguments so environments cannot share fixtures/data.
   const base = (process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV || 'http://localhost:3001').replace(/\/$/, '');
+  const signClientIp = await clientIpSigner();
   // Development should show edits/fixtures immediately; production tests exercise the real cache.
-  return process.env.NODE_ENV === 'development' ? fetchPublicList(query, base) : cachedPublicList(query, base);
+  if (process.env.NODE_ENV === 'development') return fetchPublicList(query, base, signClientIp);
+  // Only successful, validated public data is cached; failures are thrown, not saved.
+  // The signer is captured by the closure, not the cache key (query and base).
+  return unstable_cache(
+    (cachedQuery: string, cachedBase: string) => fetchPublicList(cachedQuery, cachedBase, signClientIp),
+    ['public-lecture-search-v1'],
+    { revalidate: LECTURE_LIST_CACHE_SECONDS },
+  )(query, base);
 }

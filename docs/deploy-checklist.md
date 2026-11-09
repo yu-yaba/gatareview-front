@@ -28,6 +28,8 @@
 | `GOOGLE_CLIENT_SECRET` | Yes | Google Cloud Console の本番値 |
 | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Optional | reCAPTCHA を使う画面で正しい site key |
 | `NEXT_PUBLIC_GA_ID` | Optional | 計測 ID が正しい |
+| `CLOUDFLARE_PROXY_SECRET` | Recommended | 32バイト以上のランダム値。CloudflareのTransform Ruleが付ける `X-Gatareview-Proxy-Secret` と完全に同じ値（下記手順）。Productionに設定する。未設定だと、Cloudflare経由の訪問はCloudflareの中継サーバーのIPごとに枠を共有する |
+| `RATE_LIMIT_FORWARDING_SECRET` | Recommended | 32バイト以上のランダム値。Herokuの同名の変数と完全に同じ値。Production（Previewもbackendの本番APIを使うならPreview）に設定する。Developmentには設定しない。未設定でも動くが、サーバーからのAPI呼び出しが全員で1つの回数制限の枠を共有する |
 
 ## review access 変更時の追加確認
 
@@ -71,6 +73,25 @@
 - backendの `token_version` migration と32バイト以上の専用JWT鍵を先に確認する。
 - 回帰テストはローカルの専用モックAPI（3101番）を使う。授業のサーバー表示も同じモックを利用するため、テストは順次実行する。
 - Dockerイメージには `.playwright-cli`、確認画像を含む `output`、テスト結果、環境変数ファイル、ローカルの秘密鍵を含めない。
+
+## API回数制限の利用者IP転送
+
+- 授業詳細・OGP画像・授業検索・Googleログインなどのサーバーからの呼び出しには、利用者IP（Cloudflare経由では秘密のヘッダーがある時だけ `CF-Connecting-IP`、それ以外はVercelの `x-real-ip`）と `RATE_LIMIT_FORWARDING_SECRET` による署名を付ける。詳しくは [公開授業情報の共通キャッシュ](public-lecture-cache.md#api呼び出しの回数制限と利用者ip) を参照する。
+- デプロイ順（鍵は実値をリポジトリ・チャット・ログに残さない。`openssl rand -hex 32` などで作る）:
+  1. このfrontendを先にデプロイする（鍵はまだ設定しない）。署名は付かないが、429を404ではなく5xxのエラー画面として扱うようになる。
+  2. backendをデプロイする。カウンターが正確になりワーカーごとの上限になるため、旧frontendのままだと429が404画面になる。そのため1の後にする。
+  3. 鍵Aを作り、Herokuの `RATE_LIMIT_FORWARDING_SECRET` に設定する。
+  4. 鍵Bを作り、Cloudflareのダッシュボード（gatareview.comのゾーン）で「Rules → Transform Rules → Modify Request Header」のルールを作る。対象はホスト名が `www.gatareview.com` と等しい要求だけ（他のサーバーへ鍵Bを送らないため。`gatareview.com` はwwwへのリダイレクトだけなので不要）、操作は「Set static」、ヘッダー名 `X-Gatareview-Proxy-Secret`、値は鍵B。無料プランで使える。CloudflareのPseudo IPv4は「Off」か「Add header」のままにする（「Overwrite headers」は `CF-Connecting-IP` を仮のIPv4に置き換え、IPv6の `/64` 単位の制限が効かなくなる）。
+  5. Vercel（Production）に `RATE_LIMIT_FORWARDING_SECRET`（鍵A）と `CLOUDFLARE_PROXY_SECRET`（鍵B）を**両方設定してから**再デプロイする。鍵Aだけで再デプロイすると、CloudflareのIPが署名されて枠を共有する（失敗はしない）。Vercelの環境変数は次のデプロイから効くため、両方そろうまで他のデプロイもしない。
+  - CloudflareのDNSを「DNS only」（プロキシなし）にする場合は4は不要（`x-real-ip` が利用者のIPになる）。ただしCloudflareのWeb Analyticsの自動挿入などは使えなくなる。
+  - どの順でも要求は失敗しない。backendは署名のない要求を従来どおり扱い、frontendはbackendが署名を無視しても動く。鍵がそろうまで回数制限が共有されるだけ。
+- 鍵が設定されているのに32バイト未満の場合や、Cloudflare経由の要求（`CF-Ray` あり）で鍵Bのヘッダーが一致しない・`CLOUDFLARE_PROXY_SECRET` が未設定の場合は、Vercelの実行ログに警告を出す（プロセスごとに10分に1回まで。`CF-Ray` は誰でも偽装できるので、1回きりにすると本当の設定漏れを隠されるため）。IPや鍵の値は出さない。
+- 鍵の交換: 鍵Aは、Herokuは設定変更ですぐ、Vercelは再デプロイで切り替わる。鍵Bは、Cloudflareのルールはすぐ、Vercelは再デプロイで切り替わる。その間は署名やヘッダーが一致せず、回数制限が一時的に共有されるだけで要求は失敗しない。両方を続けて更新し、すぐにVercelを再デプロイする。
+- 授業IDが1〜10桁の正の整数でないURL（例: `/lectures/0123`、`/lectures/123.json`）は404になる。以前はAPIが数値に変換して授業を表示していた。
+- 他人のCloudflare Workerから `www.gatareview.com` を呼ぶ要求は、Cloudflareの仕様で `CF-Connecting-IP` が固定の `2a06:98c0:3600::103` になり、1つの枠を共有する。影響はWorker経由の要求（一部のリンクプレビューやbot）だけで、自分の枠から逃れることはできない。
+- 確認: 反映後、Herokuのログに `[rack-attack] throttled ... key_source=router` が授業詳細やログインの時間帯に頻発していないかを見る（署名の鍵の設定漏れ・不一致の目安）。`key_source=signed` が多くの利用者で同時に出る場合は、Cloudflareの鍵Bの設定漏れでCloudflareのIPが署名されている可能性がある。
+- Vercelの「System Environment Variablesの公開」を無効にすると `VERCEL` が見えず、署名は付かない。
+- 授業ページの取得失敗は、APIの本当の404だけを404にし、429・5xx・タイムアウト（8秒）は5xxのエラー画面にする。
 
 ## 授業詳細の先行表示
 

@@ -2,6 +2,7 @@ import type { NextAuthOptions } from 'next-auth';
 import * as Sentry from '@sentry/nextjs';
 import GoogleProvider from 'next-auth/providers/google';
 import { cookies } from 'next/headers';
+import { clientIpSigner } from './backendRequest';
 
 if (!process.env.NEXTAUTH_SECRET) {
   throw new Error('NEXTAUTH_SECRET環境変数が設定されていません。セキュリティのため必須です。');
@@ -29,13 +30,17 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const backendUrl = process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV;
-          const response = await fetch(`${backendUrl}/api/v1/auth/google`, {
+          const authUrl = `${backendUrl}/api/v1/auth/google`;
+          // Count sign-ins per visitor, not per Vercel egress address.
+          const signClientIp = await clientIpSigner();
+          const response = await fetch(authUrl, {
             method: 'POST',
             cache: 'no-store',
             redirect: 'error',
             signal: AbortSignal.timeout(10000),
             headers: {
               'Content-Type': 'application/json',
+              ...signClientIp(authUrl, 'POST'),
             },
             body: JSON.stringify({
               token: account.id_token,
