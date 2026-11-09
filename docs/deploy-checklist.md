@@ -28,6 +28,7 @@
 | `GOOGLE_CLIENT_SECRET` | Yes | Google Cloud Console の本番値 |
 | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Optional | reCAPTCHA を使う画面で正しい site key |
 | `NEXT_PUBLIC_GA_ID` | Optional | 計測 ID が正しい |
+| `RATE_LIMIT_FORWARDING_SECRET` | Recommended | 32バイト以上のランダム値。Herokuの同名の変数と完全に同じ値。Production（Previewもbackendの本番APIを使うならPreview）に設定する。Developmentには設定しない。未設定でも動くが、サーバーからのAPI呼び出しが全員で1つの回数制限の枠を共有する |
 
 ## review access 変更時の追加確認
 
@@ -71,6 +72,13 @@
 - backendの `token_version` migration と32バイト以上の専用JWT鍵を先に確認する。
 - 回帰テストはローカルの専用モックAPI（3101番）を使う。授業のサーバー表示も同じモックを利用するため、テストは順次実行する。
 - Dockerイメージには `.playwright-cli`、確認画像を含む `output`、テスト結果、環境変数ファイル、ローカルの秘密鍵を含めない。
+
+## API回数制限の利用者IP転送
+
+- 授業詳細・授業検索・Googleログインなどのサーバーからの呼び出しには、Vercelのエッジが設定する `x-real-ip` と `RATE_LIMIT_FORWARDING_SECRET` による署名を付ける。詳しくは [公開授業情報の共通キャッシュ](public-lecture-cache.md#api呼び出しの回数制限と利用者ip) を参照する。
+- デプロイ順: backendを先にデプロイし、Herokuに鍵を設定してから、Vercelに同じ鍵を設定してfrontendを再デプロイする。どの順でも要求は失敗しない（backendは署名のない要求を従来どおり扱い、frontendはbackendが署名を無視しても動く）が、両方がそろうまで回数制限は従来どおり共有される。
+- Vercelの「System Environment Variablesの公開」を無効にすると `VERCEL` が見えず、署名は付かない。
+- 授業ページの取得失敗は、APIの本当の404だけを404にし、429・5xx・タイムアウト（8秒）は5xxのエラー画面にする。
 
 ## 授業詳細の先行表示
 

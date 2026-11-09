@@ -1,5 +1,9 @@
 import 'server-only';
+import { unstable_cache } from 'next/cache';
+import { headers } from 'next/headers';
 import { cache } from 'react';
+
+import { BACKEND_TIMEOUT_MS, clientIpSigner, UNSIGNED, type ClientIpSigner } from './backendRequest';
 
 import type { HomeLectureItem, HomePageData } from '@/app/_types/HomePageData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
@@ -27,51 +31,131 @@ function getBackendBaseUrls() {
   return Array.from(new Set(candidates.map((candidate) => candidate.replace(/\/$/, ''))));
 }
 
+export class BackendResponseError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super(`Backend responded with HTTP ${status}`);
+    this.name = 'BackendResponseError';
+    this.status = status;
+  }
+}
+
+// Replaces the fetch's TimeoutError (a DOMException without the path) so logs
+// and Sentry say which backend call stalled.
+export class BackendTimeoutError extends Error {
+  constructor(path: string) {
+    super(`Backend did not respond within ${BACKEND_TIMEOUT_MS} ms for ${path}`);
+    this.name = 'BackendTimeoutError';
+  }
+}
+
+const isTimeout = (error: unknown) => error instanceof Error && error.name === 'TimeoutError';
+
+const isBackendNotFound = (error: unknown) =>
+  error instanceof BackendResponseError && error.status === 404;
+
+// Any HTTP answer is final: a non-2xx status (429, 5xx, 404) or malformed JSON
+// throws, so callers decide what a real 404 means and never turn a transient
+// failure into "not found". Only an unreachable backend falls through to the
+// next configured base URL.
 async function fetchJson<T>(
   path: string,
   init: ServerFetchOptions = {},
-): Promise<T | null> {
-  const backendBaseUrls = getBackendBaseUrls();
+  signClientIp: ClientIpSigner = UNSIGNED,
+): Promise<T> {
   let lastError: unknown = null;
 
-  for (const backendBaseUrl of backendBaseUrls) {
+  for (const backendBaseUrl of getBackendBaseUrls()) {
+    const url = `${backendBaseUrl}${path}`;
+    let response: Response;
     try {
-      const response = await fetch(`${backendBaseUrl}${path}`, {
+      response = await fetch(url, {
         ...init,
+        signal: AbortSignal.timeout(BACKEND_TIMEOUT_MS),
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           ...(init.headers || {}),
+          ...signClientIp(url, init.method),
         },
       });
+    } catch (error) {
+      // A timeout means the backend is reachable but stalled: fail now instead
+      // of spending another full timeout on the next base URL.
+      if (isTimeout(error)) throw new BackendTimeoutError(path);
+      lastError = error;
+      continue;
+    }
 
-      if (!response.ok) {
-        return null;
-      }
+    if (!response.ok) {
+      throw new BackendResponseError(response.status);
+    }
 
+    try {
       return (await response.json()) as T;
     } catch (error) {
-      lastError = error;
+      if (isTimeout(error)) throw new BackendTimeoutError(path);
+      throw error;
     }
   }
 
   console.error(`Error fetching ${path}:`, lastError);
-  return null;
+  throw lastError instanceof Error ? lastError : new Error(`Backend unavailable for ${path}`);
 }
 
-// Metadata, the page, and the OGP route use the same public Data Cache key.
-// React also shares the parsed result within a server render. Never add a
-// session token here: viewer-specific reviews must keep using no-store below.
-const getPublicLecture = cache(async (id: string): Promise<LectureSchema | null> => {
-  return fetchJson<LectureSchema>(`/api/v1/lectures/${id}`, {
-    headers: {
-      'User-Agent': 'GataReview-NextJS-Metadata/1.0',
-    },
-    next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
-  });
-});
+// Metadata, the page, and the OGP route share one public cache entry per
+// lecture; React also shares the parsed result within a server render. Never
+// add a session token here: viewer-specific reviews must keep using no-store
+// below. Only successful responses are cached. The signer is captured by the
+// closure, not the cache key, so a cache miss is counted against the visitor
+// who caused it while everyone shares the cached result.
+async function fetchPublicLecture(id: string, signClientIp: ClientIpSigner): Promise<LectureSchema | null> {
+  const path = `/api/v1/lectures/${id}`;
+  try {
+    return await unstable_cache(
+      () => fetchJson<LectureSchema>(path, {
+        cache: 'no-store',
+        headers: { 'User-Agent': 'GataReview-NextJS-Metadata/1.0' },
+      }, signClientIp),
+      ['public-lecture-v2', ...getBackendBaseUrls(), path],
+      { revalidate: PUBLIC_REVALIDATE_SECONDS },
+    )();
+  } catch (error) {
+    if (isBackendNotFound(error)) return null;
+    throw error;
+  }
+}
 
-export { getPublicLecture as getLectureForMetadata, getPublicLecture as getLectureForPage };
+// After a failed or not-found lookup Next.js renders the error page a second
+// time, calling generateMetadata again, and React's cache() does not span the
+// two renders. Keep each lookup for the rest of the request (keyed by the
+// request's headers object) so one page view calls the API once, and a timeout
+// is waited for once, even when the lookup fails.
+const lookupsByRequest = new WeakMap<object, Map<string, Promise<LectureSchema | null>>>();
+
+const getPublicLecture = cache(async (id: string): Promise<LectureSchema | null> => {
+  const requestHeaders = await headers();
+  let lookups = lookupsByRequest.get(requestHeaders);
+  if (!lookups) {
+    lookups = new Map();
+    lookupsByRequest.set(requestHeaders, lookups);
+  }
+  let lookup = lookups.get(id);
+  if (!lookup) {
+    lookup = clientIpSigner().then((signClientIp) => fetchPublicLecture(id, signClientIp));
+    lookups.set(id, lookup);
+  }
+  return lookup;
+});
+// The ISR-cached OGP image has no visitor request to read headers from.
+const getPublicLectureForImage = cache((id: string) => fetchPublicLecture(id, UNSIGNED));
+
+export {
+  getPublicLecture as getLectureForMetadata,
+  getPublicLecture as getLectureForPage,
+  getPublicLectureForImage as getLectureForImage,
+};
 
 // The result is passed to a client component, so it is serialized into the HTML
 // and RSC payload. Only whitelisted review fields leave the server.
@@ -84,45 +168,54 @@ export async function getLectureReviewsForPage(
     ? { Authorization: `Bearer ${backendToken}` }
     : undefined;
 
-  const body = await fetchJson<unknown>(`/api/v1/lectures/${id}/reviews`, {
-    cache: 'no-store',
-    headers,
-  });
-  if (body === null) return null;
+  let body: unknown;
+  try {
+    body = await fetchJson<unknown>(`/api/v1/lectures/${id}/reviews`, {
+      cache: 'no-store',
+      headers,
+    }, await clientIpSigner());
+  } catch (error) {
+    // The lecture is already on screen; show the inline retry message instead.
+    console.error(`Error fetching reviews for lecture ${id}:`, error);
+    return null;
+  }
 
   // The viewer ID is only a fallback for backends that do not send is_own yet,
   // and only counts when the request was made with that viewer's token.
   return toPublicLectureReviews(body, backendToken ? viewerUserId : null);
 }
 
+// The home page shows a message per section instead of failing as a whole.
+const orNull = <T,>(request: Promise<T>) => request.catch(() => null);
+
 async function getTotalReviews() {
-  const response = await fetchJson<{ count: number }>('/api/v1/reviews/total', {
+  const response = await orNull(fetchJson<{ count: number }>('/api/v1/reviews/total', {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
-  });
+  }));
 
   return response?.count ?? null;
 }
 
 async function getPopularLectures() {
-  const response = await fetchJson<{ lectures: HomeLectureItem[] }>('/api/v1/lectures/popular', {
+  const response = await orNull(fetchJson<{ lectures: HomeLectureItem[] }>('/api/v1/lectures/popular', {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
-  });
+  }));
 
   return response?.lectures ?? null;
 }
 
 async function getNoReviewsLectures() {
-  const response = await fetchJson<{ lectures: HomeLectureItem[] }>('/api/v1/lectures/no_reviews', {
+  const response = await orNull(fetchJson<{ lectures: HomeLectureItem[] }>('/api/v1/lectures/no_reviews', {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
-  });
+  }));
 
   return response?.lectures ?? null;
 }
 
 async function getLatestReviews(): Promise<ReviewWithLecture[] | null> {
-  const body = await fetchJson<unknown>('/api/v1/reviews/latest', {
+  const body = await orNull(fetchJson<unknown>('/api/v1/reviews/latest', {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
-  });
+  }));
 
   return body === null ? null : toPublicLatestReviews(body);
 }
