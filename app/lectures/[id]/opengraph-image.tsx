@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { getLectureForImage } from '@/app/_helpers/serverLectureApi';
+import { getLectureForMetadata } from '@/app/_helpers/serverLectureApi';
 
 export const revalidate = 300;
 
@@ -29,7 +29,7 @@ async function loadFont(subset: string, weight: number) {
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const lecture = await getLectureForImage(id);
+  const lecture = await getLectureForMetadata(id);
 
   if (!lecture) {
     return new Response('Not Found', { status: 404 });

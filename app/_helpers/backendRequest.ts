@@ -14,7 +14,8 @@ export const BACKEND_TIMEOUT_MS = 8_000;
 
 export type ClientIpSigner = (url: string, method?: string) => Record<string, string>;
 
-// No visitor to attribute the call to (ISR routes), or forwarding is off.
+// No visitor to attribute the call to (the home page's ISR refresh), or
+// forwarding is off.
 export const UNSIGNED: ClientIpSigner = () => ({});
 
 // Returns a function that adds the signed visitor IP to a backend request.

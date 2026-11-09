@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { cache } from 'react';
 
 import { BACKEND_TIMEOUT_MS, clientIpSigner, UNSIGNED, type ClientIpSigner } from './backendRequest';
+import { BACKEND_RATE_LIMITED_DIGEST } from './monitoring';
 
 import type { HomeLectureItem, HomePageData } from '@/app/_types/HomePageData';
 import type { LectureSchema } from '@/app/_types/LectureSchema';
@@ -33,11 +34,14 @@ function getBackendBaseUrls() {
 
 export class BackendResponseError extends Error {
   readonly status: number;
+  readonly digest?: string;
 
   constructor(status: number) {
     super(`Backend responded with HTTP ${status}`);
     this.name = 'BackendResponseError';
     this.status = status;
+    // Lets monitoring drop every report of a rate-limited page (see monitoring.ts).
+    if (status === 429) this.digest = BACKEND_RATE_LIMITED_DIGEST;
   }
 }
 
@@ -104,20 +108,32 @@ async function fetchJson<T>(
   throw lastError instanceof Error ? lastError : new Error(`Backend unavailable for ${path}`);
 }
 
+// Only a well-formed lecture may enter the shared cache; anything else throws
+// and is retried on the next request.
+function assertLecture(body: unknown): LectureSchema {
+  const lecture = body as Partial<LectureSchema> | null;
+  if (!lecture || typeof lecture !== 'object' || !Number.isInteger(lecture.id) ||
+      typeof lecture.title !== 'string' || typeof lecture.lecturer !== 'string' ||
+      typeof lecture.faculty !== 'string') {
+    throw new Error('Invalid lecture response');
+  }
+  return lecture as LectureSchema;
+}
+
 // Metadata, the page, and the OGP route share one public cache entry per
 // lecture; React also shares the parsed result within a server render. Never
 // add a session token here: viewer-specific reviews must keep using no-store
-// below. Only successful responses are cached. The signer is captured by the
-// closure, not the cache key, so a cache miss is counted against the visitor
-// who caused it while everyone shares the cached result.
+// below. Only successful, well-formed responses are cached. The signer is
+// captured by the closure, not the cache key, so a cache miss is counted
+// against the visitor who caused it while everyone shares the cached result.
 async function fetchPublicLecture(id: string, signClientIp: ClientIpSigner): Promise<LectureSchema | null> {
   const path = `/api/v1/lectures/${id}`;
   try {
     return await unstable_cache(
-      () => fetchJson<LectureSchema>(path, {
+      async () => assertLecture(await fetchJson<unknown>(path, {
         cache: 'no-store',
         headers: { 'User-Agent': 'GataReview-NextJS-Metadata/1.0' },
-      }, signClientIp),
+      }, signClientIp)),
       ['public-lecture-v2', ...getBackendBaseUrls(), path],
       { revalidate: PUBLIC_REVALIDATE_SECONDS },
     )();
@@ -134,6 +150,8 @@ async function fetchPublicLecture(id: string, signClientIp: ClientIpSigner): Pro
 // is waited for once, even when the lookup fails.
 const lookupsByRequest = new WeakMap<object, Map<string, Promise<LectureSchema | null>>>();
 
+// The OGP image route renders on every request too (only the CDN caches the
+// image), so it can read the visitor's headers and sign like the page does.
 const getPublicLecture = cache(async (id: string): Promise<LectureSchema | null> => {
   const requestHeaders = await headers();
   let lookups = lookupsByRequest.get(requestHeaders);
@@ -148,14 +166,7 @@ const getPublicLecture = cache(async (id: string): Promise<LectureSchema | null>
   }
   return lookup;
 });
-// The ISR-cached OGP image has no visitor request to read headers from.
-const getPublicLectureForImage = cache((id: string) => fetchPublicLecture(id, UNSIGNED));
-
-export {
-  getPublicLecture as getLectureForMetadata,
-  getPublicLecture as getLectureForPage,
-  getPublicLectureForImage as getLectureForImage,
-};
+export { getPublicLecture as getLectureForMetadata, getPublicLecture as getLectureForPage };
 
 // The result is passed to a client component, so it is serialized into the HTML
 // and RSC payload. Only whitelisted review fields leave the server.

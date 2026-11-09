@@ -65,3 +65,20 @@ test('CSP permits only the configured Sentry ingest host', () => {
     assert.throws(() => createContentSecurityPolicy({ sentryDsn }))
   }
 })
+
+test('rate-limited backend failures are not reported from the server or the browser', async () => {
+  const { shouldReportRequestError, BACKEND_RATE_LIMITED_DIGEST } = source.exports
+  const options = sentryOptions('https://public@o123.ingest.us.sentry.io/456', 'production')
+  const event = { event_id: 'e', exception: { values: [{ type: 'Error', value: 'x' }] } }
+  const marked = digest => Object.assign(new Error('An error occurred in the Server Components render.'), { digest })
+
+  assert.equal(BACKEND_RATE_LIMITED_DIGEST, 'API_RATE_LIMITED')
+  // The original error, the HTML-render copy and the browser copy all keep the digest.
+  assert.equal(options.beforeSend(event, { originalException: marked('API_RATE_LIMITED') }), null)
+  assert.equal(shouldReportRequestError(marked('API_RATE_LIMITED@E123')), false)
+  // Outages and unexpected errors are still reported.
+  assert.notEqual(options.beforeSend(event, { originalException: marked('3253150281') }), null)
+  assert.notEqual(options.beforeSend(event, { originalException: new Error('unexpected') }), null)
+  assert.notEqual(options.beforeSend(event, undefined), null)
+  assert.equal(shouldReportRequestError('not an error'), true)
+})

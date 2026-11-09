@@ -1,4 +1,4 @@
-import type { ErrorEvent, StackFrame } from '@sentry/nextjs'
+import type { ErrorEvent, EventHint, StackFrame } from '@sentry/nextjs'
 
 const operations = {
   'api.request': 'Backend API unavailable',
@@ -39,6 +39,18 @@ export function safeErrorEvent(event: ErrorEvent): ErrorEvent {
   }
 }
 
+// A visitor over the API rate limit gets a 5xx error page. That is expected
+// and anyone can trigger it on purpose, so it must not use up the error quota.
+// Next.js keeps an error's own digest on every copy it reports (server render,
+// HTML render, the browser's error boundary), so serverLectureApi.ts marks
+// rate-limited failures with this digest. The error page shows it as the error ID.
+export const BACKEND_RATE_LIMITED_DIGEST = 'API_RATE_LIMITED'
+
+export function shouldReportRequestError(error: unknown): boolean {
+  const digest = typeof error === 'object' && error !== null ? (error as { digest?: unknown }).digest : undefined
+  return !(typeof digest === 'string' && digest.startsWith(BACKEND_RATE_LIMITED_DIGEST))
+}
+
 export function sentryOptions(dsn: string | undefined, environment: string | undefined) {
   return {
     dsn, enabled: Boolean(dsn) && environment === 'production', environment,
@@ -52,6 +64,8 @@ export function sentryOptions(dsn: string | undefined, environment: string | und
     integrations: (defaults: { name: string }[]) => defaults.filter(integration =>
       !['BrowserSession', 'BrowserTracing', 'Breadcrumbs', 'Console', 'HttpContext'].includes(integration.name)),
     replaysSessionSampleRate: 0, replaysOnErrorSampleRate: 0,
-    beforeSend: safeErrorEvent, beforeSendLog: () => null, beforeSendMetric: () => null,
+    beforeSend: (event: ErrorEvent, hint?: EventHint) =>
+      shouldReportRequestError(hint?.originalException) ? safeErrorEvent(event) : null,
+    beforeSendLog: () => null, beforeSendMetric: () => null,
   }
 }
