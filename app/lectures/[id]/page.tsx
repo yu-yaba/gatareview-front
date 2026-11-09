@@ -57,20 +57,26 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         </div>
       </div>
     }>
-      <LectureWithReviews id={id} lecture={lecture} backendToken={session?.backendToken} />
+      <LectureWithReviews
+        id={id}
+        lecture={lecture}
+        backendToken={session?.backendToken}
+        viewerUserId={session?.user?.id}
+      />
     </Suspense>
   );
 }
 
-async function LectureWithReviews({ id, lecture, backendToken }: {
+async function LectureWithReviews({ id, lecture, backendToken, viewerUserId }: {
   id: string;
   lecture: LectureSchema;
   backendToken?: string | null;
+  viewerUserId?: string | number | null;
 }) {
   // Keep private reviews uncached; only this boundary waits for them.
   const [reviewViewerKey, reviewsResponse] = await Promise.all([
     getReviewViewerKey(backendToken),
-    getLectureReviewsForPage(id, backendToken),
+    getLectureReviewsForPage(id, backendToken, viewerUserId),
   ]);
   const reviews = reviewsResponse?.reviews ?? [];
   const access = reviewsResponse?.access ?? {

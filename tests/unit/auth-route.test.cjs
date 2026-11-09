@@ -55,8 +55,9 @@ before(async () => {
   const base = `http://127.0.0.1:${fake.address().port}`
   process.env.DOCKER_BACKEND_URL = base
   const cache = new Map()
-  authOptions = loadTs('app/_helpers/authOptions.ts', { 'next/headers': fakeHeaders }, cache).authOptions
-  route = loadTs('app/api/auth/[...nextauth]/route.ts', { 'next/headers': fakeHeaders }, cache)
+  const replacements = { 'server-only': {}, 'next/headers': fakeHeaders }
+  authOptions = loadTs('app/_helpers/authOptions.ts', replacements, cache).authOptions
+  route = loadTs('app/api/auth/[...nextauth]/route.ts', replacements, cache)
   authOptions.providers = [{
     id: 'local', name: 'Local', type: 'oauth', version: '2.0',
     clientId: 'local-client', clientSecret: 'local-secret',

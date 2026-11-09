@@ -1,8 +1,9 @@
-import type { ErrorEvent, StackFrame } from '@sentry/nextjs'
+import type { ErrorEvent, EventHint, StackFrame } from '@sentry/nextjs'
 
 const operations = {
   'api.request': 'Backend API unavailable',
   'auth.backend': 'Backend authentication unavailable',
+  'api.rate_limited': 'Backend API rate limited (sampled)',
   'monitoring.test': 'Monitoring delivery test',
   unhandled: 'Unexpected application error',
 } as const
@@ -39,6 +40,33 @@ export function safeErrorEvent(event: ErrorEvent): ErrorEvent {
   }
 }
 
+// A visitor over the API rate limit gets a 5xx error page. That is expected
+// and anyone can trigger it on purpose, so it must not use up the error quota.
+// Next.js keeps an error's own digest on every copy it reports (server render,
+// HTML render, the browser's error boundary), so serverLectureApi.ts marks
+// rate-limited failures with this digest. The error page shows it as the error ID.
+// On the server, one report per process per interval still gets through, so
+// that limits hit by everyone (for example a missing or mismatched forwarding
+// secret) remain visible. Browsers never report them: each page load would
+// start a new interval.
+export const BACKEND_RATE_LIMITED_DIGEST = 'API_RATE_LIMITED'
+const RATE_LIMITED_REPORT_INTERVAL_MS = 10 * 60_000
+let lastRateLimitedReportAt = Number.NEGATIVE_INFINITY
+
+export function isRateLimitedError(error: unknown): boolean {
+  const digest = typeof error === 'object' && error !== null ? (error as { digest?: unknown }).digest : undefined
+  return typeof digest === 'string' && digest.startsWith(BACKEND_RATE_LIMITED_DIGEST)
+}
+
+export function shouldReportRequestError(
+  error: unknown, now = Date.now(), inBrowser = typeof window !== 'undefined',
+): boolean {
+  if (!isRateLimitedError(error)) return true
+  if (inBrowser || now - lastRateLimitedReportAt < RATE_LIMITED_REPORT_INTERVAL_MS) return false
+  lastRateLimitedReportAt = now
+  return true
+}
+
 export function sentryOptions(dsn: string | undefined, environment: string | undefined) {
   return {
     dsn, enabled: Boolean(dsn) && environment === 'production', environment,
@@ -52,6 +80,12 @@ export function sentryOptions(dsn: string | undefined, environment: string | und
     integrations: (defaults: { name: string }[]) => defaults.filter(integration =>
       !['BrowserSession', 'BrowserTracing', 'Breadcrumbs', 'Console', 'HttpContext'].includes(integration.name)),
     replaysSessionSampleRate: 0, replaysOnErrorSampleRate: 0,
-    beforeSend: safeErrorEvent, beforeSendLog: () => null, beforeSendMetric: () => null,
+    beforeSend: (event: ErrorEvent, hint?: EventHint) => {
+      if (!shouldReportRequestError(hint?.originalException)) return null
+      const tagged = isRateLimitedError(hint?.originalException)
+        ? { ...event, tags: { ...event.tags, operation: 'api.rate_limited' } } : event
+      return safeErrorEvent(tagged)
+    },
+    beforeSendLog: () => null, beforeSendMetric: () => null,
   }
 }

@@ -3,6 +3,7 @@ import type { JWT } from "next-auth/jwt"
 import type { NextRequest } from "next/server"
 
 import { authOptions } from "@/app/_helpers/authOptions"
+import { clientIpSigner } from "@/app/_helpers/backendRequest"
 import { applySessionCookieLifetime } from "@/app/_helpers/sessionLifetime"
 
 type RouteContext = { params: Promise<{ nextauth: string[] }> }
@@ -44,9 +45,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
       try {
         const backendUrl = process.env.DOCKER_BACKEND_URL || process.env.NEXT_PUBLIC_ENV
         if (!backendUrl) throw new Error('Backend URL is not configured')
-        const response = await fetch(`${backendUrl.replace(/\/$/, '')}/api/v1/auth/logout`, {
+        const logoutUrl = `${backendUrl.replace(/\/$/, '')}/api/v1/auth/logout`
+        const signClientIp = await clientIpSigner()
+        const response = await fetch(logoutUrl, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token.backendToken}` },
+          headers: { Authorization: `Bearer ${token.backendToken}`, ...signClientIp(logoutUrl, 'POST') },
           cache: 'no-store',
           redirect: 'error',
           signal: AbortSignal.timeout(10_000),

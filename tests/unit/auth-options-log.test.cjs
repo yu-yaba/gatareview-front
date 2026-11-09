@@ -6,11 +6,17 @@ const { loadTs } = require('./support/load-ts.cjs')
 process.env.NEXTAUTH_SECRET = 'local-auth-callback-test-secret'
 process.env.DOCKER_BACKEND_URL = 'http://127.0.0.1:1'
 let rememberCookie
-const { authOptions } = loadTs('app/_helpers/authOptions.ts', {
-  'next/headers': {
-    cookies: async () => ({ get: name => name === 'remember_me' && rememberCookie !== undefined ? { value: rememberCookie } : undefined }),
-  },
-})
+// The incoming sign-in callback request as Vercel's edge would deliver it.
+let incomingHeaders = new Headers()
+const nextHeaders = {
+  cookies: async () => ({ get: name => name === 'remember_me' && rememberCookie !== undefined ? { value: rememberCookie } : undefined }),
+  headers: async () => incomingHeaders,
+}
+// One module cache so the tests and authOptions share backendRequest's state.
+const moduleCache = new Map()
+const replacements = { 'server-only': {}, 'next/headers': nextHeaders }
+const backendRequest = loadTs('app/_helpers/backendRequest.ts', replacements, moduleCache)
+const { authOptions } = loadTs('app/_helpers/authOptions.ts', replacements, moduleCache)
 
 const nowSeconds = () => Math.floor(Date.now() / 1000)
 // Shape of the Rails token; the frontend only reads exp (the backend verifies the signature).
@@ -172,4 +178,84 @@ test('backend authentication has a deadline, bypasses caches, and rejects redire
   assert.equal(calls[0].options.redirect, 'error')
   assert.equal(calls[0].options.signal, controller.signal)
   assert.equal(token.backendToken.split('.').length, 3)
+})
+
+const forwardingEnv = { VERCEL: '1', VERCEL_ENV: 'production', RATE_LIMIT_FORWARDING_SECRET: 'test-only-forwarding-secret-0123456789abcdef' }
+function withEnv(t, values) {
+  const previous = Object.fromEntries(Object.keys(values).map(key => [key, process.env[key]]))
+  Object.assign(process.env, values)
+  t.after(() => {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+  })
+}
+const crypto = require('node:crypto')
+
+test('Google sign-in forwards the Vercel-observed visitor IP with a valid signature', async t => {
+  withEnv(t, forwardingEnv)
+  incomingHeaders = new Headers({ 'x-real-ip': '203.0.113.7', 'x-forwarded-for': '198.51.100.1' })
+  t.after(() => { incomingHeaders = new Headers() })
+  const calls = []
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls.push({ url, options })
+    // A sign-in only succeeds with an API token that carries an expiry.
+    return backendSuccess()()
+  })
+
+  await authOptions.callbacks.jwt(signInArguments())
+
+  const headers = calls[0].options.headers
+  const timestamp = headers['X-Gatareview-Client-Ip-Timestamp']
+  const expected = crypto.createHmac('sha256', forwardingEnv.RATE_LIMIT_FORWARDING_SECRET)
+    .update(['v1', timestamp, 'POST', '/api/v1/auth/google', '203.0.113.7'].join('\n')).digest('hex')
+  assert.equal(headers['X-Gatareview-Client-Ip'], '203.0.113.7')
+  assert.ok(Math.abs(Number(timestamp) - Date.now() / 1000) < 5)
+  assert.equal(headers['X-Gatareview-Client-Ip-Signature'], expected)
+  assert.equal(headers['Content-Type'], 'application/json')
+})
+
+test('Google sign-in sends no forwarding headers without a secret or outside Vercel', async t => {
+  incomingHeaders = new Headers({ 'x-real-ip': '203.0.113.7' })
+  t.after(() => { incomingHeaders = new Headers() })
+  const calls = []
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls.push(options.headers)
+    // A sign-in only succeeds with an API token that carries an expiry.
+    return backendSuccess()()
+  })
+
+  withEnv(t, forwardingEnv)
+  for (const env of [
+    { ...forwardingEnv, RATE_LIMIT_FORWARDING_SECRET: '' },
+    { ...forwardingEnv, RATE_LIMIT_FORWARDING_SECRET: 'too-short' },
+    { ...forwardingEnv, VERCEL: '' },
+    { ...forwardingEnv, VERCEL_ENV: 'development' },
+  ]) {
+    Object.assign(process.env, env)
+    await authOptions.callbacks.jwt(signInArguments())
+  }
+
+  assert.equal(calls.length, 4)
+  for (const headers of calls) {
+    assert.deepEqual(Object.keys(headers).filter(key => key.toLowerCase().startsWith('x-gatareview')), [])
+  }
+})
+
+test('a Cloudflare request without a usable proxy secret is logged periodically, without the IP', async t => {
+  withEnv(t, { ...forwardingEnv, CLOUDFLARE_PROXY_SECRET: '' })
+  incomingHeaders = new Headers({ 'x-real-ip': '172.68.10.20', 'cf-ray': 'test-NRT', 'cf-connecting-ip': '203.0.113.7' })
+  t.after(() => { incomingHeaders = new Headers() })
+  const warnings = []
+  t.mock.method(console, 'warn', (...args) => warnings.push(args.join(' ')))
+
+  const sign = await backendRequest.clientIpSigner()
+  await backendRequest.clientIpSigner()
+
+  assert.equal(warnings.length, 1)
+  assert.match(warnings[0], /CLOUDFLARE_PROXY_SECRET is not set/)
+  assert.equal(/203\.0\.113\.7|172\.68\.10\.20/.test(warnings[0]), false)
+  // Without the proxy secret the Cloudflare edge address is still what gets signed.
+  assert.equal(sign('http://127.0.0.1:1/api/v1/lectures', 'GET')['X-Gatareview-Client-Ip'], '172.68.10.20')
 })
