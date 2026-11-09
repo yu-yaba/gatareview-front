@@ -11,7 +11,7 @@ test('オフライン画面とホームのHTMLが読み込むスクリプト・C
     const html = readFileSync(`.next/server/app/${page}.html`, 'utf8')
     const required = new Set<string>()
     const legacyOnly = new Set<string>()
-    for (const tag of Array.from(html.matchAll(/<(script|link)\b[^>]*>/g), match => match[0])) {
+    for (const tag of Array.from(html.matchAll(/<(script|link)\b[^>]*>/gi), match => match[0])) {
       const url = tag.match(/\b(?:src|href)="(\/_next\/static\/[^"]+\.(?:js|css|woff2))"/)?.[1]
       if (!url) continue
       // Legacy-browser polyfills (nomodule) are never loaded by browsers that support service workers.
