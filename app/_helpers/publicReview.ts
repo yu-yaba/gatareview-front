@@ -5,6 +5,8 @@ import type { ReviewWithLecture } from '@/app/_types/ReviewWithLecture';
 // （user, user_id, Google の表示名・プロフィール画像 URL）はクライアントコンポーネントへ渡さない。
 // クライアントコンポーネントの props は HTML / RSC payload にそのまま埋め込まれるので、
 // バックエンドが余分な項目を返しても漏れないよう、渡す項目を許可リストで固定する。
+// created_at / updated_at も渡さない（匿名レビューは編集できないため、編集時刻から
+// ログイン投稿かどうかや同じ人の投稿が推測できる。画面でも使っていない）。
 const PUBLIC_REVIEW_FIELDS = [
   'id',
   'rating',
@@ -17,8 +19,6 @@ const PUBLIC_REVIEW_FIELDS = [
   'content_quality',
   'period_year',
   'period_term',
-  'created_at',
-  'updated_at',
   'thanks_count',
 ] as const;
 

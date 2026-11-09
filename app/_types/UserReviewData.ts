@@ -7,6 +7,7 @@ export interface UserReviewData extends ReviewSchema {
     lecturer: string;
     faculty: string;
   };
+  created_at: Date;
   thanks_count: number;
 }
 

@@ -10,8 +10,9 @@ export type ReviewSchema = {
   content_quality: string;
   period_year: string;
   period_term: string;
-  created_at: Date;
-  updated_at: Date;
+  // 公開レビュー（授業詳細）には含まれない。マイページの本人レビューだけが持つ。
+  created_at?: Date;
+  updated_at?: Date;
   thanks_count?: number;
   // 閲覧中のユーザー本人のレビューかどうか。投稿者の ID・名前・アイコンは受け取らない。
   is_own?: boolean;

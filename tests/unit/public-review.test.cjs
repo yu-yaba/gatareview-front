@@ -18,10 +18,10 @@ const legacyReview = {
 test('only whitelisted review fields and is_own leave the server', () => {
   const review = toPublicReview(legacyReview, false);
   assert.deepEqual(Object.keys(review).sort(), [
-    'attendance', 'content', 'content_difficulty', 'content_quality', 'created_at', 'grading_type', 'id', 'is_own',
-    'lecture_id', 'period_term', 'period_year', 'rating', 'textbook', 'thanks_count', 'updated_at',
+    'attendance', 'content', 'content_difficulty', 'content_quality', 'grading_type', 'id', 'is_own',
+    'lecture_id', 'period_term', 'period_year', 'rating', 'textbook', 'thanks_count',
   ]);
-  assert.doesNotMatch(JSON.stringify(review), /PRIVATE|user_id|avatar_url|"user"/);
+  assert.doesNotMatch(JSON.stringify(review), /PRIVATE|user_id|avatar_url|"user"|created_at|updated_at/);
 });
 
 test('is_own from the backend wins over the legacy user_id comparison', () => {
