@@ -149,8 +149,9 @@ try {
   // Only a real 404 from the API is a missing page. Rate limits, outages,
   // malformed JSON and timeouts render the error page with a 5xx status, are
   // not cached, and recover on the next request.
-  // The RSC payload embeds every not-found boundary, so look only at the rendered HTML.
-  const isNotFoundPage = html => html.replace(/<script[\s\S]*?<\/script>/g, '').includes('ページが見つかりません');
+  // The RSC payload embeds every not-found boundary, so look at the rendered
+  // <title>, which generateMetadata sets only for a missing lecture.
+  const isNotFoundPage = html => (html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '').includes('ページが見つかりません');
   // Malformed IDs are not found without asking the API (an over-long one makes
   // Puma answer 400, which would otherwise be an error page).
   const callsBeforeJunk = requests.length;
