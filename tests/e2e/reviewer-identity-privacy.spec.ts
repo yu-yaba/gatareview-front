@@ -23,7 +23,7 @@ const lectureId = fixtures.lectureResponse.id
 const legacyBackendReviews = {
   reviews: [
     { ...fixtures.firstReview, user_id: 901, user: { id: 901, name: reviewerName, avatar_url: reviewerAvatar },
-      internal_note: 'PRIVATE_UNKNOWN_FIELD', created_at: '2026-10-01T00:00:00.000Z', updated_at: 'PRIVATE_EDITED_AT_MARKER' },
+      internal_note: 'PRIVATE_UNKNOWN_FIELD', created_at: 'PRIVATE_CREATED_AT_MARKER', updated_at: 'PRIVATE_EDITED_AT_MARKER' },
     { ...fixtures.secondReview, user_id: 902, user: { id: 902, name: otherReviewerName, avatar_url: otherReviewerAvatar } },
   ],
   access: { restriction_enabled: false, access_granted: true },
@@ -43,8 +43,9 @@ async function expectNoReviewerIdentity(text: string) {
   for (const marker of reviewerMarkers) expect(text).not.toContain(marker)
   expect(text).not.toContain('user_id')
   expect(text).not.toContain('匿名ユーザー')
-  // 匿名レビューは編集できないため、レビューの編集時刻からログイン投稿かどうかを推測させない
-  // （授業自体の updated_at は対象外なので、レビューに入れた目印の値で確認する）
+  // 匿名レビューは編集できないため、レビューの投稿・編集時刻からログイン投稿かどうかや同じ人の投稿を推測させない
+  // （授業自体の created_at / updated_at は対象外なので、レビューに入れた目印の値で確認する）
+  expect(text).not.toContain('PRIVATE_CREATED_AT_MARKER')
   expect(text).not.toContain('PRIVATE_EDITED_AT_MARKER')
 }
 
@@ -107,7 +108,8 @@ test.describe('レビュー投稿者情報を公開ページに埋め込まな�
   })
 
   for (const backend of ['legacy', 'current'] as const) {
-    // 更新応答の項目を許可リストで絞ることは tests/unit/public-review.test.cjs で確認する。
+    // 更新応答から渡る項目は画面に出ないため、ここでは編集ボタンが残ることだけを確認する。
+    // 許可リスト自体（toPublicReview）は tests/unit/public-review.test.cjs で確認する。
     test(`編集して保存したあとも本人の編集ボタンが残る（${backend}）`, async ({ page }) => {
       const reviews = backend === 'legacy' ? legacyBackendReviews : currentBackendReviews(fixtures.firstReview.id)
       await openLecture(page, reviews, '901')
