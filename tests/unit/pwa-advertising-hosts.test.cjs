@@ -1,29 +1,12 @@
 const assert = require('node:assert/strict');
-const { readFileSync } = require('node:fs');
-const path = require('node:path');
-const { createRequire } = require('node:module');
 const test = require('node:test');
-const vm = require('node:vm');
+const { loadPwaOptions } = require('./helpers/load-pwa-options.cjs');
 
-const configPath = path.resolve(__dirname, '../../next.config.js');
-const requireConfig = createRequire(configPath);
-let runtimeCaching;
-vm.runInNewContext(readFileSync(configPath, 'utf8'), {
-  process: { env: { NODE_ENV: 'test' } },
-  module: { exports: {} },
-  require(name) {
-    if (name === 'next-pwa') return options => {
-      runtimeCaching = options.runtimeCaching;
-      return config => config;
-    };
-    if (name === '@sentry/nextjs/config') return { withSentryConfig: config => config };
-    return requireConfig(name);
-  },
-}, { filename: configPath });
+const { runtimeCaching } = loadPwaOptions();
 
 function isNetworkOnly(target) {
   return runtimeCaching.some(rule => rule.handler === 'NetworkOnly'
-    && rule.urlPattern({ url: new URL(target) }));
+    && rule.urlPattern({ url: new URL(target), request: { mode: 'no-cors', destination: 'image' } }));
 }
 
 test('advertising requests to the A8 domain and its subdomains bypass caching', () => {

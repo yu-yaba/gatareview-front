@@ -15,6 +15,9 @@ self.addEventListener('activate', (event) => {
     // 新しいSWは別名のv2キャッシュを使用するため、新規データは削除しない。
     'images',
     'static-resources',
+    // 状態コードや保存可否を確認せずに '/' を保存していた next-pwa 標準のホーム用キャッシュ。
+    // 公開HTMLだけを保存する start-url-v2 に置き換えた。
+    'start-url',
   ]
 
   event.waitUntil(
