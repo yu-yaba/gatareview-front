@@ -33,9 +33,28 @@ test('本番画像最適化はlocalhost・HTTP・任意ポートを拒否する'
   const allowed = (url: string) => !ImageOptimizerCache.validateParams({ headers: {} }, { url, w: '64', q: '75' }, config, false).errorMessage
   expect(allowed('http://localhost:3000/private.png')).toBe(false)
   expect(allowed('http://127.0.0.1:3000/private.png')).toBe(false)
-  expect(allowed('http://lh3.googleusercontent.com/avatar.png')).toBe(false)
-  expect(allowed('https://lh3.googleusercontent.com:444/avatar.png')).toBe(false)
-  expect(allowed('https://lh3.googleusercontent.com/avatar.png')).toBe(true)
+  expect(allowed('http://lh3.googleusercontent.com/a/ACg8ocAvatar=s96-c')).toBe(false)
+  expect(allowed('https://lh3.googleusercontent.com:444/a/ACg8ocAvatar=s96-c')).toBe(false)
+})
+
+test('本番画像最適化はGoogleのプロフィール画像のパスだけを受け付ける', () => {
+  const { config } = JSON.parse(readFileSync('.next/required-server-files.json', 'utf8'))
+  const allowed = (url: string) => !ImageOptimizerCache.validateParams({ headers: {} }, { url, w: '128', q: '75' }, config, false).errorMessage
+  // Googleログインのpictureクレームが返す形式（現行と旧形式）。
+  expect(allowed('https://lh3.googleusercontent.com/a/ACg8ocAvatar_Example-123=s96-c')).toBe(true)
+  expect(allowed('https://lh3.googleusercontent.com/a-/AOh14GiLegacyAvatar=s96-c')).toBe(true)
+  // 同じホストのアバター以外の画像・階層・クエリ付きURLは取得しない。
+  for (const url of [
+    'https://lh3.googleusercontent.com/avatar.png',
+    'https://lh3.googleusercontent.com/d/arbitrary-drive-file-id',
+    'https://lh3.googleusercontent.com/pw/arbitrary-photos-id=w4000',
+    'https://lh3.googleusercontent.com/-legacy/AAAAAAAAAAI/AAAAAAAAAAA/xyz/s96-c/photo.jpg',
+    'https://lh3.googleusercontent.com/a/nested/arbitrary=s4000',
+    'https://lh3.googleusercontent.com/a/ACg8ocAvatar=s96-c?cache-bust=1',
+    'https://lh3.googleusercontent.com/a/../d/arbitrary-drive-file-id',
+    'https://lh3.googleusercontent.com/a/%2e%2e/d/arbitrary-drive-file-id',
+    'https://lh4.googleusercontent.com/a/ACg8ocAvatar=s96-c',
+  ]) expect(allowed(url), url).toBe(false)
 })
 
 test('開発環境では既存のローカル画像取得を許可する', () => {
