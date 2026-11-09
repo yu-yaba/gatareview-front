@@ -1,17 +1,25 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function OfflineActions() {
+  // 水和が終わり、再接続の監視を始めたことを示す（ボタンもこの時点から動作する）。
+  const [ready, setReady] = useState(false);
+
   useEffect(() => {
     // アドレスバーには本来開こうとしたURLが残っているため、再接続時はそのまま読み込み直す。
-    const reload = () => window.location.reload();
+    // 実際に接続が戻ったとき（navigator.onLine が true）だけにし、別の画面への移動中に
+    // 届く一時的なonlineイベントで移動を打ち消さないようにする。
+    const reload = () => {
+      if (navigator.onLine) window.location.reload();
+    };
     window.addEventListener('online', reload);
+    setReady(true);
     return () => window.removeEventListener('online', reload);
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-ready={ready ? 'true' : undefined}>
       <button
         type="button"
         onClick={() => window.location.reload()}

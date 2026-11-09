@@ -10,16 +10,21 @@ test('オフライン画面とホームのHTMLが読み込むスクリプト・C
   for (const page of ['offline', 'index']) {
     const html = readFileSync(`.next/server/app/${page}.html`, 'utf8')
     const required = new Set<string>()
-    for (const tag of html.matchAll(/<(script|link)\b[^>]*>/g)) {
+    const legacyOnly = new Set<string>()
+    for (const tag of Array.from(html.matchAll(/<(script|link)\b[^>]*>/g), match => match[0])) {
+      const url = tag.match(/\b(?:src|href)="(\/_next\/static\/[^"]+\.(?:js|css|woff2))"/)?.[1]
+      if (!url) continue
       // Legacy-browser polyfills (nomodule) are never loaded by browsers that support service workers.
-      if (/\bnomodule\b/i.test(tag[0])) continue
-      const url = tag[0].match(/\b(?:src|href)="(\/_next\/static\/[^"]+\.(?:js|css|woff2))"/)?.[1]
-      if (url) required.add(url)
+      if (/\bnomodule\b/i.test(tag)) legacyOnly.add(url)
+      else required.add(url)
     }
     // Chunks the RSC payload asks the client to load during hydration.
-    for (const match of html.matchAll(/static\/chunks\/[^"\\]+?\.js/g)) required.add(`/_next/${match[0]}`)
+    for (const chunk of Array.from(html.matchAll(/static\/chunks\/[^"\\]+?\.js/g), match => `/_next/${match[0]}`)) {
+      if (!legacyOnly.has(chunk)) required.add(chunk)
+    }
+    expect(legacyOnly.size, page).toBeLessThanOrEqual(1)
     expect(required.size, page).toBeGreaterThan(5)
-    expect([...required].filter(url => !precached.has(url)), page).toEqual([])
+    expect(Array.from(required).filter(url => !precached.has(url)), page).toEqual([])
   }
 })
 

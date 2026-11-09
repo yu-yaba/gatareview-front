@@ -34,15 +34,25 @@ async function waitForAutomaticRegistration(page: Page) {
 }
 
 async function goOffline(page: Page, context: BrowserContext) {
-  // Also bypass the browser HTTP cache so only the service worker can answer.
+  // Empty the browser HTTP cache so that only the service worker can answer offline
+  // (chunks missing from the precache must fail here, not come from the HTTP cache).
+  // Detach right away: a CDP session left attached during offline navigations makes
+  // Chromium reload the previous page, which never happens in a real browser.
   const session = await context.newCDPSession(page)
-  await session.send('Network.enable')
-  await session.send('Network.setCacheDisabled', { cacheDisabled: true })
+  await session.send('Network.clearBrowserCache')
+  await session.detach()
   await context.setOffline(true)
-  return async () => { await context.setOffline(false); await session.detach() }
+  return async () => { await context.setOffline(false) }
 }
 
 const offlineHeading = (page: Page) => page.getByRole('heading', { level: 1, name: 'オフラインです' })
+
+// The heading is in the static HTML. Wait until the page has hydrated from the precache
+// (buttons work, reconnect listener attached) before acting on or leaving it.
+async function expectHydratedOfflinePage(page: Page, label?: string) {
+  await expect(offlineHeading(page), label).toBeVisible()
+  await expect(page.locator('[data-ready="true"]'), label).toHaveCount(1)
+}
 
 test('テストからregisterを呼ばなくても、本番ビルドがホーム以外の画面からもSWを登録する', async ({ page }) => {
   await page.goto('/faq')
@@ -60,22 +70,26 @@ test('テストからregisterを呼ばなくても、本番ビルドがホーム
 })
 
 test('オフライン時、未保存の画面へ移動すると事前保存した/offlineを表示し、URLは維持する', async ({ page, context }) => {
-  await page.goto('/faq')
+  await page.goto('/')
   await waitForAutomaticRegistration(page)
+  // The home page is only stored on a controlled visit; make sure "トップページへ" below has nothing stored.
+  await page.evaluate(() => caches.delete('start-url-v2'))
   const restore = await goOffline(page, context)
   try {
     for (const target of ['/lectures/123', '/lectures?search=offline', '/faq', '/privacy', '/mypage', '/auth/signin', '/offline']) {
       const response = await page.goto(target)
       expect(response?.status(), target).toBe(200)
-      await expect(offlineHeading(page), target).toBeVisible()
+      await expectHydratedOfflinePage(page, target)
       const url = new URL(page.url())
       expect(url.pathname + url.search, target).toBe(target)
     }
     // The page hydrates from precached chunks and its icon comes from the precache.
     await expect.poll(() => page.locator('img[alt="ガタレビュ"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
     await page.goto('/lectures/123')
+    await expectHydratedOfflinePage(page)
     await page.getByRole('button', { name: 'トップページへ' }).click()
     await expect(page).toHaveURL(/\/$/)
+    await expectHydratedOfflinePage(page)
     expect(await page.evaluate(() => (window as any).cspViolations)).toEqual([])
   } finally { await restore() }
 })
@@ -87,7 +101,7 @@ test('ホームを保存していない状態でオフラインになっても�
   const restore = await goOffline(page, context)
   try {
     await page.goto('/')
-    await expect(offlineHeading(page)).toBeVisible()
+    await expectHydratedOfflinePage(page)
   } finally { await restore() }
 })
 
@@ -98,10 +112,10 @@ test('オフライン画面は接続が戻ると、本来開こうとした画�
   let restored = false
   try {
     await page.goto('/faq')
-    await expect(offlineHeading(page)).toBeVisible()
+    await expectHydratedOfflinePage(page)
     await restore()
     restored = true
-    await expect(offlineHeading(page)).toHaveCount(0)
+    await expect(offlineHeading(page)).toHaveCount(0, { timeout: 15_000 })
     await expect(page).toHaveURL(/\/faq$/)
     await expect(page.locator('main h1')).toBeVisible()
   } finally { if (!restored) await restore() }
@@ -147,7 +161,7 @@ test('ログイン中に閲覧しても、SWのキャッシュには公開HTML(/
   try {
     for (const target of ['/mypage', '/lectures/123']) {
       await page.goto(target)
-      await expect(offlineHeading(page)).toBeVisible()
+      await expectHydratedOfflinePage(page, target)
       expect(await page.content()).not.toContain(marker)
     }
   } finally { await restore() }

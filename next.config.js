@@ -20,7 +20,7 @@ const withPWA = require('next-pwa')({
   // 下の start-url-v2 ルールで公開HTMLだけを保存する。'/' を事前保存（古いHTMLの固定）もしない。
   dynamicStartUrl: false,
   cacheStartUrl: false,
-  // 同時に開いている画面でも新しいSWの起動待ちを減らし、ナビゲーションを並行して取得する。
+  // SWの起動を待たずに画面のHTML取得を始め、SW導入による表示の遅れを抑える。
   navigationPreload: true,
   // App Router's build manifest is internal and returns 404 on Vercel.
   // Precaching it would abort installation of the entire service worker.
