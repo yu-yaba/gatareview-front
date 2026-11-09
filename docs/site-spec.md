@@ -147,6 +147,14 @@ FAQ、利用規約、プライバシーポリシーです。
 - インストールプロンプトを表示します。
 - オフラインページを用意しており、キャッシュ済みページの再利用を想定しています。
 - SEO向けに `metadata`、OGP、構造化データ、サイトマップを設定しています。
+  - canonical・og:url はページごとに設定します（`app/_helpers/seo.ts` の `indexablePageMetadata`）。ルートの `layout.tsx` では canonical と robots を設定しないので、設定していないページや 404 にホームの canonical が付くことはありません。
+  - 授業一覧 `/lectures` の canonical: 条件なしの1ページ目は `/lectures`、条件なしの2ページ目以降は `/lectures?page=N`、検索語・学部・並び替え・詳細条件があるときは `/lectures`。
+  - マイページ・ログイン・管理画面・オフライン・レビュー投稿フォーム（`/reviews/new`、`/lectures/[id]/review`）は `noindex, follow` で canonical なし（`noindexPageMetadata`）。robots.txt では止めません（止めると noindex が読まれないため）。
+  - 404 は Next.js が付ける `noindex` だけで、canonical はありません。授業の 404 もサイト共通の 404 デザインを使います。
+  - 構造化データ: WebSite・Organization は全ページ、パンくずは各ページ、FAQPage は `/faq` だけ（画面の質問と同じ `app/faq/faqData.ts` から作る）。
+  - `sitemap.xml` は固定ページとレビューのある授業ページを載せます。授業は backend の `GET /api/v1/lectures/sitemap` を1回呼んで取得し、Data Cache に1時間保存します。
+  - robots.txt では `/api/` と `/admin/` だけをブロックします（`/_next/` は表示に必要なのでブロックしない）。
+  - 出力の確認: `npm run build` のあと `npm run test:seo`。
 
 ## 10. 主要データモデル
 
