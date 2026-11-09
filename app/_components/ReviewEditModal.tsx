@@ -138,7 +138,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
       onRequestClose={onClose}
       appElement={getModalAppElement()}
       className="w-full max-w-6xl mx-auto mt-2 sm:mt-8 lg:mt-0 bg-white/95 backdrop-blur-md rounded-3xl shadow-xl border border-green-100/50 p-6 md:p-8 lg:p-10 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-start lg:items-center justify-center p-2 sm:p-4 z-50"
+      overlayClassName="fixed inset-0 bg-black/50 flex items-start lg:items-center justify-center p-2 sm:p-4 z-50"
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">レビューを編集</h2>
@@ -162,7 +162,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                     必須
                   </span>
                 </p>
-                <div className="flex flex-col items-center justify-center p-8 rounded-3xl shadow-lg border border-yellow-200/50 backdrop-blur-sm">
+                <div className="flex flex-col items-center justify-center p-8 rounded-3xl shadow-lg border border-yellow-200/50 backdrop-blur-xs">
                   <StarRating
                     count={5}
                     value={formData.rating}
@@ -193,7 +193,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   rows={6}
                   maxLength={formData.content === review.content ? undefined : 1000}
-                  className="p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-none text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300 lg:min-h-[220px]"
+                  className="p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-hidden text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300 lg:min-h-[220px]"
                   placeholder="授業の感想やアドバイスなどを30文字以上1000文字以内で入力してください..."
                   required
                 />
@@ -214,7 +214,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                 <select
                   value={formData.textbook}
                   onChange={(e) => handleInputChange('textbook', e.target.value)}
-                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
+                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
                   <option value="必要">必要</option>
@@ -241,7 +241,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                 <select
                   value={formData.attendance}
                   onChange={(e) => handleInputChange('attendance', e.target.value)}
-                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
+                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
                   <option value="毎回確認">毎回確認</option>
@@ -268,7 +268,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                 <select
                   value={formData.grading_type}
                   onChange={(e) => handleInputChange('grading_type', e.target.value)}
-                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
+                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
                   <option value="テストのみ">テストのみ</option>
@@ -295,7 +295,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                 <select
                   value={formData.content_difficulty}
                   onChange={(e) => handleInputChange('content_difficulty', e.target.value)}
-                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
+                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
                   <option value="とても楽">とても楽</option>
@@ -323,7 +323,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                 <select
                   value={formData.content_quality}
                   onChange={(e) => handleInputChange('content_quality', e.target.value)}
-                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
+                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
                   <option value="とても良い">とても良い</option>
@@ -351,7 +351,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                 <select
                   value={formData.period_year}
                   onChange={(e) => handleInputChange('period_year', e.target.value)}
-                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
+                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
                   {reviewYearOptions.map((year) => (
@@ -378,7 +378,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                 <select
                   value={formData.period_term}
                   onChange={(e) => handleInputChange('period_term', e.target.value)}
-                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
+                  className="block appearance-none w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-all duration-300 hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300"
                 >
                   <option value="">選択してください</option>
                   <option value="1ターム">1ターム</option>
@@ -408,7 +408,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
             onClick={onClose}
             className="flex-1 px-8 py-4 bg-white/95 backdrop-blur-md border border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center relative overflow-hidden group"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-gray-50 to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <FaTimes className="mr-2 relative z-10" />
             <span className="relative z-10">キャンセル</span>
           </button>
@@ -419,10 +419,10 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
               type="button"
               onClick={handleDelete}
               disabled={isDeleting || isLoading}
-              className="flex-1 px-8 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-2xl hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-red-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="flex-1 px-8 py-4 bg-linear-to-r from-red-500 to-red-600 text-white font-bold rounded-2xl hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-red-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-red-400 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute top-0 left-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
               {isDeleting ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2 relative z-10"></div>
               ) : (
@@ -435,10 +435,10 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
           <button
             type="submit"
             disabled={isLoading || isDeleting}
-            className="flex-1 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="flex-1 px-8 py-4 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute top-0 left-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
             {isLoading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2 relative z-10"></div>
             ) : (

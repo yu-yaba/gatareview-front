@@ -223,9 +223,9 @@ function MyReviewsPage() {
               <p className="text-red-600 mb-6 leading-relaxed">{error}</p>
               <button
                 onClick={() => fetchReviews(currentPage)}
-                className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                 <span className="relative">再試行</span>
               </button>
             </div>
@@ -242,7 +242,7 @@ function MyReviewsPage() {
         <div className="mb-8">
           <Link
             href="/mypage"
-            className="group inline-flex items-center mb-6 px-4 py-2 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 transition-all duration-300 hover:scale-[1.02]"
+            className="group inline-flex items-center mb-6 px-4 py-2 rounded-2xl bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 transition-all duration-300 hover:scale-[1.02]"
           >
             <FaArrowLeft className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" />
             <span className="font-medium">マイページに戻る</span>
@@ -255,7 +255,7 @@ function MyReviewsPage() {
         {reviewsData && reviewsData.statistics && (
           <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300 mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="group bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 text-center border border-green-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+              <div className="group bg-linear-to-br from-green-50 to-emerald-100 rounded-2xl p-6 text-center border border-green-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
                 <FaComments className="w-8 h-8 mx-auto mb-3 text-green-600 group-hover:scale-110 transition-transform duration-200" />
                 <div className="text-3xl font-bold text-green-700 mb-2">{reviewsData.statistics?.total_reviews || 0}</div>
                 <div className="text-sm text-gray-600 font-medium">総レビュー数</div>
@@ -324,7 +324,7 @@ function MyReviewsPage() {
                     <div className="space-y-3">
                       {review.textbook && (
                         <div className="flex items-center gap-3">
-                          <FaBookOpen className="text-blue-500 flex-shrink-0" />
+                          <FaBookOpen className="text-blue-500 shrink-0" />
                           <div>
                             <span className="text-sm text-gray-500 block">教科書</span>
                             <span className="font-medium text-gray-800">{review.textbook}</span>
@@ -333,7 +333,7 @@ function MyReviewsPage() {
                       )}
                       {review.attendance && (
                         <div className="flex items-center gap-3">
-                          <FaClipboardList className="text-green-500 flex-shrink-0" />
+                          <FaClipboardList className="text-green-500 shrink-0" />
                           <div>
                             <span className="text-sm text-gray-500 block">出席確認</span>
                             <span className="font-medium text-gray-800">{review.attendance}</span>
@@ -342,7 +342,7 @@ function MyReviewsPage() {
                       )}
                       {review.grading_type && (
                         <div className="flex items-center gap-3">
-                          <FaGraduationCap className="text-purple-500 flex-shrink-0" />
+                          <FaGraduationCap className="text-purple-500 shrink-0" />
                           <div>
                             <span className="text-sm text-gray-500 block">採点方法</span>
                             <span className="font-medium text-gray-800">{review.grading_type}</span>
@@ -353,7 +353,7 @@ function MyReviewsPage() {
                     <div className="space-y-3">
                       {review.content_difficulty && (
                         <div className="flex items-center gap-3">
-                          <FaChartLine className="text-red-500 flex-shrink-0" />
+                          <FaChartLine className="text-red-500 shrink-0" />
                           <div>
                             <span className="text-sm text-gray-500 block">難易度</span>
                             <span className="font-medium text-gray-800">{review.content_difficulty}</span>
@@ -362,7 +362,7 @@ function MyReviewsPage() {
                       )}
                       {review.content_quality && (
                         <div className="flex items-center gap-3">
-                          <FaStar className="text-yellow-500 flex-shrink-0" />
+                          <FaStar className="text-yellow-500 shrink-0" />
                           <div>
                             <span className="text-sm text-gray-500 block">内容の質</span>
                             <span className="font-medium text-gray-800">{review.content_quality}</span>
@@ -377,10 +377,10 @@ function MyReviewsPage() {
                 {review.content && (
                   <div className="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 mb-4">
                     <div className="flex items-start gap-3">
-                      <FaComments className="text-green-500 mt-1 flex-shrink-0" />
+                      <FaComments className="text-green-500 mt-1 shrink-0" />
                       <div className="flex-1">
                         <span className="text-sm text-gray-500 block mb-2">コメント</span>
-                        <p className="text-gray-800 leading-relaxed break-words">{review.content && review.content.length > 80
+                        <p className="text-gray-800 leading-relaxed wrap-break-word">{review.content && review.content.length > 80
                           ? `${review.content.substring(0, 80)}...`
                           : review.content || 'コメントなし'}</p>
                       </div>
@@ -404,9 +404,9 @@ function MyReviewsPage() {
 
                   <button
                     onClick={() => handleEditReview(review)}
-                    className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                    <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                     <FaEdit className="w-3.5 h-3.5 transform group-hover:scale-110 transition-transform duration-200 relative" />
                     <span className="text-sm relative">編集</span>
                   </button>
@@ -423,9 +423,9 @@ function MyReviewsPage() {
             <p className="text-gray-400 mb-6">最初のレビューを投稿してみませんか？</p>
             <Link
               href="/reviews/new"
-              className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+              className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+              <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
               <span className="relative">レビューを投稿</span>
             </Link>
           </div>

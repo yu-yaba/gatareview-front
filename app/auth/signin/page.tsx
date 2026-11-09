@@ -49,11 +49,11 @@ function SignInPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-green-50 via-white to-green-100 relative overflow-hidden">
       {/* 背景エフェクト */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full">
-          <div className="w-full h-full bg-gradient-to-br from-green-50/20 via-transparent to-green-100/20"></div>
+          <div className="w-full h-full bg-linear-to-br from-green-50/20 via-transparent to-green-100/20"></div>
         </div>
         <div className="absolute top-10 left-10 w-3 h-3 bg-green-300 rounded-full opacity-40 animate-pulse"></div>
         <div className="absolute top-32 right-20 w-2 h-2 bg-green-400 rounded-full opacity-50 animate-pulse" style={{ animationDelay: '1s' }}></div>
@@ -69,21 +69,21 @@ function SignInPageContent() {
               <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-4 leading-tight">
                 ログインして
                 <br />
-                <span className="bg-gradient-to-r from-green-500 via-green-600 to-green-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-green-500 via-green-600 to-green-500 bg-clip-text text-transparent">
                   全ての機能を解放しよう
                 </span>
               </h1>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm py-8 px-6 lg:px-8 shadow-2xl rounded-3xl border border-green-100/50 relative overflow-hidden group hover:shadow-green-500/10 transition-all duration-500">
+            <div className="bg-white/90 backdrop-blur-xs py-8 px-6 lg:px-8 shadow-2xl rounded-3xl border border-green-100/50 relative overflow-hidden group hover:shadow-green-500/10 transition-all duration-500">
               {/* カード内背景エフェクト */}
-              <div className="absolute inset-0 bg-gradient-to-br from-green-50/30 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-green-50/30 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="absolute top-4 right-4 w-3 h-3 border border-green-300 rotate-45 opacity-40"></div>
               <div className="absolute bottom-4 left-4 w-2 h-2 bg-green-400 rounded-full opacity-50"></div>
 
               <div className="relative z-10 space-y-6">
                 <div className="text-center">
                   <div className="flex justify-center mb-4">
-                    <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-full text-white text-2xl shadow-lg">
+                    <div className="p-3 bg-linear-to-br from-green-500 to-green-600 rounded-full text-white text-2xl shadow-lg">
                       <FaShieldAlt />
                     </div>
                   </div>
@@ -103,7 +103,7 @@ function SignInPageContent() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-sm"
                     />
                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                       ログイン状態を記憶する
@@ -112,7 +112,7 @@ function SignInPageContent() {
                   <button
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}
-                    className="w-full flex justify-center items-center py-4 px-6 border-2 border-gray-200 rounded-2xl shadow-lg bg-white text-gray-700 font-medium hover:bg-gray-50 hover:border-green-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-xl group"
+                    className="w-full flex justify-center items-center py-4 px-6 border-2 border-gray-200 rounded-2xl shadow-lg bg-white text-gray-700 font-medium hover:bg-gray-50 hover:border-green-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-xl group"
                   >
                     {isLoading ? (
                       <div className="flex items-center">
@@ -201,8 +201,8 @@ function SignInPageContent() {
           <div className="max-w-md mx-auto lg:max-w-none animate-fade-in">
             {/* 機能紹介 */}
             <div className="space-y-6">
-              <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+              <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-xs rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                <div className="shrink-0 w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
                   <FaEdit />
                 </div>
                 <div>
@@ -211,8 +211,8 @@ function SignInPageContent() {
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:shadow-amber-500/25 transition-all duration-300">
+              <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-xs rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                <div className="shrink-0 w-12 h-12 bg-linear-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:shadow-amber-500/25 transition-all duration-300">
                   <FaBookmark />
                 </div>
                 <div>
@@ -221,8 +221,8 @@ function SignInPageContent() {
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:shadow-red-500/25 transition-all duration-300">
+              <div className="flex items-start space-x-4 p-4 bg-white/80 backdrop-blur-xs rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                <div className="shrink-0 w-12 h-12 bg-linear-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:shadow-red-500/25 transition-all duration-300">
                   <FaHeart />
                 </div>
                 <div>
@@ -240,7 +240,7 @@ function SignInPageContent() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50" />}>
+    <Suspense fallback={<div className="min-h-screen bg-linear-to-br from-green-50 via-white to-blue-50" />}>
       <SignInPageContent />
     </Suspense>
   )

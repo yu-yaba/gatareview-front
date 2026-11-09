@@ -93,7 +93,7 @@ export default function BookmarkButton({
       <>
         <button
           onClick={handleBookmarkToggle}
-          className="group flex items-center justify-center px-4 py-3 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 text-gray-500 hover:from-gray-100 hover:to-gray-200 shadow-sm border border-gray-200/50 backdrop-blur-sm transition-all duration-200 hover:scale-105"
+          className="group flex items-center justify-center px-4 py-3 rounded-2xl bg-linear-to-r from-gray-50 to-gray-100 text-gray-500 hover:from-gray-100 hover:to-gray-200 shadow-xs border border-gray-200/50 backdrop-blur-xs transition-all duration-200 hover:scale-105"
         >
           <FaRegBookmark className="w-4 h-4 mr-2 opacity-60 group-hover:opacity-80" />
           <span className="text-sm font-medium">ブックマーク</span>
@@ -112,13 +112,13 @@ export default function BookmarkButton({
     <button
       onClick={handleBookmarkToggle}
       disabled={isLoading}
-      className={`group relative flex items-center justify-center px-4 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden ${
+      className={`group relative flex items-center justify-center px-4 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden ${
         bookmarked
-          ? 'bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 border-amber-200/50 hover:from-amber-100 hover:to-yellow-100 hover:shadow-amber-200/25'
-          : 'bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 border-gray-200/50 hover:from-slate-100 hover:to-gray-100 hover:shadow-slate-200/25'
+          ? 'bg-linear-to-r from-amber-50 to-yellow-50 text-amber-700 border-amber-200/50 hover:from-amber-100 hover:to-yellow-100 hover:shadow-amber-200/25'
+          : 'bg-linear-to-r from-gray-50 to-slate-50 text-gray-700 border-gray-200/50 hover:from-slate-100 hover:to-gray-100 hover:shadow-slate-200/25'
       } ${isLoading ? 'cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]'}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+      <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
       
       <div className="relative flex items-center">
         {isLoading ? (
@@ -136,8 +136,8 @@ export default function BookmarkButton({
       {/* Subtle glow effect */}
       <div className={`absolute inset-0 rounded-2xl transition-opacity duration-300 ${
         bookmarked 
-          ? 'bg-gradient-to-r from-amber-400/20 to-yellow-400/20 opacity-0 group-hover:opacity-100' 
-          : 'bg-gradient-to-r from-slate-400/10 to-gray-400/10 opacity-0 group-hover:opacity-100'
+          ? 'bg-linear-to-r from-amber-400/20 to-yellow-400/20 opacity-0 group-hover:opacity-100' 
+          : 'bg-linear-to-r from-slate-400/10 to-gray-400/10 opacity-0 group-hover:opacity-100'
       }`} />
     </button>
   )

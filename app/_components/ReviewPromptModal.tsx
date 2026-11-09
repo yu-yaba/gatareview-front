@@ -46,11 +46,11 @@ export default function ReviewPromptModal({ isOpen, onClose, lectureId }: Review
       onRequestClose={onClose}
       appElement={getModalAppElement()}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-md"
+      overlayClassName="fixed inset-0 z-40 bg-black/60 backdrop-blur-md"
     >
       <div className="bg-white rounded-3xl p-4 md:p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-100 relative overflow-hidden animate-fade-in max-h-[90vh] overflow-y-auto">
         {/* 背景エフェクト */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${isAuthenticated ? 'from-pink-50/30' : 'from-orange-50/30'} via-transparent ${isAuthenticated ? 'to-rose-100/30' : 'to-yellow-100/30'} pointer-events-none`}></div>
+        <div className={`absolute inset-0 bg-linear-to-br ${isAuthenticated ? 'from-pink-50/30' : 'from-orange-50/30'} via-transparent ${isAuthenticated ? 'to-rose-100/30' : 'to-yellow-100/30'} pointer-events-none`}></div>
         <div className={`absolute top-10 right-10 w-20 h-20 ${isAuthenticated ? 'bg-pink-100' : 'bg-orange-100'} rounded-full opacity-20 animate-float`}></div>
         <div className={`absolute bottom-10 left-10 w-16 h-16 ${isAuthenticated ? 'bg-rose-200' : 'bg-yellow-200'} rounded-full opacity-15 animate-float`} style={{ animationDelay: '1s' }}></div>
 
@@ -81,10 +81,10 @@ export default function ReviewPromptModal({ isOpen, onClose, lectureId }: Review
           </div>
 
           {/* 説明セクション */}
-          <div className="bg-gradient-to-r from-pink-50 via-rose-50 to-red-50 rounded-xl p-4 mb-4 border border-rose-200/30 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-100/20 to-rose-100/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="bg-linear-to-r from-pink-50 via-rose-50 to-red-50 rounded-xl p-4 mb-4 border border-rose-200/30 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden">
+            <div className="absolute inset-0 bg-linear-to-r from-pink-100/20 to-rose-100/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
             <div className="flex items-center justify-center mb-2 relative z-10">
-              <FaHeart className="text-rose-500 text-xl mr-3 animate-pulse drop-shadow-sm" />
+              <FaHeart className="text-rose-500 text-xl mr-3 animate-pulse drop-shadow-xs" />
               <h3 className="text-base md:text-lg font-bold text-rose-800 text-center leading-relaxed">新大生の皆さんがあなたのレビューを待っています！</h3>
             </div>
             <div className="absolute top-1 right-3 w-2 h-2 bg-pink-300 rounded-full animate-twinkle opacity-60"></div>
@@ -93,14 +93,14 @@ export default function ReviewPromptModal({ isOpen, onClose, lectureId }: Review
 
           {/* レビュー投稿のメリット */}
           <div className="space-y-2 mb-4">
-            <div className="flex items-center gap-2 p-2 bg-white/80 backdrop-blur-sm rounded-lg border border-gray-100">
-              <div className={`w-7 h-7 bg-gradient-to-br ${isAuthenticated ? 'from-pink-500 to-rose-500' : 'from-orange-500 to-yellow-500'} rounded-lg flex items-center justify-center text-white text-xs`}>
+            <div className="flex items-center gap-2 p-2 bg-white/80 backdrop-blur-xs rounded-lg border border-gray-100">
+              <div className={`w-7 h-7 bg-linear-to-br ${isAuthenticated ? 'from-pink-500 to-rose-500' : 'from-orange-500 to-yellow-500'} rounded-lg flex items-center justify-center text-white text-xs`}>
                 <FaBookOpen />
               </div>
               <span className="text-sm text-gray-700 font-medium">最短1分で完了します</span>
             </div>
-            <div className="flex items-center gap-2 p-2 bg-white/80 backdrop-blur-sm rounded-lg border border-gray-100">
-              <div className={`w-7 h-7 bg-gradient-to-br ${isAuthenticated ? 'from-pink-500 to-rose-500' : 'from-purple-500 to-pink-500'} rounded-lg flex items-center justify-center text-white text-xs`}>
+            <div className="flex items-center gap-2 p-2 bg-white/80 backdrop-blur-xs rounded-lg border border-gray-100">
+              <div className={`w-7 h-7 bg-linear-to-br ${isAuthenticated ? 'from-pink-500 to-rose-500' : 'from-purple-500 to-pink-500'} rounded-lg flex items-center justify-center text-white text-xs`}>
                 💖
               </div>
               <span className="text-sm text-gray-700 font-medium">後輩学生にも情報を提供しましょう！</span>
@@ -110,8 +110,8 @@ export default function ReviewPromptModal({ isOpen, onClose, lectureId }: Review
           {/* アクションボタン */}
           <div className="space-y-2">
             <Link href={modalContent.buttonLink} onClick={onClose}>
-              <button className={`w-full px-4 py-3 bg-gradient-to-r ${modalContent.color} text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative overflow-hidden`}>
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              <button className={`w-full px-4 py-3 bg-linear-to-r ${modalContent.color} text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative overflow-hidden`}>
+                <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                 <FaArrowRight className="mr-2 transition-transform duration-300 group-hover:translate-x-1" />
                 <span className="relative">{modalContent.buttonText}</span>
               </button>

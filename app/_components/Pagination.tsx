@@ -35,7 +35,7 @@ const Pagination: React.FC<PaginationProps> = ({
     setCurrentPage(page);
   };
 
-  const normalStyle = 'border-none rounded p-3 mx-2 text-center inline-block text-green-600 font-bold text-lg shadow-md hover:bg-green-200 hover:text-green-600 transform hover:scale-105 cursor-pointer'
+  const normalStyle = 'border-none rounded-sm p-3 mx-2 text-center inline-block text-green-600 font-bold text-lg shadow-md hover:bg-green-200 hover:text-green-600 transform hover:scale-105 cursor-pointer'
   const activeStyle = `${normalStyle} bg-green-600 text-white`
 
   return (
