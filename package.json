@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run lint && npm run typecheck && npm run test:auth-options && npm run test:mutations && npm run test:lecture-search && npm run test:monitoring && npm run test:pwa-domains && npm run e2e:smoke",
+    "verify": "npm run lint && npm run typecheck && npm run test:auth-options && npm run test:mutations && npm run test:lecture-search && npm run test:public-review && npm run test:monitoring && npm run test:pwa-domains && npm run e2e:smoke",
     "test:auth-options": "node --test tests/unit/auth-options-log.test.cjs",
     "e2e:install": "playwright install chromium",
     "e2e": "playwright test",
@@ -20,6 +20,7 @@
     "e2e:smoke": "playwright test tests/e2e/review-access.smoke.spec.ts --project=chromium",
     "test:mutations": "node --test tests/unit/api-mutations.test.cjs",
     "test:lecture-search": "node --test tests/unit/lecture-search.test.cjs",
+    "test:public-review": "node --test tests/unit/public-review.test.cjs",
     "test:search-cache": "node tests/cache/lecture-search-cache.mjs",
     "test:monitoring": "node --test tests/unit/monitoring.test.cjs",
     "test:pwa-domains": "node --test tests/unit/pwa-advertising-hosts.test.cjs"
