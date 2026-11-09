@@ -8,6 +8,11 @@ updates:
       time: "09:00"
       timezone: Asia/Tokyo
     open-pull-requests-limit: 3
+    ignore:
+      # Keep Node type definitions on the runtime major (engines / CI: Node 24).
+      # Bump this together with the runtime when moving to a new Node major.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
       minor-and-patch:
         applies-to: version-updates
