@@ -9,6 +9,7 @@ import { success, error } from '@/app/_helpers/notifications'
 import { getModalAppElement } from '@/app/_helpers/modalAppElement'
 import { getReviewYearOptions } from '@/app/_helpers/reviewYears'
 import { handleBackendUnauthorized } from '@/app/_helpers/sessionExpiry'
+import { countCharacters, reviewContentError, REVIEW_CONTENT_MAX_LENGTH } from '@/app/_helpers/reviewContent'
 
 interface ReviewEditModalProps {
   isOpen: boolean
@@ -53,8 +54,10 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
       error('ログインが必要です')
       return
     }
-    if (formData.content !== review.content && (formData.content.length < 30 || formData.content.length > 1000)) {
-      error('コメントは30文字以上1000文字以内で入力してください')
+    // 変更していない既存コメントは旧ルールの投稿でもそのまま保存できる（バックエンドも変更時だけ長さを検証）
+    const contentError = formData.content !== review.content ? reviewContentError(formData.content) : ''
+    if (contentError) {
+      error(contentError)
       return
     }
 
@@ -199,11 +202,17 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   value={formData.content}
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   rows={6}
-                  maxLength={formData.content === review.content ? undefined : 1000}
+                  aria-describedby="edit-content-count"
                   className="p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 focus:outline-hidden text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl focus:border-green-500 focus:ring-green-200 hover:border-green-300 lg:min-h-[220px]"
                   placeholder="授業の感想やアドバイスなどを30文字以上1000文字以内で入力してください..."
                   required
                 />
+                <p
+                  id="edit-content-count"
+                  className={`mt-2 text-right text-sm ${countCharacters(formData.content) > REVIEW_CONTENT_MAX_LENGTH ? 'text-red-600 font-medium' : 'text-gray-500'}`}
+                >
+                  {countCharacters(formData.content)} / {REVIEW_CONTENT_MAX_LENGTH}文字
+                </p>
               </label>
             </div>
           </div>

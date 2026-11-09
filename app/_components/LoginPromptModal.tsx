@@ -46,10 +46,12 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
       isOpen={isOpen}
       onRequestClose={onClose}
       appElement={getModalAppElement()}
-      className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs"
+      contentLabel={featureInfo.title}
+      // 本体はカード部分だけにし、周囲の暗い背景をクリックしたら閉じられるようにする
+      className="relative z-50 w-full max-w-md mx-4 focus:outline-hidden"
+      overlayClassName="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
     >
-      <div className="bg-white rounded-3xl p-4 md:p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-100 relative overflow-hidden animate-fade-in max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl p-4 md:p-6 w-full shadow-2xl border border-gray-100 relative overflow-hidden animate-fade-in max-h-[90vh] overflow-y-auto">
         {/* 背景エフェクト */}
         <div className="absolute inset-0 bg-linear-to-br from-green-50/30 via-transparent to-green-100/30 pointer-events-none"></div>
         <div className="absolute top-10 right-10 w-20 h-20 bg-green-100 rounded-full opacity-20 animate-float"></div>
@@ -63,8 +65,9 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
             onClose();
           }}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 z-20 pointer-events-auto"
+          aria-label="閉じる"
         >
-          <FaTimes className="text-gray-400 hover:text-gray-600" />
+          <FaTimes className="text-gray-400 hover:text-gray-600" aria-hidden="true" />
         </button>
 
         {/* コンテンツ */}
@@ -113,12 +116,14 @@ export default function LoginPromptModal({ isOpen, onClose, featureType }: Login
 
           {/* アクションボタン */}
           <div className="space-y-2">
-            <Link href="/auth/signin" onClick={onClose}>
-              <button className={`w-full px-4 py-3 bg-linear-to-r ${featureInfo.color} text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative overflow-hidden`}>
-                <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                <FaRocket className="mr-2 group-hover:animate-bounce" />
-                <span className="relative">ログインする</span>
-              </button>
+            <Link
+              href="/auth/signin"
+              onClick={onClose}
+              className={`w-full px-4 py-3 bg-linear-to-r ${featureInfo.color} text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center group relative overflow-hidden`}
+            >
+              <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              <FaRocket className="mr-2 group-hover:animate-bounce" aria-hidden="true" />
+              <span className="relative">ログインする</span>
             </Link>
 
             <button

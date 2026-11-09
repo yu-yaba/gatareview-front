@@ -11,6 +11,8 @@ import { reviewApi, SessionChangedError } from '../../../_helpers/api';
 import { useMutationRequest, type MutationRequest } from '../../../_hooks/useMutationRequest';
 import { useCancelOnNavigation } from '../../../_hooks/useCancelOnNavigation';
 import Loading from '../../../_components/Loading';
+import ReviewSelectField from '../../../_components/ReviewSelectField';
+import { countCharacters, REVIEW_CONTENT_MAX_LENGTH } from '../../../_helpers/reviewContent';
 import { FaArrowLeft, FaHeart, FaBookOpen, FaUser, FaUniversity, FaStar } from 'react-icons/fa';
 
 declare global {
@@ -139,21 +141,12 @@ const ReviewPage = () => {
     updateReview(name, value);
   }, [updateReview]);
 
-  // カスタムドロップダウン用のstate管理
+  // カスタムドロップダウン用のstate管理（同時に開くのは1つだけ）
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  const handleDropdownToggle = useCallback((fieldName: string) => {
-    setOpenDropdown(openDropdown === fieldName ? null : fieldName);
-    setFocusedIndex(-1);
-  }, [openDropdown]);
-
-  const handleOptionSelect = useCallback((fieldName: string, value: string) => {
-    updateReview(fieldName, value);
-    setOpenDropdown(null);
-  }, [updateReview]);
-
-  // キーボードナビゲーション用のstate
-  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+  const handleDropdownOpenChange = useCallback((fieldName: string, open: boolean) => {
+    setOpenDropdown(current => (open ? fieldName : current === fieldName ? null : current));
+  }, []);
 
   // ドロップダウン外クリックで閉じる
   const handleOutsideClick = useCallback((e: MouseEvent) => {
@@ -161,53 +154,16 @@ const ReviewPage = () => {
       const target = e.target as Element;
       if (!target.closest('[data-dropdown]')) {
         setOpenDropdown(null);
-        setFocusedIndex(-1);
       }
     }
   }, [openDropdown]);
 
-  // キーボード操作の処理
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!openDropdown) return;
-    
-    const currentFieldConfig = selectFieldConfigs.find(config => config.name === openDropdown);
-    if (!currentFieldConfig) return;
-    
-    const totalOptions = currentFieldConfig.options.length + 1; // +1 for "選択してください"
-    
-    switch (e.key) {
-      case 'Escape':
-        setOpenDropdown(null);
-        setFocusedIndex(-1);
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        setFocusedIndex(prev => (prev + 1) % totalOptions);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setFocusedIndex(prev => (prev - 1 + totalOptions) % totalOptions);
-        break;
-      case 'Enter':
-      case ' ':
-        e.preventDefault();
-        if (focusedIndex === 0) {
-          handleOptionSelect(openDropdown, '');
-        } else if (focusedIndex > 0) {
-          handleOptionSelect(openDropdown, currentFieldConfig.options[focusedIndex - 1]);
-        }
-        break;
-    }
-  }, [openDropdown, focusedIndex, selectFieldConfigs, handleOptionSelect]);
-
   useEffect(() => {
     document.addEventListener('click', handleOutsideClick);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('click', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleOutsideClick, handleKeyDown]);
+  }, [handleOutsideClick]);
 
   const starOnChange = useCallback((newValue: number) => {
     setRatingValue(newValue);
@@ -229,15 +185,6 @@ const ReviewPage = () => {
     return null;
   }, [formErrors]);
 
-  // フィールドのボーダー色を決定する関数（メモ化）
-  const getFieldBorderClass = useCallback((fieldName: string) => {
-    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-xs p-4 rounded-2xl shadow-md border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-colors duration-200 scroll-margin-0";
-    if (formErrors[fieldName]) {
-      return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200`;
-    }
-    return `${baseClasses} focus:border-green-500 focus:ring-green-200`;
-  }, [formErrors]);
-
   // textareaのクラス取得関数（メモ化）
   const getTextareaClass = useCallback((fieldName: string) => {
     const baseClasses = "p-4 w-full rounded-2xl shadow-lg bg-white/95 backdrop-blur-md border border-green-100/50 focus:ring-2 text-gray-800 font-medium transition-all duration-300 resize-none hover:shadow-xl";
@@ -246,91 +193,6 @@ const ReviewPage = () => {
     }
     return `${baseClasses} focus:border-green-500 focus:ring-green-200 hover:border-green-300`;
   }, [formErrors]);
-
-  // ドロップダウンアイコンコンポーネント（メモ化）
-  const DropdownIcon = memo(() => (
-    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-green-600">
-      <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-      </svg>
-    </div>
-  ));
-  DropdownIcon.displayName = 'DropdownIcon';
-
-  // カスタムSelectFieldコンポーネント（メモ化）
-  const SelectField = memo<SelectFieldConfig>(({ id, name, label, options }) => {
-    const isOpen = openDropdown === name;
-    const currentValue = (review as any)?.[name] || '';
-    const displayValue = currentValue || '選択してください';
-    
-    return (
-      <div className="mb-6" data-dropdown>
-        <label className="block">
-          <p className="font-bold mb-3 text-gray-800">
-            {label}
-            <span className="ml-2 text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-              任意
-            </span>
-          </p>
-          <div className="relative">
-            <button
-              type="button"
-              id={id}
-              onClick={() => handleDropdownToggle(name)}
-              className={getFieldBorderClass(name)}
-              style={{ 
-                textAlign: 'left',
-                justifyContent: 'space-between',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <span className={currentValue ? 'text-gray-800' : 'text-gray-500'}>
-                {displayValue}
-              </span>
-              <svg 
-                className={`fill-current h-5 w-5 text-green-600 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-              </svg>
-            </button>
-            
-            {isOpen && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-green-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
-                <button
-                  type="button"
-                  onClick={() => handleOptionSelect(name, '')}
-                  className={`w-full px-4 py-3 text-left focus:outline-hidden text-gray-500 border-b border-gray-100 transition-colors ${
-                    focusedIndex === 0 ? 'bg-green-100' : 'hover:bg-green-50'
-                  }`}
-                >
-                  選択してください
-                </button>
-                {options.map((option, index) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => handleOptionSelect(name, option)}
-                    className={`w-full px-4 py-3 text-left focus:outline-hidden transition-colors ${
-                      currentValue === option ? 'bg-green-100 text-green-800 font-medium' : 'text-gray-700'
-                    } ${focusedIndex === index + 1 ? 'bg-green-50' : 'hover:bg-green-50'} ${
-                      option === options[options.length - 1] ? '' : 'border-b border-gray-100'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          {renderFieldError(name)}
-        </label>
-      </div>
-    );
-  });
-  SelectField.displayName = 'SelectField';
 
   const addReview = useCallback(async (newReview: ReviewData, token: string, request: MutationRequest) => {
     if (!lecture || request.signal.aborted) return;
@@ -407,6 +269,8 @@ const ReviewPage = () => {
     cancelMutations();
     router.push(`/lectures/${params.id}`);
   }, [params.id, router, cancelLecture, cancelMutations]);
+
+  const contentLength = countCharacters(review?.content || '');
 
   if (isLoadingLecture || !lecture) {
     return (
@@ -486,12 +350,16 @@ const ReviewPage = () => {
             {/* select要素を動的生成 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {selectFieldConfigs.map((config) => (
-                <SelectField
+                <ReviewSelectField
                   key={config.id}
                   id={config.id}
-                  name={config.name}
                   label={config.label}
                   options={config.options}
+                  value={String(review?.[config.name] ?? '')}
+                  isOpen={openDropdown === config.name}
+                  error={formErrors[config.name]}
+                  onOpenChange={(open) => handleDropdownOpenChange(config.name, open)}
+                  onSelect={(value) => updateReview(config.name, value)}
                 />
               ))}
             </div>
@@ -508,14 +376,21 @@ const ReviewPage = () => {
                 <textarea
                   cols={30}
                   rows={6}
-                  maxLength={1000}
                   id="content"
                   name="content"
                   className={getTextareaClass('content')}
                   onChange={handleInputChange}
                   value={review?.content || ''}
-                  placeholder="授業の感想やアドバイスなどを1000文字以内で入力してください..."
+                  placeholder="授業の感想やアドバイスなどを30文字以上1000文字以内で入力してください..."
+                  aria-describedby="content-count"
+                  aria-invalid={formErrors.content ? true : undefined}
                 />
+                <p
+                  id="content-count"
+                  className={`mt-2 text-right text-sm ${contentLength > REVIEW_CONTENT_MAX_LENGTH ? 'text-red-600 font-medium' : 'text-gray-500'}`}
+                >
+                  {contentLength} / {REVIEW_CONTENT_MAX_LENGTH}文字
+                </p>
                 {renderFieldError('content')}
               </label>
             </div>

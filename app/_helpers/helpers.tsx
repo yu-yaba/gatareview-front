@@ -3,6 +3,7 @@ import { LectureData } from "../_types/LectureData";
 import { ReviewData } from "../_types/ReviewData";
 import { ReviewErrors } from "../_types/ReviewError";
 import { LectureErrors } from "../_types/LectureErrors";
+import { reviewContentError } from "./reviewContent";
 
 export const isEmptyObject = (obj: Record<string, any>): boolean => {
   for (let key in obj) {
@@ -53,14 +54,8 @@ export const validateReview = (review: ReviewData) => {
 
   // ReactStars（rating）は必須 - デフォルトで3に設定されているので、特別なバリデーションは不要
 
-  // コメントのみ必須
-  if (review.content === '') {
-    ReviewErrors.content = 'コメントを入力してください';
-  } else if (review.content.length < 30) {
-    ReviewErrors.content = 'コメントは30文字以上で入力してください';
-  } else if (review.content.length > 1000) {
-    ReviewErrors.content = 'コメントは1000文字以内で入力してください';
-  }
+  // コメントのみ必須（空白だけの入力や絵文字の数え方をバックエンドと揃える）
+  ReviewErrors.content = reviewContentError(review.content);
 
   return ReviewErrors;
 };

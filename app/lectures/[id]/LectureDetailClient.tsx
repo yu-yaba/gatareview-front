@@ -220,10 +220,10 @@ const LectureDetailClient = ({
                     <div className="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 relative">
                       <div className="flex items-start gap-3">
                         <FaComments className="text-green-500 mt-1 shrink-0" />
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <span className="text-sm text-gray-500 block mb-2">コメント</span>
                           {(canViewReviews || index === 0) ? (
-                            <p className="text-gray-800 leading-relaxed wrap-break-word">{review.content}</p>
+                            <p className="text-gray-800 leading-relaxed whitespace-pre-line wrap-anywhere">{review.content}</p>
                           ) : (
                             <div className="relative">
                               <PartialComment content={review.content} />

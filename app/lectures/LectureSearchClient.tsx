@@ -4,6 +4,8 @@ import StarRating from '@/app/_components/StarRating'
 import { publicLectureQuery, LECTURE_LIST_CACHE_SECONDS, type LectureSearchResponse } from '../_helpers/lectureSearch';
 import Link from "next/link";
 import { handleAjaxError } from '../_helpers/helpers';
+import { isImeComposing } from '../_helpers/keyboard';
+import { readPageNumber } from '../_helpers/pagination';
 import { getReviewYearOptions } from '../_helpers/reviewYears';
 import Loading from '../_components/Loading';
 import { FaSearch, FaBook, FaUser, FaUniversity, FaStar, FaFilter, FaGraduationCap, FaBookOpen, FaChevronDown, FaChevronUp, FaCalendarAlt, FaClock, FaClipboardList, FaChartLine } from 'react-icons/fa';
@@ -149,7 +151,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
       searchWord,
       selectedFaculty,
       sortType: getParam('sort', DEFAULT_VALUES.sort),
-      currentPage: parseInt(getParam('page', DEFAULT_VALUES.page)),
+      currentPage: readPageNumber(searchParams.get('page')),
       periodYear: getParam('period_year'),
       periodTerm: getParam('period_term'),
       textbook: getParam('textbook'),
@@ -277,6 +279,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
     const restoredParams = new URLSearchParams(searchParams.toString());
     restoredParams.set('search', initialState.searchWord);
     restoredParams.set('faculty', initialState.selectedFaculty);
+    restoredParams.set('page', String(initialState.currentPage));
     let useInitialData = false;
     try {
       useInitialData = initialData !== null && Date.now() - generatedAt < LECTURE_LIST_CACHE_SECONDS * 1000 &&
@@ -331,7 +334,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
       setTempContentDifficulty(state.contentDifficulty); setConfirmedContentDifficulty(state.contentDifficulty);
       setTempContentQuality(state.contentQuality); setConfirmedContentQuality(state.contentQuality);
       setShowDetailedSearch(value('detailed') === 'true');
-      fetchLectures(Number(value('page') || 1), state);
+      fetchLectures(readPageNumber(params.get('page')), state);
     };
     window.addEventListener('popstate', restoreHistory);
     return () => window.removeEventListener('popstate', restoreHistory);
@@ -397,17 +400,28 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
 
   // エンターキー押下時のハンドラー
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isImeComposing(e)) {
       e.preventDefault();
       handleSearch();
     }
   }, [handleSearch]);
+
+  // ページ移動後は結果一覧の先頭を表示する（読み込み中は一覧が消えるので完了後に移動）
+  const resultsTop = useRef<HTMLDivElement>(null);
+  const scrollToResults = useRef(false);
+  useEffect(() => {
+    if (isLoading || !scrollToResults.current) return;
+    scrollToResults.current = false;
+    resultsTop.current?.scrollIntoView({ block: 'start' });
+  }, [isLoading]);
 
 
   // ページ変更ハンドラー（確定済み状態を使用）
   const handlePageChange = useCallback((page: number) => {
     if (page >= 1 && page <= paginationInfo.total_pages) {
       setCurrentPage(page);
+      scrollToResults.current = true;
+      window.scrollTo({ top: 0 });
 
       updateURL({
         search: confirmedSearchWord,
@@ -444,6 +458,10 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
     setTempContentDifficulty('');
     setTempContentQuality('');
   }, []);
+
+  // 最終ページより後ろを開いた場合（URL直打ちや件数の減少）は戻り先を示す
+  const isPastLastPage = fetchedLectures.length === 0 && paginationInfo.total_count > 0 &&
+    paginationInfo.current_page > paginationInfo.total_pages;
 
   // ページネーション要素をメモ化
   const paginationElements = useMemo(() => {
@@ -636,6 +654,8 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                   value={tempSearchWord}
                                   onChange={handleSearchWordChange}
                                   onKeyDown={handleKeyDown}
+                                  maxLength={255}
+                                  enterKeyHint="search"
                                   aria-describedby="search-help"
                                 />
                                 <p id="search-help" className="sr-only">授業名または教授名で検索できます</p>
@@ -814,6 +834,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 <option value="">選択してください</option>
                                 <option value="必要">必要</option>
                                 <option value="不要">不要</option>
+                                <option value="どちらでも">どちらでも</option>
                                 <option value="その他・不明">その他・不明</option>
                               </select>
                             </div>
@@ -920,13 +941,13 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
 
 
             {/* 結果表示 */}
-            <div className="mb-6">
+            <div className="mb-6 scroll-mt-4" ref={resultsTop}>
               <div className="flex justify-center">
                 <div className="bg-white/80 backdrop-blur-xs rounded-2xl px-6 py-3 shadow-lg border border-green-100/50" role="status" aria-live="polite">
                   <p className="text-sm lg:text-base font-medium text-gray-700">
                     <span className="font-bold text-green-600 text-lg">{paginationInfo.total_count}</span>
                     <span className="ml-1">件の授業が見つかりました</span>
-                    {paginationInfo.total_pages > 1 && (
+                    {paginationInfo.total_pages > 1 && !isPastLastPage && (
                       <span className="ml-2 text-gray-500">
                         （{paginationInfo.current_page} / {paginationInfo.total_pages} ページ）
                       </span>
@@ -950,6 +971,32 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                   {paginationElements}
 
                 </>
+              ) : isPastLastPage ? (
+                <div className="text-center py-16">
+                  <div className="mb-4">
+                    <FaSearch className="mx-auto text-5xl text-gray-300" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-500 mb-2">このページには授業がありません</h3>
+                  <p className="text-gray-400 mb-6">検索結果は{paginationInfo.total_pages}ページまでです</p>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handlePageChange(1)}
+                      className="px-6 py-3 text-sm font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-xs hover:shadow-md"
+                    >
+                      1ページ目へ
+                    </button>
+                    {paginationInfo.total_pages > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(paginationInfo.total_pages)}
+                        className="px-6 py-3 text-sm font-bold text-white bg-linear-to-r from-[#1DBE67] to-[#15A85A] border border-[#1DBE67] rounded-xl transition-all duration-200 shadow-xs hover:shadow-md"
+                      >
+                        最後のページ（{paginationInfo.total_pages}ページ目）へ
+                      </button>
+                    )}
+                  </div>
+                </div>
               ) : (
                 <div className="text-center py-16">
                   <div className="mb-4">
