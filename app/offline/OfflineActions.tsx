@@ -10,12 +10,21 @@ export default function OfflineActions() {
     // アドレスバーには本来開こうとしたURLが残っているため、再接続時はそのまま読み込み直す。
     // 実際に接続が戻ったとき（navigator.onLine が true）だけにし、別の画面への移動中に
     // 届く一時的なonlineイベントで移動を打ち消さないようにする。
-    const reload = () => {
-      if (navigator.onLine) window.location.reload();
+    // 利用者がすでに別の画面へ移動し始めている場合は、その移動を優先する。
+    let leaving = false;
+    const markLeaving = () => {
+      leaving = true;
     };
+    const reload = () => {
+      if (navigator.onLine && !leaving) window.location.reload();
+    };
+    window.addEventListener('beforeunload', markLeaving);
     window.addEventListener('online', reload);
     setReady(true);
-    return () => window.removeEventListener('online', reload);
+    return () => {
+      window.removeEventListener('beforeunload', markLeaving);
+      window.removeEventListener('online', reload);
+    };
   }, []);
 
   return (

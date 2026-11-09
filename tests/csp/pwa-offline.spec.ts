@@ -3,10 +3,11 @@ import { encode } from 'next-auth/jwt'
 
 // These tests never call navigator.serviceWorker.register() themselves:
 // the production build must register /sw.js on its own for real visitors.
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, context }) => {
   // Registration waits for the load event, then installation precaches the app shell.
   test.slow()
-  await page.addInitScript(() => {
+  // Context-wide so that tabs opened by a test record violations and registrations too.
+  await context.addInitScript(() => {
     const w = window as any
     w.cspViolations = []
     document.addEventListener('securitypolicyviolation', event => {
@@ -76,15 +77,20 @@ test('オフライン時、未保存の画面へ移動すると事前保存し�
   await page.evaluate(() => caches.delete('start-url-v2'))
   const restore = await goOffline(page, context)
   try {
+    // A fresh tab per target: when Playwright navigates an existing offline tab, its network
+    // emulation briefly reports "online" to the page being left, which real browsers do not do.
     for (const target of ['/lectures/123', '/lectures?search=offline', '/faq', '/privacy', '/mypage', '/auth/signin', '/offline']) {
-      const response = await page.goto(target)
+      const tab = await context.newPage()
+      const response = await tab.goto(target)
       expect(response?.status(), target).toBe(200)
-      await expectHydratedOfflinePage(page, target)
-      const url = new URL(page.url())
+      await expectHydratedOfflinePage(tab, target)
+      const url = new URL(tab.url())
       expect(url.pathname + url.search, target).toBe(target)
+      // The icon comes from the precache, and the page reports no CSP violations.
+      await expect.poll(() => tab.locator('img[alt="ガタレビュ"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0), target).toBe(true)
+      expect(await tab.evaluate(() => (window as any).cspViolations), target).toEqual([])
+      await tab.close()
     }
-    // The page hydrates from precached chunks and its icon comes from the precache.
-    await expect.poll(() => page.locator('img[alt="ガタレビュ"]').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
     await page.goto('/lectures/123')
     await expectHydratedOfflinePage(page)
     await page.getByRole('button', { name: 'トップページへ' }).click()
