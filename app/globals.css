@@ -18,32 +18,10 @@
     var(--tw-gradient-stops)
   );
 
-  --animate-heartbeat: heartbeat 1.5s ease-in-out infinite;
-  --animate-twinkle: twinkle 2s ease-in-out infinite;
-
   --text-2xs: 0.625rem;
 
-  @keyframes heartbeat {
-    0%,
-    50%,
-    100% {
-      transform: scale(1);
-    }
-    25% {
-      transform: scale(1.1);
-    }
-  }
-  @keyframes twinkle {
-    0%,
-    100% {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.2);
-    }
-  }
+  /* heartbeat / twinkle are defined (keyframes + .animate-* classes) further
+     below; defining them here too would override those keyframes in v4. */
 }
 
 /*

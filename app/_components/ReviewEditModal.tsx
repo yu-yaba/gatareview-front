@@ -138,7 +138,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
       onRequestClose={onClose}
       appElement={getModalAppElement()}
       className="w-full max-w-6xl mx-auto mt-2 sm:mt-8 lg:mt-0 bg-white/95 backdrop-blur-md rounded-3xl shadow-xl border border-green-100/50 p-6 md:p-8 lg:p-10 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-start lg:items-center justify-center p-2 sm:p-4 z-50"
+      overlayClassName="fixed inset-0 bg-black/50 flex items-start lg:items-center justify-center p-2 sm:p-4 z-50"
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">レビューを編集</h2>
@@ -419,7 +419,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
               type="button"
               onClick={handleDelete}
               disabled={isDeleting || isLoading}
-              className="flex-1 px-8 py-4 bg-linear-to-r from-red-500 to-red-600 text-white font-bold rounded-2xl hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-red-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="flex-1 px-8 py-4 bg-linear-to-r from-red-500 to-red-600 text-white font-bold rounded-2xl hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-red-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100"
             >
               <div className="absolute inset-0 bg-linear-to-r from-red-400 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="absolute top-0 left-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
@@ -435,7 +435,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
           <button
             type="submit"
             disabled={isLoading || isDeleting}
-            className="flex-1 px-8 py-4 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="flex-1 px-8 py-4 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:scale-100"
           >
             <div className="absolute inset-0 bg-linear-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="absolute top-0 left-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>

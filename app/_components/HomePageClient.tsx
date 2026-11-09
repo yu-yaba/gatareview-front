@@ -241,8 +241,8 @@ const ProgressBar = memo<ProgressBarProps>(({ isComplete }) => (
     </div>
     {isComplete && (
       <>
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-green-300 rounded-full animate-sparkle"></div>
-        <div className="absolute right-6 top-1/2 transform -translate-y-1/2 w-0.5 h-0.5 bg-green-400 rounded-full animate-sparkle" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute right-2 top-1/2 w-1 h-1 bg-green-300 rounded-full animate-sparkle"></div>
+        <div className="absolute right-6 top-1/2 w-0.5 h-0.5 bg-green-400 rounded-full animate-sparkle" style={{ animationDelay: '0.5s' }}></div>
       </>
     )}
   </div>
@@ -267,7 +267,7 @@ const ReviewCounter = memo<ReviewCounterProps>(({ displayedCount, countingComple
       <div className="absolute -right-8 -top-8 w-32 h-32 bg-linear-to-br from-green-100 via-green-200 to-green-50 opacity-20 rounded-full blur-xl animate-pulse-3d"></div>
       <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-linear-to-tr from-green-50 via-green-100 to-green-200 opacity-30 rounded-full blur-lg animate-pulse-3d" style={{ animationDelay: ANIMATION_DELAYS.PULSE_BG }}></div>
 
-      <div className="absolute top-4 right-4 w-3 h-3 border border-green-300 rotate-45 animate-float opacity-40"></div>
+      <div className="absolute top-4 right-4 w-3 h-3 border border-green-300 animate-float opacity-40"></div>
       <div className="absolute bottom-4 left-4 w-2 h-2 bg-green-400 rounded-full animate-float opacity-50" style={{ animationDelay: ANIMATION_DELAYS.SMALL }}></div>
 
       <div className="absolute inset-4 border border-green-200/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse"></div>

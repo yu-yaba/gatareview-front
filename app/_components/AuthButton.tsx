@@ -57,7 +57,7 @@ export default function AuthButton() {
 
   return (
     <Link href="/auth/signin">
-      <button className="group relative flex items-center space-x-2 px-3 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5 text-sm lg:text-base font-bold text-white bg-linear-to-r from-green-500 to-green-600 rounded-xl shadow-lg border border-green-400/50 transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 focus:outline-hidden focus:ring-2 focus:ring-green-400/50 backdrop-blur-xs overflow-hidden whitespace-nowrap">
+      <button className="group relative flex items-center gap-2 px-3 py-3 sm:px-6 sm:py-3 md:px-7 md:py-3 lg:px-8 lg:py-3.5 text-sm lg:text-base font-bold text-white bg-linear-to-r from-green-500 to-green-600 rounded-xl shadow-lg border border-green-400/50 transition-all duration-300 hover:from-green-600 hover:to-green-700 hover:shadow-xl hover:scale-105 focus:outline-hidden focus:ring-2 focus:ring-green-400/50 backdrop-blur-xs overflow-hidden whitespace-nowrap">
         <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
         <svg className="w-4 h-4 lg:w-5 lg:h-5" viewBox="0 0 24 24">
           <path
