@@ -25,7 +25,7 @@
     "test:pwa-domains": "node --test tests/unit/pwa-advertising-hosts.test.cjs"
   },
   "dependencies": {
-    "@sentry/nextjs": "11.10.0",
+    "@sentry/nextjs": "11.11.0",
     "@types/grecaptcha": "^3.0.9",
     "@types/lodash": "^4.17.27",
     "@types/node": "20.5.9",
@@ -52,7 +52,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.1",
+    "@playwright/test": "^1.65.0",
     "@types/js-cookie": "^3.0.6",
     "@types/minimatch": "^6.0.0",
     "@types/prop-types": "15.7.15",
