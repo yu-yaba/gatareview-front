@@ -8,7 +8,7 @@ import Image from 'next/image'
 import Loading from '../_components/Loading'
 import { mypageApi } from '../_helpers/api'
 import { signOutWithRevocation } from '../_helpers/signOut'
-import { truncateCharacters } from '../_helpers/reviewContent'
+import { formatReviewText, truncateCharacters } from '../_helpers/reviewContent'
 import {
   FaUser,
   FaEnvelope,
@@ -447,8 +447,8 @@ export default function MyPage() {
                           </div>
                           <div className="space-y-3">
                             <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg whitespace-pre-line wrap-anywhere">
-                              {review.content
-                                ? truncateCharacters(review.content, 80)
+                              {formatReviewText(review.content)
+                                ? truncateCharacters(formatReviewText(review.content), 80)
                                 : 'コメントなし'}
                             </p>
                           </div>

@@ -16,6 +16,7 @@ import { useAuth } from '../../_hooks/useAuth';
 import AffiliateSlot from '../../_components/AffiliateSlot';
 import { ANONYMOUS_REVIEW_VIEWER, getReviewViewerKey } from '@/app/_helpers/reviewViewerKey';
 import { toPublicReview } from '@/app/_helpers/publicReview';
+import { formatReviewText } from '@/app/_helpers/reviewContent';
 
 interface LectureDetailClientProps {
   initialViewerKey: string;
@@ -223,7 +224,7 @@ const LectureDetailClient = ({
                         <div className="flex-1 min-w-0">
                           <span className="text-sm text-gray-500 block mb-2">コメント</span>
                           {(canViewReviews || index === 0) ? (
-                            <p className="text-gray-800 leading-relaxed whitespace-pre-line wrap-anywhere">{review.content}</p>
+                            <p className="text-gray-800 leading-relaxed whitespace-pre-line wrap-anywhere">{formatReviewText(review.content)}</p>
                           ) : (
                             <div className="relative">
                               <PartialComment content={review.content} />

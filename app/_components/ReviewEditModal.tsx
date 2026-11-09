@@ -199,7 +199,7 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   </span>
                 </p>
                 <textarea
-                  value={formData.content}
+                  value={formData.content ?? ''}
                   onChange={(e) => handleInputChange('content', e.target.value)}
                   rows={6}
                   aria-describedby="edit-content-count"
@@ -207,13 +207,14 @@ export default function ReviewEditModal({ isOpen, onClose, review, onSave, onDel
                   placeholder="授業の感想やアドバイスなどを30文字以上1000文字以内で入力してください..."
                   required
                 />
-                <p
-                  id="edit-content-count"
-                  className={`mt-2 text-right text-sm ${countCharacters(formData.content) > REVIEW_CONTENT_MAX_LENGTH ? 'text-red-600 font-medium' : 'text-gray-500'}`}
-                >
-                  {countCharacters(formData.content)} / {REVIEW_CONTENT_MAX_LENGTH}文字
-                </p>
               </label>
+              {/* 文字数は label の外に置き、入力欄の読み上げ名に混ぜない（本文が null の旧データでも落ちない） */}
+              <p
+                id="edit-content-count"
+                className={`mt-2 text-right text-sm ${countCharacters(formData.content) > REVIEW_CONTENT_MAX_LENGTH ? 'text-red-600 font-medium' : 'text-gray-500'}`}
+              >
+                {countCharacters(formData.content)} / {REVIEW_CONTENT_MAX_LENGTH}文字
+              </p>
             </div>
           </div>
 

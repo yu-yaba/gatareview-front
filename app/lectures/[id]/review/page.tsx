@@ -385,14 +385,15 @@ const ReviewPage = () => {
                   aria-describedby="content-count"
                   aria-invalid={formErrors.content ? true : undefined}
                 />
-                <p
-                  id="content-count"
-                  className={`mt-2 text-right text-sm ${contentLength > REVIEW_CONTENT_MAX_LENGTH ? 'text-red-600 font-medium' : 'text-gray-500'}`}
-                >
-                  {contentLength} / {REVIEW_CONTENT_MAX_LENGTH}文字
-                </p>
-                {renderFieldError('content')}
               </label>
+              {/* 文字数とエラーは label の外に置き、入力欄の読み上げ名に混ぜない */}
+              <p
+                id="content-count"
+                className={`mt-2 text-right text-sm ${contentLength > REVIEW_CONTENT_MAX_LENGTH ? 'text-red-600 font-medium' : 'text-gray-500'}`}
+              >
+                {contentLength} / {REVIEW_CONTENT_MAX_LENGTH}文字
+              </p>
+              {renderFieldError('content')}
             </div>
 
             {/* ボタンセクション */}

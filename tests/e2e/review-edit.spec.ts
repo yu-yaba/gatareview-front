@@ -43,7 +43,7 @@ for (const scenario of [
     await expect(modal.getByText('4.5', { exact: true })).toBeVisible()
     await modal.getByRole('button', { name: '更新', exact: true }).click()
     if (scenario.changed) {
-      await expect(page.getByText('コメントは30文字以上で入力してください', { exact: true })).toBeVisible()
+      await expect(page.getByText('コメントは空白・改行を除いて30文字以上で入力してください', { exact: true })).toBeVisible()
       expect(updated).toBeNull()
       await expect(modal).toBeVisible()
     } else {

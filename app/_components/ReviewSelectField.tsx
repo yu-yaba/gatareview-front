@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export interface ReviewSelectFieldProps {
   id: string
@@ -27,6 +27,12 @@ export default function ReviewSelectField({
   const listboxId = `${id}-listbox`
   const errorId = `${id}-error`
   const optionId = (index: number) => `${id}-option-${index}`
+
+  // 矢印キーで選んだ候補が一覧の見える範囲から外れないようにする
+  useEffect(() => {
+    if (!isOpen || activeIndex < 0) return
+    document.getElementById(`${id}-option-${activeIndex}`)?.scrollIntoView({ block: 'nearest' })
+  }, [id, isOpen, activeIndex])
 
   const open = () => {
     setActiveIndex(Math.max(0, choices.indexOf(value)))

@@ -7,6 +7,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 import type { HomeLectureItem, HomePageData } from '../_types/HomePageData';
 import type { ReviewWithLecture } from '../_types/ReviewWithLecture';
 import { isImeComposing } from '../_helpers/keyboard';
+import { formatReviewText } from '../_helpers/reviewContent';
 
 // ========================================
 // Type Definitions
@@ -504,7 +505,7 @@ const ReviewCard = memo<ReviewCardProps>(({ review, index }) => (
           </div>
 
           <p className="text-xs text-gray-700 line-clamp-10 leading-relaxed bg-gray-50 p-3 rounded-lg whitespace-pre-line wrap-anywhere">
-            {review.content || 'コメントなし'}
+            {formatReviewText(review.content) || 'コメントなし'}
           </p>
         </div>
       </div>

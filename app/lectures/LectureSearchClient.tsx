@@ -413,6 +413,8 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
     if (isLoading || !scrollToResults.current) return;
     scrollToResults.current = false;
     resultsTop.current?.scrollIntoView({ block: 'start' });
+    // ページ番号のボタンは読み込み中に消えるため、フォーカスを結果の先頭へ移す
+    resultsTop.current?.focus({ preventScroll: true });
   }, [isLoading]);
 
 
@@ -941,7 +943,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
 
 
             {/* 結果表示 */}
-            <div className="mb-6 scroll-mt-4" ref={resultsTop}>
+            <div className="mb-6 scroll-mt-4 focus:outline-hidden" ref={resultsTop} tabIndex={-1}>
               <div className="flex justify-center">
                 <div className="bg-white/80 backdrop-blur-xs rounded-2xl px-6 py-3 shadow-lg border border-green-100/50" role="status" aria-live="polite">
                   <p className="text-sm lg:text-base font-medium text-gray-700">
