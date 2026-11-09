@@ -66,19 +66,26 @@ test('CSP permits only the configured Sentry ingest host', () => {
   }
 })
 
-test('rate-limited backend failures are not reported from the server or the browser', async () => {
+test('rate-limited failures are reported at most once per interval, from the server or the browser', () => {
   const { shouldReportRequestError, BACKEND_RATE_LIMITED_DIGEST } = source.exports
   const options = sentryOptions('https://public@o123.ingest.us.sentry.io/456', 'production')
   const event = { event_id: 'e', exception: { values: [{ type: 'Error', value: 'x' }] } }
   const marked = digest => Object.assign(new Error('An error occurred in the Server Components render.'), { digest })
 
   assert.equal(BACKEND_RATE_LIMITED_DIGEST, 'API_RATE_LIMITED')
-  // The original error, the HTML-render copy and the browser copy all keep the digest.
+  // The first one is sent, tagged, so limits hit by everyone stay visible.
+  const first = options.beforeSend(event, { originalException: marked('API_RATE_LIMITED') })
+  assert.equal(first.tags.operation, 'api.rate_limited')
+  assert.equal(first.message, 'Backend API rate limited (sampled)')
+  // Further copies (server, HTML render, browser) within the interval are dropped.
   assert.equal(options.beforeSend(event, { originalException: marked('API_RATE_LIMITED') }), null)
-  assert.equal(shouldReportRequestError(marked('API_RATE_LIMITED@E123')), false)
-  // Outages and unexpected errors are still reported.
-  assert.notEqual(options.beforeSend(event, { originalException: marked('3253150281') }), null)
-  assert.notEqual(options.beforeSend(event, { originalException: new Error('unexpected') }), null)
+  assert.equal(options.beforeSend(event, { originalException: marked('API_RATE_LIMITED@E123') }), null)
+  assert.equal(shouldReportRequestError(marked('API_RATE_LIMITED'), Date.now() + 10 * 60_000 + 1), true)
+  // Outages and unexpected errors are always reported.
+  for (let i = 0; i < 3; i++) {
+    assert.notEqual(options.beforeSend(event, { originalException: marked('3253150281') }), null)
+    assert.notEqual(options.beforeSend(event, { originalException: new Error('unexpected') }), null)
+  }
   assert.notEqual(options.beforeSend(event, undefined), null)
   assert.equal(shouldReportRequestError('not an error'), true)
 })

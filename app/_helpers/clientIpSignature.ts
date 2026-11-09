@@ -28,6 +28,16 @@ export function forwardingSecret(env: Env = process.env): string | null {
   return secretFrom(env, FORWARDING_SECRET_ENV);
 }
 
+// Names of secrets that are set but too short to be used, for a startup warning.
+export function unusableSecrets(env: Env = process.env): string[] {
+  return [FORWARDING_SECRET_ENV, CLOUDFLARE_PROXY_SECRET_ENV].filter(name => env[name] && !secretFrom(env, name));
+}
+
+export function hasCloudflareProxySecret(requestHeaders: Pick<Headers, 'get'>, env: Env = process.env): boolean {
+  const proxySecret = secretFrom(env, CLOUDFLARE_PROXY_SECRET_ENV);
+  return Boolean(proxySecret && sameSecret(requestHeaders.get(CLOUDFLARE_PROXY_SECRET_HEADER), proxySecret));
+}
+
 function sameSecret(provided: string | null, expected: string): boolean {
   if (!provided) return false;
   const digest = (value: string) => createHash('sha256').update(value, 'utf8').digest();
@@ -56,10 +66,7 @@ export function isTrustedVercelRuntime(env: Env = process.env): boolean {
 // used only when the request carries the secret header that our own zone's
 // Transform Rule adds; every other request uses x-real-ip.
 export function trustedClientIp(requestHeaders: Pick<Headers, 'get'>, env: Env = process.env): string | null {
-  const proxySecret = secretFrom(env, CLOUDFLARE_PROXY_SECRET_ENV);
-  if (proxySecret && sameSecret(requestHeaders.get(CLOUDFLARE_PROXY_SECRET_HEADER), proxySecret)) {
-    return validIp(requestHeaders.get('cf-connecting-ip'));
-  }
+  if (hasCloudflareProxySecret(requestHeaders, env)) return validIp(requestHeaders.get('cf-connecting-ip'));
   return validIp(requestHeaders.get('x-real-ip'));
 }
 

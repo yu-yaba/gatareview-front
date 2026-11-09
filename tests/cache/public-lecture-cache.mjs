@@ -151,6 +151,15 @@ try {
   // not cached, and recover on the next request.
   // The RSC payload embeds every not-found boundary, so look only at the rendered HTML.
   const isNotFoundPage = html => html.replace(/<script[\s\S]*?<\/script>/g, '').includes('ページが見つかりません');
+  // Malformed IDs are not found without asking the API (an over-long one makes
+  // Puma answer 400, which would otherwise be an error page).
+  const callsBeforeJunk = requests.length;
+  for (const junk of ['abc', '0', '012', '12abc', '12345678901', '7'.repeat(8300)]) {
+    const junkPage = await page(junk);
+    assert.equal(junkPage.response.status, 404, `junk ID ${junk.slice(0, 20)}`);
+  }
+  assert.equal(requests.length, callsBeforeJunk, 'junk IDs must not reach the API');
+
   failureMode = 404;
   const notFound = await page(String(Number(id) + 5));
   failureMode = null;
@@ -213,7 +222,7 @@ try {
     await waitUntil(async () => (await page()).html.includes(title));
     assert.ok(publicCalls().filter(item => item.status === 200).length > coldCalls);
   }
-  console.log(JSON.stringify({ baseline, cold_public_requests: coldCalls, cold_public_json_bytes: publicCalls().slice(0, coldCalls).reduce((sum, item) => sum + item.bytes, 0), cold_ms: timings[0], warm_median_ms: timings.slice(1, 6).sort((a, b) => a - b)[2], checks: ['metadata/page deduplication', 'warm cache', 'uncached reviews', 'account isolation', 'lecture ID isolation', 'signed visitor IP forwarding', 'Cloudflare proxy secret', 'real 404 only', '429/5xx/malformed/timeout error pages', 'transient failure recovery', ...(process.env.CACHE_TEST_EXPIRY === '1' ? ['real 300-second expiry and failed revalidation recovery'] : [])] }));
+  console.log(JSON.stringify({ baseline, cold_public_requests: coldCalls, cold_public_json_bytes: publicCalls().slice(0, coldCalls).reduce((sum, item) => sum + item.bytes, 0), cold_ms: timings[0], warm_median_ms: timings.slice(1, 6).sort((a, b) => a - b)[2], checks: ['metadata/page deduplication', 'warm cache', 'uncached reviews', 'account isolation', 'lecture ID isolation', 'signed visitor IP forwarding', 'Cloudflare proxy secret', 'junk IDs without API calls', 'real 404 only', '429/5xx/malformed/timeout error pages', 'transient failure recovery', ...(process.env.CACHE_TEST_EXPIRY === '1' ? ['real 300-second expiry and failed revalidation recovery'] : [])] }));
 } catch (error) {
   console.error(output.slice(-5000));
   throw error;

@@ -109,16 +109,22 @@ async function fetchJson<T>(
 }
 
 // Only a well-formed lecture may enter the shared cache; anything else throws
-// and is retried on the next request.
+// and is retried on the next request. The text columns allow NULL in the
+// database, so null is accepted there.
 function assertLecture(body: unknown): LectureSchema {
-  const lecture = body as Partial<LectureSchema> | null;
-  if (!lecture || typeof lecture !== 'object' || !Number.isInteger(lecture.id) ||
-      typeof lecture.title !== 'string' || typeof lecture.lecturer !== 'string' ||
-      typeof lecture.faculty !== 'string') {
+  const lecture = body as Record<string, unknown> | null;
+  const text = (value: unknown) => typeof value === 'string' || value === null || value === undefined;
+  if (!lecture || typeof lecture !== 'object' || Array.isArray(lecture) || !Number.isInteger(lecture.id) ||
+      !text(lecture.title) || !text(lecture.lecturer) || !text(lecture.faculty)) {
     throw new Error('Invalid lecture response');
   }
-  return lecture as LectureSchema;
+  return lecture as unknown as LectureSchema;
 }
+
+// Lecture IDs are positive integers. Anything else is not found without asking
+// the API, so junk URLs cost no API calls and cannot provoke errors such as the
+// 400 Puma returns for over-long request lines.
+const LECTURE_ID = /^[1-9]\d{0,9}$/;
 
 // Metadata, the page, and the OGP route share one public cache entry per
 // lecture; React also shares the parsed result within a server render. Never
@@ -127,6 +133,7 @@ function assertLecture(body: unknown): LectureSchema {
 // captured by the closure, not the cache key, so a cache miss is counted
 // against the visitor who caused it while everyone shares the cached result.
 async function fetchPublicLecture(id: string, signClientIp: ClientIpSigner): Promise<LectureSchema | null> {
+  if (!LECTURE_ID.test(id)) return null;
   const path = `/api/v1/lectures/${id}`;
   try {
     return await unstable_cache(
@@ -153,6 +160,7 @@ const lookupsByRequest = new WeakMap<object, Map<string, Promise<LectureSchema |
 // The OGP image route renders on every request too (only the CDN caches the
 // image), so it can read the visitor's headers and sign like the page does.
 const getPublicLecture = cache(async (id: string): Promise<LectureSchema | null> => {
+  if (!LECTURE_ID.test(id)) return null;
   const requestHeaders = await headers();
   let lookups = lookupsByRequest.get(requestHeaders);
   if (!lookups) {

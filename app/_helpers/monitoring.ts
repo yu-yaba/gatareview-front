@@ -3,6 +3,7 @@ import type { ErrorEvent, EventHint, StackFrame } from '@sentry/nextjs'
 const operations = {
   'api.request': 'Backend API unavailable',
   'auth.backend': 'Backend authentication unavailable',
+  'api.rate_limited': 'Backend API rate limited (sampled)',
   'monitoring.test': 'Monitoring delivery test',
   unhandled: 'Unexpected application error',
 } as const
@@ -44,11 +45,23 @@ export function safeErrorEvent(event: ErrorEvent): ErrorEvent {
 // Next.js keeps an error's own digest on every copy it reports (server render,
 // HTML render, the browser's error boundary), so serverLectureApi.ts marks
 // rate-limited failures with this digest. The error page shows it as the error ID.
+// One report per process per interval still gets through, so that limits hit
+// by everyone (for example a missing or mismatched forwarding secret) remain
+// visible.
 export const BACKEND_RATE_LIMITED_DIGEST = 'API_RATE_LIMITED'
+const RATE_LIMITED_REPORT_INTERVAL_MS = 10 * 60_000
+let lastRateLimitedReportAt = Number.NEGATIVE_INFINITY
 
-export function shouldReportRequestError(error: unknown): boolean {
+export function isRateLimitedError(error: unknown): boolean {
   const digest = typeof error === 'object' && error !== null ? (error as { digest?: unknown }).digest : undefined
-  return !(typeof digest === 'string' && digest.startsWith(BACKEND_RATE_LIMITED_DIGEST))
+  return typeof digest === 'string' && digest.startsWith(BACKEND_RATE_LIMITED_DIGEST)
+}
+
+export function shouldReportRequestError(error: unknown, now = Date.now()): boolean {
+  if (!isRateLimitedError(error)) return true
+  if (now - lastRateLimitedReportAt < RATE_LIMITED_REPORT_INTERVAL_MS) return false
+  lastRateLimitedReportAt = now
+  return true
 }
 
 export function sentryOptions(dsn: string | undefined, environment: string | undefined) {
@@ -64,8 +77,12 @@ export function sentryOptions(dsn: string | undefined, environment: string | und
     integrations: (defaults: { name: string }[]) => defaults.filter(integration =>
       !['BrowserSession', 'BrowserTracing', 'Breadcrumbs', 'Console', 'HttpContext'].includes(integration.name)),
     replaysSessionSampleRate: 0, replaysOnErrorSampleRate: 0,
-    beforeSend: (event: ErrorEvent, hint?: EventHint) =>
-      shouldReportRequestError(hint?.originalException) ? safeErrorEvent(event) : null,
+    beforeSend: (event: ErrorEvent, hint?: EventHint) => {
+      if (!shouldReportRequestError(hint?.originalException)) return null
+      const tagged = isRateLimitedError(hint?.originalException)
+        ? { ...event, tags: { ...event.tags, operation: 'api.rate_limited' } } : event
+      return safeErrorEvent(tagged)
+    },
     beforeSendLog: () => null, beforeSendMetric: () => null,
   }
 }

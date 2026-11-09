@@ -7,6 +7,7 @@ const {
   normalizedRequestPath,
   signedClientIpHeaders,
   trustedClientIp,
+  unusableSecrets,
 } = require('../../app/_helpers/clientIpSignature.ts');
 
 const secret = 'test-only-forwarding-secret-0123456789abcdef';
@@ -92,4 +93,11 @@ test('behind Cloudflare, CF-Connecting-IP is used only with our zone\'s secret h
   // Without the env var (or with a short one) CF-Connecting-IP is never used.
   assert.equal(from({ ...viaCloudflare, 'x-gatareview-proxy-secret': proxySecret }, {}), '172.68.10.20');
   assert.equal(from({ ...viaCloudflare, 'x-gatareview-proxy-secret': 'short' }, { CLOUDFLARE_PROXY_SECRET: 'short' }), '172.68.10.20');
+});
+
+test('secrets that are set but too short are reported for a warning', () => {
+  assert.deepEqual(unusableSecrets({}), []);
+  assert.deepEqual(unusableSecrets({ RATE_LIMIT_FORWARDING_SECRET: 'a'.repeat(32), CLOUDFLARE_PROXY_SECRET: 'b'.repeat(32) }), []);
+  assert.deepEqual(unusableSecrets({ RATE_LIMIT_FORWARDING_SECRET: 'short', CLOUDFLARE_PROXY_SECRET: 'also-short' }),
+    ['RATE_LIMIT_FORWARDING_SECRET', 'CLOUDFLARE_PROXY_SECRET']);
 });
