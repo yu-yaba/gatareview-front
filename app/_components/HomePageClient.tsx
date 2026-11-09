@@ -98,7 +98,7 @@ const COMMON_CLASSES: CommonClasses = {
   floatingParticle: "absolute rounded-full animate-float opacity-50",
   liquidBg: "animate-liquid-background opacity-20",
   neuralParticle: "rounded-full animate-neural-pulse",
-  cardDecoration: "absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl",
+  cardDecoration: "absolute inset-0 bg-linear-to-br from-white/5 to-transparent rounded-3xl",
   cardShimmer: "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700",
   cornerAccent: "absolute w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
 } as const;
@@ -207,7 +207,7 @@ const WhiteSectionBg = memo(() => (
     <div className={`absolute top-20 left-20 w-72 h-72 ${COMMON_CLASSES.liquidBg}`}></div>
     <div className={`absolute bottom-20 right-20 w-96 h-96 ${COMMON_CLASSES.liquidBg} opacity-15`} style={{ animationDelay: ANIMATION_DELAYS.LIQUID_BG }}></div>
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full">
-      <div className="w-full h-full bg-gradient-to-br from-green-50/20 via-transparent to-green-100/20 animate-background-flow"></div>
+      <div className="w-full h-full bg-linear-to-br from-green-50/20 via-transparent to-green-100/20 animate-background-flow"></div>
     </div>
     <div className={`absolute top-10 left-10 w-3 h-3 bg-green-300 ${COMMON_CLASSES.neuralParticle} opacity-40`}></div>
     <div className={`absolute top-32 right-20 w-2 h-2 bg-green-400 ${COMMON_CLASSES.neuralParticle} opacity-50`} style={{ animationDelay: ANIMATION_DELAYS.MEDIUM }}></div>
@@ -234,10 +234,10 @@ interface ProgressBarProps {
 }
 
 const ProgressBar = memo<ProgressBarProps>(({ isComplete }) => (
-  <div className="relative mt-3 lg:mt-4 h-2 lg:h-3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full overflow-hidden shadow-inner">
-    <div className={`h-full bg-gradient-to-r from-green-400 via-green-500 to-green-600 transition-all duration-1000 rounded-full shadow-lg relative ${isComplete ? 'w-full' : 'w-0'}`}>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-      <div className="absolute inset-0 bg-green-400 opacity-50 blur-sm rounded-full"></div>
+  <div className="relative mt-3 lg:mt-4 h-2 lg:h-3 bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full overflow-hidden shadow-inner">
+    <div className={`h-full bg-linear-to-r from-green-400 via-green-500 to-green-600 transition-all duration-1000 rounded-full shadow-lg relative ${isComplete ? 'w-full' : 'w-0'}`}>
+      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+      <div className="absolute inset-0 bg-green-400 opacity-50 blur-xs rounded-full"></div>
     </div>
     {isComplete && (
       <>
@@ -264,19 +264,19 @@ const ReviewCounter = memo<ReviewCounterProps>(({ displayedCount, countingComple
         <div className="absolute inset-0 animate-shimmer rounded-3xl"></div>
       </div>
 
-      <div className="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-green-100 via-green-200 to-green-50 opacity-20 rounded-full blur-xl animate-pulse-3d"></div>
-      <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-gradient-to-tr from-green-50 via-green-100 to-green-200 opacity-30 rounded-full blur-lg animate-pulse-3d" style={{ animationDelay: ANIMATION_DELAYS.PULSE_BG }}></div>
+      <div className="absolute -right-8 -top-8 w-32 h-32 bg-linear-to-br from-green-100 via-green-200 to-green-50 opacity-20 rounded-full blur-xl animate-pulse-3d"></div>
+      <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-linear-to-tr from-green-50 via-green-100 to-green-200 opacity-30 rounded-full blur-lg animate-pulse-3d" style={{ animationDelay: ANIMATION_DELAYS.PULSE_BG }}></div>
 
       <div className="absolute top-4 right-4 w-3 h-3 border border-green-300 rotate-45 animate-float opacity-40"></div>
       <div className="absolute bottom-4 left-4 w-2 h-2 bg-green-400 rounded-full animate-float opacity-50" style={{ animationDelay: ANIMATION_DELAYS.SMALL }}></div>
 
       <div className="absolute inset-4 border border-green-200/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse"></div>
-      <div className="absolute inset-0 bg-gradient-to-br from-green-50/10 via-transparent to-green-100/10 rounded-3xl"></div>
+      <div className="absolute inset-0 bg-linear-to-br from-green-50/10 via-transparent to-green-100/10 rounded-3xl"></div>
 
       <div className="relative z-20 flex items-center">
-        <div className="mr-4 lg:mr-6 xl:mr-8 bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-3xl p-3 lg:p-5 xl:p-6 text-white text-xl lg:text-2xl xl:text-3xl shadow-2xl group-hover:shadow-green-500/25 transition-all duration-700 genius-icon">
+        <div className="mr-4 lg:mr-6 xl:mr-8 bg-linear-to-br from-green-500 via-green-600 to-green-700 rounded-3xl p-3 lg:p-5 xl:p-6 text-white text-xl lg:text-2xl xl:text-3xl shadow-2xl group-hover:shadow-green-500/25 transition-all duration-700 genius-icon">
           <FaCommentAlt className="transform group-hover:scale-110 transition-transform duration-700" />
-          <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-600 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 animate-pulse"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-green-400 to-green-600 rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 animate-pulse"></div>
         </div>
 
         <div className="text-left">
@@ -284,7 +284,7 @@ const ReviewCounter = memo<ReviewCounterProps>(({ displayedCount, countingComple
             現在の総レビュー数
           </p>
           <div className="flex items-baseline">
-            <span className="genius-number text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-br from-green-600 via-green-500 to-green-600 bg-clip-text text-transparent">
+            <span className="genius-number text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-linear-to-br from-green-600 via-green-500 to-green-600 bg-clip-text text-transparent">
               {displayedCount}
             </span>
             <span className="ml-2 lg:ml-3 text-lg lg:text-xl xl:text-2xl text-gray-700 font-medium transform group-hover:translate-y-1 transition-transform duration-700">件</span>
@@ -293,7 +293,7 @@ const ReviewCounter = memo<ReviewCounterProps>(({ displayedCount, countingComple
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-green-300 to-transparent rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-700"></div>
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-linear-to-r from-transparent via-green-300 to-transparent rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-700"></div>
 
       <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-green-300/40 rounded-tl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-green-300/40 rounded-br-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -335,9 +335,9 @@ const SearchSection = memo<SearchSectionProps>(({
       </h3>
 
       <div className="flex flex-col lg:flex-row gap-3 lg:gap-4 xl:gap-6 relative z-10">
-        <div className="flex-grow">
+        <div className="grow">
           <input
-            className="w-full px-4 lg:px-5 xl:px-6 2xl:px-8 py-3 lg:py-3.5 xl:py-4 2xl:py-5 text-sm lg:text-base xl:text-lg 2xl:text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none transition-all duration-500 shadow-inner animate-search-focus backdrop-blur-sm"
+            className="w-full px-4 lg:px-5 xl:px-6 2xl:px-8 py-3 lg:py-3.5 xl:py-4 2xl:py-5 text-sm lg:text-base xl:text-lg 2xl:text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-hidden transition-all duration-500 shadow-inner animate-search-focus backdrop-blur-xs"
             placeholder="授業名、教授名、学部名で検索..."
             type="text"
             value={searchWord}
@@ -351,7 +351,7 @@ const SearchSection = memo<SearchSectionProps>(({
             value={selectedFaculty}
             onChange={(e) => setSelectedFaculty(e.target.value)}
             onKeyUp={handleKeyUp}
-            className="w-full sm:w-auto lg:w-48 xl:w-52 2xl:w-56 px-4 lg:px-5 xl:px-6 2xl:px-8 py-3 lg:py-3.5 xl:py-4 2xl:py-5 text-sm lg:text-base xl:text-lg 2xl:text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none transition-all duration-500 bg-white/90 backdrop-blur-sm animate-search-focus"
+            className="w-full sm:w-auto lg:w-48 xl:w-52 2xl:w-56 px-4 lg:px-5 xl:px-6 2xl:px-8 py-3 lg:py-3.5 xl:py-4 2xl:py-5 text-sm lg:text-base xl:text-lg 2xl:text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-hidden transition-all duration-500 bg-white/90 backdrop-blur-xs animate-search-focus"
           >
             {FACULTY_OPTIONS.map(option => (
               <option key={option.value} value={option.value}>{option.label}</option>
@@ -360,10 +360,10 @@ const SearchSection = memo<SearchSectionProps>(({
 
           <button
             onClick={handleSearch}
-            className="w-full sm:w-auto lg:w-32 xl:w-36 2xl:w-40 px-5 lg:px-6 xl:px-8 2xl:px-10 py-3 lg:py-3.5 xl:py-4 2xl:py-5 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl animate-card-hover-lift relative overflow-hidden group text-sm lg:text-base xl:text-lg 2xl:text-xl"
+            className="w-full sm:w-auto lg:w-32 xl:w-36 2xl:w-40 px-5 lg:px-6 xl:px-8 2xl:px-10 py-3 lg:py-3.5 xl:py-4 2xl:py-5 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform transition-all duration-500 shadow-lg hover:shadow-xl animate-card-hover-lift relative overflow-hidden group text-sm lg:text-base xl:text-lg 2xl:text-xl"
           >
             <span className="relative z-10">検索</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute inset-0 animate-shimmer opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
           </button>
         </div>
@@ -380,7 +380,7 @@ interface StatsCardProps {
 }
 
 const StatsCard = memo<StatsCardProps>(({ stat, index }) => (
-  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-2xl hover:shadow-green-400/20 transition-all duration-700 hover:scale-105 animate-card-hover-lift group relative overflow-hidden">
+  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-2xl hover:shadow-green-400/20 transition-all duration-700 animate-card-hover-lift group relative overflow-hidden">
     <div className={COMMON_CLASSES.cardDecoration}></div>
     <div className={COMMON_CLASSES.cardShimmer}>
       <div className="absolute inset-0 animate-shimmer rounded-3xl"></div>
@@ -410,7 +410,7 @@ interface FeatureCardProps {
 }
 
 const FeatureCard = memo<FeatureCardProps>(({ feature, index }) => (
-  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-2xl hover:shadow-green-400/20 transition-all duration-700 hover:scale-105 animate-card-hover-lift group relative overflow-hidden">
+  <div className="text-center p-6 lg:p-8 genius-card-green rounded-3xl shadow-2xl hover:shadow-green-400/20 transition-all duration-700 animate-card-hover-lift group relative overflow-hidden">
     <div className={COMMON_CLASSES.cardDecoration}></div>
     <div className={COMMON_CLASSES.cardShimmer}>
       <div className="absolute inset-0 animate-shimmer rounded-3xl"></div>
@@ -430,7 +430,7 @@ const FeatureCard = memo<FeatureCardProps>(({ feature, index }) => (
       <p className="text-green-100 leading-relaxed text-sm lg:text-base transform group-hover:translate-y-2 transition-transform duration-700">{feature.description}</p>
     </div>
 
-    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-700"></div>
+    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-linear-to-r from-transparent via-white/40 to-transparent rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-700"></div>
   </div>
 ));
 
@@ -448,7 +448,7 @@ const ReviewCard = memo<ReviewCardProps>(({ review, index }) => (
       className="block w-full bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
     >
       <div className="space-y-4 h-full flex flex-col">
-        <div className="space-y-2 flex-grow">
+        <div className="space-y-2 grow">
           <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
             {review.lecture.title}
           </h3>
@@ -502,7 +502,7 @@ interface LectureCardProps {
 const LectureCard = memo<LectureCardProps>(({ lecture, showReviewInfo = true, isWaitingForReview = false }) => (
   <Link href={`/lectures/${lecture.id}`} className="block bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group w-full">
     <div className="space-y-4 h-full flex flex-col">
-      <div className="space-y-2 flex-grow">
+      <div className="space-y-2 grow">
         <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
           {lecture.title}
         </h3>
@@ -606,7 +606,7 @@ export default function HomePageClient({
               <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold mb-4 lg:mb-6 xl:mb-8 leading-tight genius-title-white">
                 新大生の
                 <br className="sm:hidden md:block lg:block" />
-                <span className="bg-gradient-to-r from-green-500 via-green-600 to-green-500 bg-clip-text text-transparent animate-gradient-x">
+                <span className="bg-linear-to-r from-green-500 via-green-600 to-green-500 bg-clip-text text-transparent animate-gradient-x">
                   授業選びをサポート
                 </span>
               </h1>
@@ -633,7 +633,7 @@ export default function HomePageClient({
         <section className="min-h-screen lg:min-h-0 lg:py-20 bg-white flex flex-col justify-center relative overflow-hidden">
           {/* シンプルな背景パターン */}
           <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-50/20 via-green-100/10 to-green-50/20"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-green-50/20 via-green-100/10 to-green-50/20"></div>
           </div>
 
           {/* 清潔な浮遊要素 */}
@@ -731,7 +731,7 @@ export default function HomePageClient({
         <section className="min-h-screen lg:min-h-0 lg:py-20 bg-white flex flex-col justify-center relative overflow-hidden">
           {/* シンプルな背景パターン */}
           <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-50/20 via-green-100/10 to-green-50/20"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-green-50/20 via-green-100/10 to-green-50/20"></div>
           </div>
 
           {/* 清潔な浮遊要素 */}
@@ -788,7 +788,7 @@ export default function HomePageClient({
         <section className="min-h-screen lg:min-h-0 lg:py-20 bg-white relative overflow-hidden flex flex-col justify-center">
           {/* シンプルな背景エフェクト */}
           <div className="absolute inset-0">
-            <div className="bg-gradient-to-br from-green-50/30 via-transparent to-green-100/30"></div>
+            <div className="bg-linear-to-br from-green-50/30 via-transparent to-green-100/30"></div>
           </div>
 
           {/* 清演な浮遊要素 */}
@@ -858,7 +858,7 @@ export default function HomePageClient({
                       href="https://docs.google.com/forms/d/e/1FAIpQLScencxVkV7P5sXKi9GkqlyIbAnQblG_yGciERVgsomicq_7Hw/viewform"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block w-full px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="inline-block w-full px-8 py-4 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
                       お問い合わせ
                     </a>
@@ -891,7 +891,7 @@ export default function HomePageClient({
         <section className="min-h-screen lg:min-h-0 lg:py-20 bg-white relative overflow-hidden flex flex-col justify-center">
           {/* シンプルな背景エフェクト */}
           <div className="absolute inset-0">
-            <div className="bg-gradient-to-br from-green-50/30 via-transparent to-green-100/30"></div>
+            <div className="bg-linear-to-br from-green-50/30 via-transparent to-green-100/30"></div>
           </div>
 
           {/* 清演な浮遊要素 */}
@@ -908,7 +908,7 @@ export default function HomePageClient({
               <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 xl:gap-8 justify-center max-w-2xl mx-auto">
                 <button
                   onClick={handleNavigateToReviewCreate}
-                  className="px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 lg:py-4 xl:py-5 2xl:py-6 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl flex items-center justify-center text-sm lg:text-base xl:text-lg 2xl:text-xl"
+                  className="px-6 lg:px-8 xl:px-10 2xl:px-12 py-3 lg:py-4 xl:py-5 2xl:py-6 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-500 shadow-lg hover:shadow-xl flex items-center justify-center text-sm lg:text-base xl:text-lg 2xl:text-xl"
                 >
                   <FaHeart className="mr-2 lg:mr-3" />
                   <span>レビューを投稿する</span>

@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function OfflinePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-linear-to-br from-green-50 to-blue-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         <div className="relative w-32 h-32 mx-auto mb-8">
           <Image

@@ -17,7 +17,7 @@ export default function Footer() {
               href="https://forms.gle/2EU6Yud7f5YXeJX18"
               target="_blank"
               rel="noreferrer"
-              className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1"
+              className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1"
             >
               削除依頼
             </a>
@@ -26,20 +26,20 @@ export default function Footer() {
               href="https://forms.gle/kawPCGBi6NB5pfQz8"
               target="_blank"
               rel="noreferrer"
-              className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1"
+              className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1"
             >
               お問い合わせ
             </a>
 
-            <Link href="/faq" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
+            <Link href="/faq" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
               FAQ
             </Link>
 
-            <Link href="/terms" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
+            <Link href="/terms" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
               利用規約
             </Link>
 
-            <Link href="/privacy" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
+            <Link href="/privacy" className="text-gray-600 hover:text-green-600 text-sm md:text-base transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500/50 rounded-md px-2 py-1">
               プライバシーポリシー
             </Link>
           </div>

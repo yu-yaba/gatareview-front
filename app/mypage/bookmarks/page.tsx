@@ -175,9 +175,9 @@ function MyBookmarksPage() {
               <p className="text-red-600 mb-6 leading-relaxed">{error}</p>
               <button
                 onClick={() => fetchBookmarks(currentPage)}
-                className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                 <span className="relative">再試行</span>
               </button>
             </div>
@@ -194,7 +194,7 @@ function MyBookmarksPage() {
         <div className="mb-8">
           <Link
             href="/mypage"
-            className="group inline-flex items-center mb-6 px-4 py-2 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 transition-all duration-300 hover:scale-[1.02]"
+            className="group inline-flex items-center mb-6 px-4 py-2 rounded-2xl bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 transition-all duration-300 hover:scale-[1.02]"
           >
             <FaArrowLeft className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" />
             <span className="font-medium">マイページに戻る</span>
@@ -207,7 +207,7 @@ function MyBookmarksPage() {
         {bookmarksData && bookmarksData.statistics && (
           <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-green-100/50 hover:shadow-2xl transition-all duration-300 mb-8">
             <div className="flex justify-center">
-              <div className="group bg-gradient-to-br from-yellow-50 to-amber-100 rounded-2xl p-6 text-center border border-yellow-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] w-full max-w-sm">
+              <div className="group bg-linear-to-br from-yellow-50 to-amber-100 rounded-2xl p-6 text-center border border-yellow-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] w-full max-w-sm">
                 <FaBookmark className="w-8 h-8 mx-auto mb-3 text-yellow-600 group-hover:scale-110 transition-transform duration-200" />
                 <div className="text-3xl font-bold text-yellow-700 mb-2">{bookmarksData.statistics?.total_bookmarks || 0}</div>
                 <div className="text-sm text-gray-600 font-medium">総ブックマーク数</div>
@@ -239,7 +239,7 @@ function MyBookmarksPage() {
                   </div>
 
                   <div className="space-y-4 h-full flex flex-col pr-12">
-                    <div className="space-y-2 flex-grow">
+                    <div className="space-y-2 grow">
                       <Link
                         href={`/lectures/${lecture.id}`}
                         className="block hover:text-green-600 transition-colors duration-300"
@@ -297,9 +297,9 @@ function MyBookmarksPage() {
             <p className="text-gray-400 mb-6">気になる授業をブックマークしてみませんか？</p>
             <Link
               href="/lectures"
-              className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+              className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+              <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
               <FaSearch className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
               <span className="relative">授業を探す</span>
             </Link>

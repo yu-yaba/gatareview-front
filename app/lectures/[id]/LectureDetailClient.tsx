@@ -122,7 +122,7 @@ const LectureDetailClient = ({
           {/* レビュー一覧セクション */}
           <div className="max-w-6xl mx-auto relative">
             {reviewsError && (
-              <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-6 py-5 text-red-700 shadow-sm">
+              <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 px-6 py-5 text-red-700 shadow-xs">
                 {reviewsError}
               </div>
             )}
@@ -163,7 +163,7 @@ const LectureDetailClient = ({
                       <div className="space-y-3">
                         {review.textbook && (
                           <div className="flex items-center gap-3">
-                            <FaBookOpen className="text-blue-500 flex-shrink-0" />
+                            <FaBookOpen className="text-blue-500 shrink-0" />
                             <div>
                               <span className="text-sm text-gray-500 block">教科書</span>
                               <span className="font-medium text-gray-800">{review.textbook}</span>
@@ -172,7 +172,7 @@ const LectureDetailClient = ({
                         )}
                         {review.attendance && (
                           <div className="flex items-center gap-3">
-                            <FaClipboardList className="text-green-500 flex-shrink-0" />
+                            <FaClipboardList className="text-green-500 shrink-0" />
                             <div>
                               <span className="text-sm text-gray-500 block">出席確認</span>
                               <span className="font-medium text-gray-800">{review.attendance}</span>
@@ -181,7 +181,7 @@ const LectureDetailClient = ({
                         )}
                         {review.grading_type && (
                           <div className="flex items-center gap-3">
-                            <FaGraduationCap className="text-purple-500 flex-shrink-0" />
+                            <FaGraduationCap className="text-purple-500 shrink-0" />
                             <div>
                               <span className="text-sm text-gray-500 block">採点方法</span>
                               <span className="font-medium text-gray-800">{review.grading_type}</span>
@@ -192,7 +192,7 @@ const LectureDetailClient = ({
                       <div className="space-y-3">
                         {review.content_difficulty && (
                           <div className="flex items-center gap-3">
-                            <FaChartLine className="text-red-500 flex-shrink-0" />
+                            <FaChartLine className="text-red-500 shrink-0" />
                             <div>
                               <span className="text-sm text-gray-500 block">難易度</span>
                               <span className="font-medium text-gray-800">{review.content_difficulty}</span>
@@ -201,7 +201,7 @@ const LectureDetailClient = ({
                         )}
                         {review.content_quality && (
                           <div className="flex items-center gap-3">
-                            <FaStar className="text-yellow-500 flex-shrink-0" />
+                            <FaStar className="text-yellow-500 shrink-0" />
                             <div>
                               <span className="text-sm text-gray-500 block">内容の質</span>
                               <span className="font-medium text-gray-800">{review.content_quality}</span>
@@ -216,19 +216,19 @@ const LectureDetailClient = ({
                   {review.content && (
                     <div className="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 relative">
                       <div className="flex items-start gap-3">
-                        <FaComments className="text-green-500 mt-1 flex-shrink-0" />
+                        <FaComments className="text-green-500 mt-1 shrink-0" />
                         <div className="flex-1">
                           <span className="text-sm text-gray-500 block mb-2">コメント</span>
                           {(canViewReviews || index === 0) ? (
-                            <p className="text-gray-800 leading-relaxed break-words">{review.content}</p>
+                            <p className="text-gray-800 leading-relaxed wrap-break-word">{review.content}</p>
                           ) : (
                             <div className="relative">
                               <PartialComment content={review.content} />
                               {/* コメント内オーバーレイボタン */}
-                              <div className="absolute inset-0 flex items-end justify-center pb-4 bg-gradient-to-r from-transparent via-transparent to-white/90 rounded-2xl">
+                              <div className="absolute inset-0 flex items-end justify-center pb-4 bg-linear-to-r from-transparent via-transparent to-white/90 rounded-2xl">
                                 <button
                                   onClick={() => setIsReviewPromptModalOpen(true)}
-                                  className="px-3 py-2 md:px-4 md:py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-green-500/25 flex items-center gap-1 md:gap-2 text-xs md:text-sm group"
+                                  className="px-3 py-2 md:px-4 md:py-2 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-green-500/25 flex items-center gap-1 md:gap-2 text-xs md:text-sm group"
                                 >
                                   <FaHeart className="group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
                                   <span className="truncate">
@@ -265,12 +265,12 @@ const LectureDetailClient = ({
                     {session && user && review.user_id && Number(review.user_id) === Number(user.id) && (
                       <button
                         onClick={() => handleEditReview(review)}
-                        className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                        className="group relative flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/50 hover:from-blue-100 hover:to-indigo-100 hover:shadow-blue-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                        <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                         <FaEdit className="w-3.5 h-3.5 transform group-hover:scale-110 transition-transform duration-200 relative" />
                         <span className="text-sm relative">編集</span>
-                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </button>
                     )}
                   </div>

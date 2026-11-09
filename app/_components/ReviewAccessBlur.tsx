@@ -14,7 +14,7 @@ export const PartialComment = ({ content }: { content: string }) => {
     return (
       <div className="min-h-16 md:min-h-16 h-40 md:h-auto overflow-hidden md:overflow-visible flex items-start">
         <p className="text-gray-800 leading-relaxed w-full" style={{wordBreak: 'break-all', whiteSpace: 'pre-wrap'}}>
-          <span className="filter blur-sm select-none opacity-60">
+          <span className="filter blur-xs select-none opacity-60">
             {content + dummyText}
           </span>
         </p>
@@ -30,7 +30,7 @@ export const PartialComment = ({ content }: { content: string }) => {
     <div className="min-h-16 md:min-h-16 h-40 md:h-auto overflow-hidden md:overflow-visible flex items-start">
       <p className="text-gray-800 leading-relaxed w-full" style={{wordBreak: 'break-all', whiteSpace: 'pre-wrap'}}>
         <span>{visibleText}</span>
-        <span className="filter blur-sm select-none opacity-60">
+        <span className="filter blur-xs select-none opacity-60">
           {hiddenText}
         </span>
       </p>

@@ -26,12 +26,12 @@
   },
   "dependencies": {
     "@sentry/nextjs": "11.11.0",
+    "@tailwindcss/postcss": "4.3.4",
     "@types/grecaptcha": "^3.0.9",
     "@types/lodash": "^4.17.27",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "autoprefixer": "10.6.2",
     "axios": "^1.21.0",
     "eslint-config-next": "15.5.28",
     "js-cookie": "^3.0.8",

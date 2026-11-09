@@ -249,8 +249,8 @@ const NewReviewPage = () => {
       className="w-full bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-lg border border-green-100/50 hover:shadow-xl transform hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group"
     >
       {/* ホバーエフェクト */}
-      <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+      <div className="absolute inset-0 bg-linear-to-r from-green-50/50 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
 
       <div className="relative z-10 text-left">
         {/* 講義タイトル */}
@@ -455,7 +455,7 @@ const NewReviewPage = () => {
           value={searchWord}
           onChange={handleSearchInputChange}
           placeholder="授業名、講師名で検索..."
-          className="w-full p-3 border rounded-md shadow focus:border-green-500 outline-none"
+          className="w-full p-3 border rounded-md shadow-sm focus:border-green-500 outline-hidden"
         />
       </div>
 

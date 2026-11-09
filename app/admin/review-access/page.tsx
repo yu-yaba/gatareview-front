@@ -120,8 +120,8 @@ export default function ReviewAccessAdminPage() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
-        <div className="mx-auto max-w-3xl rounded-3xl border border-white/70 bg-white/80 p-8 shadow-xl backdrop-blur">
+      <div className="min-h-screen bg-linear-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
+        <div className="mx-auto max-w-3xl rounded-3xl border border-white/70 bg-white/80 p-8 shadow-xl backdrop-blur-sm">
           <p className="text-sm font-medium text-slate-500">設定を読み込んでいます...</p>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function ReviewAccessAdminPage() {
 
   if (isForbidden) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
+      <div className="min-h-screen bg-linear-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
         <div className="mx-auto max-w-3xl rounded-3xl border border-red-100 bg-white/90 p-8 shadow-xl">
           <p className="text-sm font-semibold tracking-[0.2em] text-red-500">403 FORBIDDEN</p>
           <h1 className="mt-3 text-3xl font-bold text-slate-900">管理者のみアクセスできます</h1>
@@ -144,7 +144,7 @@ export default function ReviewAccessAdminPage() {
 
   if (!reviewAccessState) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
+      <div className="min-h-screen bg-linear-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
         <div className="mx-auto max-w-3xl rounded-3xl border border-red-100 bg-white/90 p-8 shadow-xl">
           <p className="text-sm font-semibold tracking-[0.2em] text-red-500">LOAD ERROR</p>
           <h1 className="mt-3 text-3xl font-bold text-slate-900">設定を取得できませんでした</h1>
@@ -157,9 +157,9 @@ export default function ReviewAccessAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
+    <div className="min-h-screen bg-linear-to-br from-emerald-50 via-white to-slate-100 px-4 py-12">
       <div className="mx-auto max-w-3xl space-y-6">
-        <div className="rounded-3xl border border-emerald-100 bg-white/90 p-8 shadow-xl backdrop-blur">
+        <div className="rounded-3xl border border-emerald-100 bg-white/90 p-8 shadow-xl backdrop-blur-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-bold tracking-[0.2em] text-emerald-700">

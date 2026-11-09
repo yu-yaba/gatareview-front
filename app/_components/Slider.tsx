@@ -152,14 +152,14 @@ const ReviewSlide = memo<ReviewSlideProps>(({ review, reviewIndex }) => {
   );
 
   return (
-    <SwiperSlide key={slideKey} className="!flex !justify-center !items-center">
+    <SwiperSlide key={slideKey} className="flex! justify-center! items-center!">
       <div className="w-full max-w-xs mx-auto mb-9">
         <Link
           href={`/lectures/${review.lecture.id}`}
           className="block w-full bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
         >
           <div className="space-y-4 h-full flex flex-col">
-            <div className="space-y-2 flex-grow">
+            <div className="space-y-2 grow">
               <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
                 {review.lecture.title}
               </h3>
@@ -213,16 +213,16 @@ interface LoadingSlideProps {
 const LoadingSlide = memo<LoadingSlideProps>(({ count = 3 }) => (
   <>
     {Array.from({ length: count }, (_, index) => (
-      <SwiperSlide key={`loading-${index}`} className="!flex !justify-center !items-center">
+      <SwiperSlide key={`loading-${index}`} className="flex! justify-center! items-center!">
         <div className="w-full max-w-xs mx-auto px-2">
           <div className="text-center mb-3">
-            <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded-sm animate-pulse"></div>
           </div>
           <div className="bg-white rounded-3xl border border-gray-200 shadow-lg p-5">
             <div className="text-center space-y-3">
               <div>
-                <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4 mx-auto"></div>
+                <div className="h-4 bg-gray-200 rounded-sm animate-pulse mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded-sm animate-pulse w-3/4 mx-auto"></div>
               </div>
               <div className="flex justify-center space-x-1">
                 {Array.from({ length: 5 }, (_, starIndex) => (
@@ -230,9 +230,9 @@ const LoadingSlide = memo<LoadingSlideProps>(({ count = 3 }) => (
                 ))}
               </div>
               <div className="space-y-2">
-                <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-3 bg-gray-200 rounded animate-pulse w-5/6 mx-auto"></div>
-                <div className="h-3 bg-gray-200 rounded animate-pulse w-4/6 mx-auto"></div>
+                <div className="h-3 bg-gray-200 rounded-sm animate-pulse"></div>
+                <div className="h-3 bg-gray-200 rounded-sm animate-pulse w-5/6 mx-auto"></div>
+                <div className="h-3 bg-gray-200 rounded-sm animate-pulse w-4/6 mx-auto"></div>
               </div>
             </div>
           </div>
@@ -250,7 +250,7 @@ interface ErrorSlideProps {
 }
 
 const ErrorSlide = memo<ErrorSlideProps>(({ error, onRetry }) => (
-  <SwiperSlide className="!flex !justify-center !items-center">
+  <SwiperSlide className="flex! justify-center! items-center!">
     <div className="w-full max-w-xs mx-auto px-2">
       <div className="bg-white rounded-3xl border border-red-200 shadow-lg p-5 text-center">
         <div className="text-red-500 mb-3">
@@ -318,7 +318,7 @@ const BasicSlider = memo(() => {
           dynamicBullets: true,
         }}
         style={SWIPER_STYLES}
-        className="w-full !overflow-visible"
+        className="w-full overflow-visible!"
       >
         {renderSlides}
       </Swiper>

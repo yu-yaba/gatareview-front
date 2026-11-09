@@ -463,7 +463,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className="flex items-center justify-center w-16 h-12 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="flex items-center justify-center w-16 h-12 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-xs hover:shadow-md"
         >
           1
         </button>
@@ -479,8 +479,8 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`flex items-center justify-center w-16 h-12 text-sm font-bold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md ${i === current
-            ? 'text-white bg-gradient-to-r from-[#1DBE67] to-[#15A85A] border border-[#1DBE67] shadow-[#1DBE67]/20'
+          className={`flex items-center justify-center w-16 h-12 text-sm font-bold rounded-xl transition-all duration-200 shadow-xs hover:shadow-md ${i === current
+            ? 'text-white bg-linear-to-r from-[#1DBE67] to-[#15A85A] border border-[#1DBE67] shadow-[#1DBE67]/20'
             : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
             }`}
         >
@@ -498,7 +498,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
         <button
           key={total}
           onClick={() => handlePageChange(total)}
-          className="flex items-center justify-center w-16 h-12 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="flex items-center justify-center w-16 h-12 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-xs hover:shadow-md"
         >
           {total}
         </button>
@@ -518,7 +518,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
   const lectureElements = useMemo(() => {
     return fetchedLectures.map((lecture) => (
       <Link href={`/lectures/${lecture.id}`} key={lecture.id} className="block w-full">
-        <div className="mx-auto mb-4 p-4 md:p-5 lg:p-6 rounded-2xl md:rounded-3xl bg-white border border-1 shadow-md w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl hover:bg-green-100 hover:border-1 hover:border-green-400 transform hover:scale-105 transition duration-150">
+        <div className="mx-auto mb-4 p-4 md:p-5 lg:p-6 rounded-2xl md:rounded-3xl bg-white border border shadow-md w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl hover:bg-green-100 hover:border hover:border-green-400 transform hover:scale-105 transition duration-150">
           {/* メインコンテンツ */}
           <div className="flex flex-col md:flex-row md:items-center">
             {/* タイトルセクション */}
@@ -622,14 +622,14 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                           {/* 検索ボックス - 768px以上では全幅利用 */}
                           <div className="w-full">
                             <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-                              <label htmlFor="search-input" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-[3] sm:w-24 sm:flex-none md:w-20 lg:w-24">
+                              <label htmlFor="search-input" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-3 sm:w-24 sm:flex-none md:w-20 lg:w-24">
                                 <FaSearch className="mr-1 text-green-500" aria-hidden="true" />
                                 <span className="truncate">キーワード</span>
                               </label>
-                              <div className="relative flex-[7] sm:flex-1">
+                              <div className="relative flex-7 sm:flex-1">
                                 <input
                                   id="search-input"
-                                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base border-4 border-green-400 rounded-xl text-gray-800 font-semibold focus:border-green-500 focus:outline-none transition-all duration-300 shadow-inner bg-white/90 backdrop-blur-sm hover:bg-white"
+                                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base border-4 border-green-400 rounded-xl text-gray-800 font-semibold focus:border-green-500 focus:outline-hidden transition-all duration-300 shadow-inner bg-white/90 backdrop-blur-xs hover:bg-white"
                                   placeholder="授業・教授"
                                   type="text"
                                   ref={searchInput}
@@ -647,16 +647,16 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4 lg:gap-6">
                             {/* 学部フィルター */}
                             <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-                              <label htmlFor="faculty-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-[3] sm:w-16 sm:flex-none md:w-12 lg:w-16">
+                              <label htmlFor="faculty-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-3 sm:w-16 sm:flex-none md:w-12 lg:w-16">
                                 <FaUniversity className="mr-1 text-purple-500" aria-hidden="true" />
                                 <span className="truncate">学部</span>
                               </label>
-                              <div className="relative flex-[7] sm:flex-1">
+                              <div className="relative flex-7 sm:flex-1">
                                 <select
                                   id="faculty-select"
                                   value={tempSelectedFaculty}
                                   onChange={handleSelectChange(setTempSelectedFaculty)}
-                                  className="block appearance-none w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
+                                  className="block appearance-none w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-hidden transition-all duration-300 bg-white/90 backdrop-blur-xs hover:bg-white cursor-pointer"
                                 >
                                   <option value="">全学部</option>
                                   <option value="G:教養科目">G:教養科目</option>
@@ -681,16 +681,16 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
 
                             {/* ソート */}
                             <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-                              <label htmlFor="sort-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-[3] sm:w-16 sm:flex-none md:w-14 lg:w-16">
+                              <label htmlFor="sort-select" className="text-sm font-bold text-gray-800 flex items-center whitespace-nowrap flex-3 sm:w-16 sm:flex-none md:w-14 lg:w-16">
                                 <FaStar className="mr-1 text-yellow-500" aria-hidden="true" />
                                 <span className="truncate">並び順</span>
                               </label>
-                              <div className="relative flex-[7] sm:flex-1">
+                              <div className="relative flex-7 sm:flex-1">
                                 <select
                                   id="sort-select"
                                   onChange={handleSelectChange(setTempSortType)}
                                   value={tempSortType}
-                                  className="block appearance-none w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/90 backdrop-blur-sm hover:bg-white cursor-pointer"
+                                  className="block appearance-none w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm lg:text-base text-gray-500 font-semibold border-4 border-green-400 rounded-xl focus:border-green-500 focus:outline-hidden transition-all duration-300 bg-white/90 backdrop-blur-xs hover:bg-white cursor-pointer"
                                 >
                                   <option value="newest">最新レビュー順</option>
                                   <option value="highestRating">評価の高い順</option>
@@ -713,8 +713,8 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                         <button
                           onClick={handleDetailedSearchToggle}
                           className={`flex items-center px-6 py-3 font-medium rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg w-full justify-center ${showDetailedSearch
-                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-emerald-500/25'
-                            : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-gray-100 hover:to-gray-200 border border-gray-200'
+                            ? 'bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-emerald-500/25'
+                            : 'bg-linear-to-r from-gray-50 to-gray-100 text-gray-700 hover:from-gray-100 hover:to-gray-200 border border-gray-200'
                             }`}
                           aria-expanded={showDetailedSearch}
                           aria-controls="detailed-search-panel"
@@ -729,13 +729,13 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                         {/* 検索ボタン */}
                         <button
                           onClick={handleSearch}
-                          className="w-full px-12 py-4 bg-gradient-to-r from-[#1DBE67] to-[#15A85A] text-white font-bold rounded-2xl hover:from-[#15A85A] hover:to-[#12A150] transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-[#1DBE67]/25 flex items-center justify-center relative overflow-hidden group"
+                          className="w-full px-12 py-4 bg-linear-to-r from-[#1DBE67] to-[#15A85A] text-white font-bold rounded-2xl hover:from-[#15A85A] hover:to-[#12A150] transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-[#1DBE67]/25 flex items-center justify-center relative overflow-hidden group"
                           aria-label="現在の検索条件で授業を検索"
                         >
                           <FaSearch className="mr-3 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-300" aria-hidden="true" />
                           <span className="relative z-10">検索する</span>
-                          <div className="absolute inset-0 bg-gradient-to-r from-[#22C55E] to-[#1DBE67] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+                          <div className="absolute inset-0 bg-linear-to-r from-[#22C55E] to-[#1DBE67] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="absolute top-0 left-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
 
                           {/* キラキラエフェクト */}
                           <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full animate-pulse opacity-0 group-hover:opacity-100"></div>
@@ -748,8 +748,8 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                     {/* 詳細検索セクション */}
                     {showDetailedSearch && (
                       <div id="detailed-search-panel" className="border-t border-gradient-to-r from-transparent via-gray-200 to-transparent pt-6 lg:pt-8 mb-6 lg:mb-8 animate-fadeIn">
-                        <div className="bg-gradient-to-br from-white/95 via-white/98 to-emerald-50/30 backdrop-blur-sm rounded-2xl p-4 sm:p-5 lg:p-6 shadow-inner border border-emerald-100/50">
-                          <h3 className="text-lg font-bold text-gray-800 mb-4 lg:mb-6 text-center bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        <div className="bg-linear-to-br from-white/95 via-white/98 to-emerald-50/30 backdrop-blur-xs rounded-2xl p-4 sm:p-5 lg:p-6 shadow-inner border border-emerald-100/50">
+                          <h3 className="text-lg font-bold text-gray-800 mb-4 lg:mb-6 text-center bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                             🔍 詳細検索オプション
                           </h3>
 
@@ -764,7 +764,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 id="period-year"
                                 value={tempPeriodYear}
                                 onChange={handleSelectChange(setTempPeriodYear)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-blue-300 group-hover:shadow-md"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-hidden focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-blue-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
                                 {reviewYearOptions.map((year) => (
@@ -784,7 +784,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 id="period-term"
                                 value={tempPeriodTerm}
                                 onChange={handleSelectChange(setTempPeriodTerm)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-emerald-300 group-hover:shadow-md"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-hidden focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-emerald-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
                                 <option value="1ターム">1ターム</option>
@@ -809,7 +809,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 id="textbook"
                                 value={tempTextbook}
                                 onChange={handleSelectChange(setTempTextbook)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-amber-300 group-hover:shadow-md"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-hidden focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-amber-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
                                 <option value="必要">必要</option>
@@ -828,7 +828,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 id="attendance"
                                 value={tempAttendance}
                                 onChange={handleSelectChange(setTempAttendance)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-rose-300 group-hover:shadow-md"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-hidden focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-rose-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
                                 <option value="毎回確認">毎回確認</option>
@@ -848,7 +848,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 id="grading-type"
                                 value={tempGradingType}
                                 onChange={handleSelectChange(setTempGradingType)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-violet-300 group-hover:shadow-md"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-hidden focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-violet-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
                                 <option value="テストのみ">テストのみ</option>
@@ -868,7 +868,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 id="content-difficulty"
                                 value={tempContentDifficulty}
                                 onChange={handleSelectChange(setTempContentDifficulty)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-orange-300 group-hover:shadow-md"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-hidden focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-orange-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
                                 <option value="とても楽">とても楽</option>
@@ -889,7 +889,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                                 id="content-quality"
                                 value={tempContentQuality}
                                 onChange={handleSelectChange(setTempContentQuality)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-yellow-300 group-hover:shadow-md"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-hidden focus:ring-4 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all duration-300 bg-white/90 hover:bg-white hover:border-yellow-300 group-hover:shadow-md"
                               >
                                 <option value="">選択してください</option>
                                 <option value="とても良い">とても良い</option>
@@ -904,7 +904,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
                           <div className="flex justify-center mt-8 space-x-4">
                             <button
                               onClick={clearDetailedSearch}
-                              className="px-6 py-2 text-sm font-medium text-gray-600 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-200"
+                              className="px-6 py-2 text-sm font-medium text-gray-600 bg-linear-to-r from-gray-50 to-gray-100 rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-200"
                               aria-label="詳細検索の設定をクリア"
                             >
                               🗑️ クリア
@@ -922,7 +922,7 @@ const LectureList = ({ initialData, initialQuery, generatedAt }: InitialSearchPr
             {/* 結果表示 */}
             <div className="mb-6">
               <div className="flex justify-center">
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg border border-green-100/50" role="status" aria-live="polite">
+                <div className="bg-white/80 backdrop-blur-xs rounded-2xl px-6 py-3 shadow-lg border border-green-100/50" role="status" aria-live="polite">
                   <p className="text-sm lg:text-base font-medium text-gray-700">
                     <span className="font-bold text-green-600 text-lg">{paginationInfo.total_count}</span>
                     <span className="ml-1">件の授業が見つかりました</span>

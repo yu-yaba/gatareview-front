@@ -93,7 +93,7 @@ export default function SessionDebugClient() {
 
         <div className="bg-white rounded-lg p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">Full Session Object</h2>
-          <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto max-h-96">{sessionDetails || 'No session data'}</pre>
+          <pre className="bg-gray-100 p-4 rounded-sm text-sm overflow-auto max-h-96">{sessionDetails || 'No session data'}</pre>
         </div>
 
         <div className="bg-white rounded-lg p-6">
@@ -101,13 +101,13 @@ export default function SessionDebugClient() {
           <div className="space-y-3">
             <button
               onClick={testBackendConnection}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-3"
+              className="bg-blue-500 text-white px-4 py-2 rounded-sm hover:bg-blue-600 mr-3"
               disabled={!session}
             >
               Test Backend Connection
             </button>
 
-            <button onClick={testGoogleAuth} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            <button onClick={testGoogleAuth} className="bg-green-500 text-white px-4 py-2 rounded-sm hover:bg-green-600">
               Test Google Auth API
             </button>
 

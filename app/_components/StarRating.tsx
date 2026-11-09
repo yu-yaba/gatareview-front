@@ -97,7 +97,7 @@ export default function StarRating({
 
   return (
     <div
-      className={`rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-500 ${className}`}
+      className={`rounded-sm focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-500 ${className}`}
       style={{ display: 'inline-flex', alignItems: 'center', verticalAlign: 'middle' }}
       role={edit ? 'slider' : 'img'}
       aria-label={edit ? ariaLabel : `${starCount}点満点中${currentValue}点`}

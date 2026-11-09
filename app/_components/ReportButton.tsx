@@ -19,10 +19,10 @@ export default function ReportButton({ reviewId, lectureId }: ReportButtonProps)
   return (
     <button
       onClick={handleReport}
-      className="group relative flex items-center gap-2 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 border-gray-200/50 hover:from-orange-50 hover:to-red-50 hover:text-orange-700 hover:border-orange-200/50 hover:shadow-orange-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+      className="group relative flex items-center gap-2 px-3 py-2 rounded-xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-gray-50 to-slate-50 text-gray-600 border-gray-200/50 hover:from-orange-50 hover:to-red-50 hover:text-orange-700 hover:border-orange-200/50 hover:shadow-orange-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
       title="不適切な内容を報告する"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+      <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
       
       <div className="relative flex items-center gap-2">
         <FaFlag className="w-3.5 h-3.5 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-200" />
@@ -35,7 +35,7 @@ export default function ReportButton({ reviewId, lectureId }: ReportButtonProps)
       </div>
 
       {/* Subtle glow effect */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-400/10 to-red-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 rounded-xl bg-linear-to-r from-orange-400/10 to-red-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </button>
   )
 }

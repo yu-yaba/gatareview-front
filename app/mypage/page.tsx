@@ -227,9 +227,9 @@ export default function MyPage() {
               <button
                 onClick={() => handleSignOut('/auth/signin')}
                 disabled={isLoggingOut}
-                className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                 <div className="flex items-center relative">
                   <FaSignOutAlt className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200" />
                   再度ログインする
@@ -249,7 +249,7 @@ export default function MyPage() {
         <div className="mb-8">
           <Link
             href="/"
-            className="group inline-flex items-center mb-6 px-4 py-2 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 transition-all duration-300 hover:scale-[1.02]"
+            className="group inline-flex items-center mb-6 px-4 py-2 rounded-2xl bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 transition-all duration-300 hover:scale-[1.02]"
           >
             <FaArrowLeft className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" />
             <span className="font-medium">ホームに戻る</span>
@@ -274,14 +274,14 @@ export default function MyPage() {
                         height={112}
                         className="w-28 h-28 rounded-full mx-auto border-4 border-green-400 shadow-lg transform hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 w-28 h-28 rounded-full mx-auto bg-gradient-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>
+                      <div className="absolute inset-0 w-28 h-28 rounded-full mx-auto bg-linear-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>
                     </div>
                   ) : (
                     <div className="relative">
-                      <div className="w-28 h-28 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full mx-auto flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                      <div className="w-28 h-28 bg-linear-to-br from-green-400 to-emerald-500 rounded-full mx-auto flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
                         <FaUser className="w-14 h-14 text-white" />
                       </div>
-                      <div className="absolute inset-0 w-28 h-28 rounded-full mx-auto bg-gradient-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>
+                      <div className="absolute inset-0 w-28 h-28 rounded-full mx-auto bg-linear-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>
                     </div>
                   )}
                 </div>
@@ -299,9 +299,9 @@ export default function MyPage() {
                 <button
                   onClick={() => handleSignOut()}
                   disabled={isLoggingOut}
-                  className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative flex items-center justify-center w-full px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-red-50 to-rose-50 text-red-700 border-red-200/50 hover:from-red-100 hover:to-rose-100 hover:shadow-red-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                  <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                   {isLoggingOut ? (
                     <div className="flex items-center relative">
                       <FaSpinner className="w-5 h-5 mr-2 animate-spin" />
@@ -328,12 +328,12 @@ export default function MyPage() {
                 ユーザー情報
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                <div className="group bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 text-center border border-green-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                <div className="group bg-linear-to-br from-green-50 to-emerald-100 rounded-2xl p-6 text-center border border-green-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
                   <FaEdit className="w-8 h-8 mx-auto mb-3 text-green-600 group-hover:scale-110 transition-transform duration-200" />
                   <div className="text-3xl font-bold text-green-700 mb-2">{mypageData?.statistics?.reviews_count || 0}</div>
                   <div className="text-sm text-gray-600 font-medium">投稿したレビュー</div>
                 </div>
-                <div className="group bg-gradient-to-br from-rose-50 to-pink-100 rounded-2xl p-6 text-center border border-rose-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                <div className="group bg-linear-to-br from-rose-50 to-pink-100 rounded-2xl p-6 text-center border border-rose-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
                   <FaThumbsUp className="w-8 h-8 mx-auto mb-3 text-rose-600 group-hover:scale-110 transition-transform duration-200" />
                   <div className="text-3xl font-bold text-rose-700 mb-2">{mypageData?.statistics?.total_thanks_received || 0}</div>
                   <div className="text-sm text-gray-600 font-medium">もらったありがとう</div>
@@ -342,7 +342,7 @@ export default function MyPage() {
 
               {/* ランキング情報 */}
               {mypageData?.ranking_position && (
-                <div className="bg-gradient-to-br from-amber-50 to-yellow-100 rounded-2xl p-6 mb-8 border border-amber-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group">
+                <div className="bg-linear-to-br from-amber-50 to-yellow-100 rounded-2xl p-6 mb-8 border border-amber-200/50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group">
                   <div className="text-center">
                     <FaTrophy className="w-10 h-10 mx-auto mb-3 text-amber-600 group-hover:scale-110 transition-transform duration-200" />
                     <div className="text-lg font-bold text-amber-700 mb-1">
@@ -359,7 +359,7 @@ export default function MyPage() {
               )}
 
               {/* 励ましメッセージ */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 mb-8 border border-green-200/50">
+              <div className="bg-linear-to-br from-green-50 to-emerald-100 rounded-2xl p-6 mb-8 border border-green-200/50">
                 <div className="text-center">
                   <FaHeart className="w-8 h-8 mx-auto mb-3 text-green-600 animate-pulse" />
                   <div className="text-green-700 font-medium text-lg">
@@ -373,9 +373,9 @@ export default function MyPage() {
 
               <Link
                 href="/reviews/new"
-                className="group relative flex items-center justify-center w-full px-6 py-4 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                className="group relative flex items-center justify-center w-full px-6 py-4 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                 <FaPlus className="w-5 h-5 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
                 <span className="relative">新しいレビューを投稿</span>
               </Link>
@@ -413,7 +413,7 @@ export default function MyPage() {
                         </button>
 
                         <div className="space-y-4 h-full flex flex-col">
-                          <div className="space-y-2 flex-grow pr-16">
+                          <div className="space-y-2 grow pr-16">
                             <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
                               {review.lecture.title}
                             </h3>
@@ -461,15 +461,15 @@ export default function MyPage() {
                   {(mypageData?.user_reviews?.length ?? 0) > 4 && (
                     <div className="text-center pt-6">
                       <div className="mb-4">
-                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
+                        <div className="inline-flex items-center px-4 py-2 bg-linear-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
                           他 {(mypageData?.user_reviews?.length ?? 0) - 4} 件の投稿レビュー
                         </div>
                       </div>
                       <Link
                         href="/mypage/reviews"
-                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                        <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                         <FaList className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
                         <span className="relative">すべてのレビューを見る</span>
                       </Link>
@@ -482,9 +482,9 @@ export default function MyPage() {
                   <p className="text-gray-500 mb-6 text-lg">まだレビューを投稿していません</p>
                   <Link
                     href="/reviews/new"
-                    className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                    <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                     <FaPlus className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
                     <span className="relative">最初のレビューを投稿</span>
                   </Link>
@@ -508,7 +508,7 @@ export default function MyPage() {
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <div className="space-y-4 h-full flex flex-col">
-                        <div className="space-y-2 flex-grow">
+                        <div className="space-y-2 grow">
                           <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-tight">
                             {lecture.title}
                           </h3>
@@ -548,15 +548,15 @@ export default function MyPage() {
                   {(mypageData?.bookmarked_lectures?.length ?? 0) > 4 && (
                     <div className="text-center pt-6">
                       <div className="mb-4">
-                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
+                        <div className="inline-flex items-center px-4 py-2 bg-linear-to-r from-gray-100 to-slate-100 rounded-xl text-sm text-gray-600 font-medium">
                           他 {(mypageData?.bookmarked_lectures?.length ?? 0) - 4} 件のブックマーク
                         </div>
                       </div>
                       <Link
                         href="/mypage/bookmarks"
-                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                        className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                        <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                         <FaBookmark className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
                         <span className="relative">すべてのブックマークを見る</span>
                       </Link>
@@ -569,9 +569,9 @@ export default function MyPage() {
                   <p className="text-gray-500 mb-6 text-lg">まだブックマークした授業がありません</p>
                   <Link
                     href="/lectures"
-                    className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-sm border backdrop-blur-sm overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                    className="group relative inline-flex items-center px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-xs border backdrop-blur-xs overflow-hidden bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border-green-200/50 hover:from-green-100 hover:to-emerald-100 hover:shadow-green-200/25 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+                    <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/40 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
                     <FaSearch className="w-4 h-4 mr-2 transform group-hover:scale-110 transition-transform duration-200 relative" />
                     <span className="relative">授業を探す</span>
                   </Link>

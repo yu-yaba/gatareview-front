@@ -219,7 +219,7 @@ const ReviewPage = () => {
     if (formErrors[fieldName]) {
       return (
         <p className="mt-2 text-sm text-red-600 font-medium flex items-center">
-          <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-4 h-4 mr-1 shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {formErrors[fieldName]}
@@ -231,7 +231,7 @@ const ReviewPage = () => {
 
   // フィールドのボーダー色を決定する関数（メモ化）
   const getFieldBorderClass = useCallback((fieldName: string) => {
-    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-md border border-green-100/50 focus:ring-2 focus:outline-none cursor-pointer text-gray-800 font-medium transition-colors duration-200 scroll-margin-0";
+    const baseClasses = "block appearance-none w-full bg-white/95 backdrop-blur-xs p-4 rounded-2xl shadow-md border border-green-100/50 focus:ring-2 focus:outline-hidden cursor-pointer text-gray-800 font-medium transition-colors duration-200 scroll-margin-0";
     if (formErrors[fieldName]) {
       return `${baseClasses} border-red-300 focus:border-red-500 focus:ring-red-200`;
     }
@@ -302,7 +302,7 @@ const ReviewPage = () => {
                 <button
                   type="button"
                   onClick={() => handleOptionSelect(name, '')}
-                  className={`w-full px-4 py-3 text-left focus:outline-none text-gray-500 border-b border-gray-100 transition-colors ${
+                  className={`w-full px-4 py-3 text-left focus:outline-hidden text-gray-500 border-b border-gray-100 transition-colors ${
                     focusedIndex === 0 ? 'bg-green-100' : 'hover:bg-green-50'
                   }`}
                 >
@@ -313,7 +313,7 @@ const ReviewPage = () => {
                     key={option}
                     type="button"
                     onClick={() => handleOptionSelect(name, option)}
-                    className={`w-full px-4 py-3 text-left focus:outline-none transition-colors ${
+                    className={`w-full px-4 py-3 text-left focus:outline-hidden transition-colors ${
                       currentValue === option ? 'bg-green-100 text-green-800 font-medium' : 'text-gray-700'
                     } ${focusedIndex === index + 1 ? 'bg-green-50' : 'hover:bg-green-50'} ${
                       option === options[options.length - 1] ? '' : 'border-b border-gray-100'
@@ -424,7 +424,7 @@ const ReviewPage = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* ページタイトルとヘッダー */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent mb-2">レビュー投稿</h1>
+          <h1 className="text-2xl md:text-3xl font-bold bg-linear-to-r from-green-500 to-green-600 bg-clip-text text-transparent mb-2">レビュー投稿</h1>
           <p className="text-gray-600">授業の評価とコメントを投稿してください</p>
         </div>
 
@@ -460,18 +460,18 @@ const ReviewPage = () => {
                     必須
                   </span>
                 </p>
-                <div className="flex flex-col items-center justify-center p-8 rounded-3xl shadow-lg border border-yellow-200/50 backdrop-blur-sm">
+                <div className="flex flex-col items-center justify-center p-8 rounded-3xl shadow-lg border border-yellow-200/50 backdrop-blur-xs">
                   <div className="flex items-center space-x-2 mb-4">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => starOnChange(star)}
-                        className={`p-2 transition-all duration-300 transform hover:scale-125 focus:outline-none focus:scale-125 ${star <= ratingValue ? 'text-yellow-300' : 'text-gray-300'
+                        className={`p-2 transition-all duration-300 transform hover:scale-125 focus:outline-hidden focus:scale-125 ${star <= ratingValue ? 'text-yellow-300' : 'text-gray-300'
                           }`}
                         aria-label={`${star}つ星を選択`}
                       >
-                        <FaStar className="w-8 h-8 drop-shadow-sm" />
+                        <FaStar className="w-8 h-8 drop-shadow-xs" />
                       </button>
                     ))}
                   </div>
@@ -527,7 +527,7 @@ const ReviewPage = () => {
                 onClick={handleBack}
                 className='flex-1 px-8 py-4 bg-white/95 backdrop-blur-md border border-gray-300 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center relative overflow-hidden group'
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-gray-50 to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <FaArrowLeft className="mr-2 relative z-10" />
                 <span className="relative z-10">授業詳細に戻る</span>
               </button>
@@ -535,10 +535,10 @@ const ReviewPage = () => {
               <button
                 type="submit"
                 disabled={isLoading || isSessionLoading}
-                className="flex-1 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="flex-1 px-8 py-4 bg-linear-to-r from-green-500 to-green-600 text-white font-bold rounded-2xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25 flex items-center justify-center relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
 
                 {isLoading ? (
                   <>
