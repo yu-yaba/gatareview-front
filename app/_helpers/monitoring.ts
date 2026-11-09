@@ -45,9 +45,10 @@ export function safeErrorEvent(event: ErrorEvent): ErrorEvent {
 // Next.js keeps an error's own digest on every copy it reports (server render,
 // HTML render, the browser's error boundary), so serverLectureApi.ts marks
 // rate-limited failures with this digest. The error page shows it as the error ID.
-// One report per process per interval still gets through, so that limits hit
-// by everyone (for example a missing or mismatched forwarding secret) remain
-// visible.
+// On the server, one report per process per interval still gets through, so
+// that limits hit by everyone (for example a missing or mismatched forwarding
+// secret) remain visible. Browsers never report them: each page load would
+// start a new interval.
 export const BACKEND_RATE_LIMITED_DIGEST = 'API_RATE_LIMITED'
 const RATE_LIMITED_REPORT_INTERVAL_MS = 10 * 60_000
 let lastRateLimitedReportAt = Number.NEGATIVE_INFINITY
@@ -57,9 +58,11 @@ export function isRateLimitedError(error: unknown): boolean {
   return typeof digest === 'string' && digest.startsWith(BACKEND_RATE_LIMITED_DIGEST)
 }
 
-export function shouldReportRequestError(error: unknown, now = Date.now()): boolean {
+export function shouldReportRequestError(
+  error: unknown, now = Date.now(), inBrowser = typeof window !== 'undefined',
+): boolean {
   if (!isRateLimitedError(error)) return true
-  if (now - lastRateLimitedReportAt < RATE_LIMITED_REPORT_INTERVAL_MS) return false
+  if (inBrowser || now - lastRateLimitedReportAt < RATE_LIMITED_REPORT_INTERVAL_MS) return false
   lastRateLimitedReportAt = now
   return true
 }

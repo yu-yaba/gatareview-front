@@ -171,3 +171,20 @@ test('Google sign-in sends no forwarding headers without a secret or outside Ver
     assert.deepEqual(Object.keys(headers).filter(key => key.toLowerCase().startsWith('x-gatareview')), [])
   }
 })
+
+test('a Cloudflare request without a usable proxy secret is logged periodically, without the IP', async t => {
+  withEnv(t, { ...forwardingEnv, CLOUDFLARE_PROXY_SECRET: '' })
+  incomingHeaders = new Headers({ 'x-real-ip': '172.68.10.20', 'cf-ray': 'test-NRT', 'cf-connecting-ip': '203.0.113.7' })
+  t.after(() => { incomingHeaders = new Headers() })
+  const warnings = []
+  t.mock.method(console, 'warn', (...args) => warnings.push(args.join(' ')))
+
+  const sign = await backendRequest.clientIpSigner()
+  await backendRequest.clientIpSigner()
+
+  assert.equal(warnings.length, 1)
+  assert.match(warnings[0], /CLOUDFLARE_PROXY_SECRET is not set/)
+  assert.equal(/203\.0\.113\.7|172\.68\.10\.20/.test(warnings[0]), false)
+  // Without the proxy secret the Cloudflare edge address is still what gets signed.
+  assert.equal(sign('http://127.0.0.1:1/api/v1/lectures', 'GET')['X-Gatareview-Client-Ip'], '172.68.10.20')
+})

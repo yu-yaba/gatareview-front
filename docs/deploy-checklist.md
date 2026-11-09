@@ -85,7 +85,9 @@
   5. Vercel（Production）に `RATE_LIMIT_FORWARDING_SECRET`（鍵A）と `CLOUDFLARE_PROXY_SECRET`（鍵B）を**両方設定してから**再デプロイする。鍵Aだけで再デプロイすると、CloudflareのIPが署名されて枠を共有する（失敗はしない）。Vercelの環境変数は次のデプロイから効くため、両方そろうまで他のデプロイもしない。
   - CloudflareのDNSを「DNS only」（プロキシなし）にする場合は4は不要（`x-real-ip` が利用者のIPになる）。ただしCloudflareのWeb Analyticsの自動挿入などは使えなくなる。
   - どの順でも要求は失敗しない。backendは署名のない要求を従来どおり扱い、frontendはbackendが署名を無視しても動く。鍵がそろうまで回数制限が共有されるだけ。
-- 鍵が設定されているのに32バイト未満の場合や、Cloudflare経由の要求に鍵Bのヘッダーがない場合は、Vercelの実行ログに警告を1回出す。
+- 鍵が設定されているのに32バイト未満の場合や、Cloudflare経由の要求（`CF-Ray` あり）で鍵Bのヘッダーが一致しない・`CLOUDFLARE_PROXY_SECRET` が未設定の場合は、Vercelの実行ログに警告を出す（プロセスごとに10分に1回まで。`CF-Ray` は誰でも偽装できるので、1回きりにすると本当の設定漏れを隠されるため）。IPや鍵の値は出さない。
+- 鍵の交換: 鍵Aは、Herokuは設定変更ですぐ、Vercelは再デプロイで切り替わる。鍵Bは、Cloudflareのルールはすぐ、Vercelは再デプロイで切り替わる。その間は署名やヘッダーが一致せず、回数制限が一時的に共有されるだけで要求は失敗しない。両方を続けて更新し、すぐにVercelを再デプロイする。
+- 授業IDが1〜10桁の正の整数でないURL（例: `/lectures/0123`、`/lectures/123.json`）は404になる。以前はAPIが数値に変換して授業を表示していた。
 - 他人のCloudflare Workerから `www.gatareview.com` を呼ぶ要求は、Cloudflareの仕様で `CF-Connecting-IP` が固定の `2a06:98c0:3600::103` になり、1つの枠を共有する。影響はWorker経由の要求（一部のリンクプレビューやbot）だけで、自分の枠から逃れることはできない。
 - 確認: 反映後、Herokuのログに `[rack-attack] throttled ... key_source=router` が授業詳細やログインの時間帯に頻発していないかを見る（署名の鍵の設定漏れ・不一致の目安）。`key_source=signed` が多くの利用者で同時に出る場合は、Cloudflareの鍵Bの設定漏れでCloudflareのIPが署名されている可能性がある。
 - Vercelの「System Environment Variablesの公開」を無効にすると `VERCEL` が見えず、署名は付かない。
