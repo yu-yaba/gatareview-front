@@ -12,8 +12,9 @@ export type ReviewSchema = {
   period_term: string;
   created_at: Date;
   updated_at: Date;
-  user_id?: number | null;
   thanks_count?: number;
+  // 閲覧中のユーザー本人のレビューかどうか。投稿者の ID・名前・アイコンは受け取らない。
+  is_own?: boolean;
 }
 
 export interface ReviewAccessState {
