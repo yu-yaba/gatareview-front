@@ -177,6 +177,59 @@ test('オフライン画面から画面内のリンクで移動して「戻る�
   } finally { if (!restored) await restore() }
 })
 
+test('リンクで移動を始めた直後に画面へ戻っても、自動の読み込み直しで移動を打ち消さない', async ({ page, context }) => {
+  await withoutOnlineEvents(context)
+  await page.goto('/')
+  await waitForAutomaticRegistration(page)
+  const restore = await goOffline(page, context)
+  let restored = false
+  try {
+    await page.goto('/privacy')
+    await expectHydratedOfflinePage(page)
+    await restore()
+    restored = true
+    // The App Router fetches the next page while the user switches back to this tab.
+    await page.evaluate(() => {
+      document.querySelector<HTMLAnchorElement>('footer a[href="/faq"]')!.click()
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    await expect(page).toHaveURL(/\/faq$/, { timeout: 15_000 })
+    await expect(page.locator('main h1')).toBeVisible()
+    await expect(offlineHeading(page)).toHaveCount(0)
+  } finally { if (!restored) await restore() }
+})
+
+test('取り消された移動の後も、待ち時間が過ぎれば画面へ戻ったときに読み込み直す', async ({ page, context }) => {
+  await withoutOnlineEvents(context)
+  await page.goto('/')
+  await waitForAutomaticRegistration(page)
+  const restore = await goOffline(page, context)
+  let restored = false
+  try {
+    await page.goto('/privacy')
+    await expectHydratedOfflinePage(page)
+    await restore()
+    restored = true
+    // A navigation the user started but that never happened (e.g. stopped while the portal hung).
+    await page.evaluate(() => {
+      const link = document.createElement('a')
+      link.href = '/terms'
+      link.textContent = 'cancelled navigation'
+      link.addEventListener('click', event => event.preventDefault())
+      document.body.appendChild(link)
+      link.click()
+    })
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+    await page.waitForTimeout(1_000)
+    await expect(offlineHeading(page)).toBeVisible()
+    await page.waitForTimeout(10_000)
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+    await expect(offlineHeading(page)).toHaveCount(0, { timeout: 15_000 })
+    await expect(page).toHaveURL(/\/privacy$/)
+    await expect(page.locator('main h1')).toHaveText('プライバシーポリシー')
+  } finally { if (!restored) await restore() }
+})
+
 test('ログイン中に閲覧しても、SWのキャッシュには公開HTML(/と/offline)以外と個人情報を保存しない', async ({ page, context }) => {
   const secret = process.env.NEXTAUTH_SECRET
   test.skip(!secret, 'NEXTAUTH_SECRET is required to create a dummy session')
