@@ -10,8 +10,9 @@ export const PartialComment = ({ content }: { content: string }) => {
   // ダミーテキスト（十分な長さを確保）
   const dummyText = 'この授業は非常に興味深く、講義内容も充実していました。課題の量も適切で、理解を深めることができました。テストは授業内容をしっかり復習すれば対応可能です。'
 
-  // 絵文字を途中で割らないよう、バックエンドと同じくコードポイント単位で数える
-  const characters = Array.from(formatReviewText(content))
+  // バックエンドは先頭30コードポイントで切って返すため、判定は整形前の本文をコードポイント単位で数える。
+  // （整形で文字数が減っても、見えるはずの先頭部分を全部ぼかさないため。絵文字も途中で割らない）
+  const characters = Array.from(content)
 
   // 30文字未満のコメントは全文ぼかし表示（ダミーテキスト付き）
   if (characters.length < 30) {
@@ -19,7 +20,7 @@ export const PartialComment = ({ content }: { content: string }) => {
       <div className="min-h-16 md:min-h-16 h-40 md:h-auto overflow-hidden md:overflow-visible flex items-start">
         <p className="text-gray-800 leading-relaxed w-full" style={{wordBreak: 'break-all', whiteSpace: 'pre-wrap'}}>
           <span className="filter blur-xs select-none opacity-60">
-            {characters.join('') + dummyText}
+            {formatReviewText(content) + dummyText}
           </span>
         </p>
       </div>
@@ -27,7 +28,7 @@ export const PartialComment = ({ content }: { content: string }) => {
   }
 
   // 30文字以上のコメントは最初の30文字のみ表示（それ以降はダミーテキストでぼかし）
-  const visibleText = characters.slice(0, 30).join('')
+  const visibleText = formatReviewText(characters.slice(0, 30).join(''))
   const hiddenText = dummyText
 
   return (

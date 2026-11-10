@@ -76,8 +76,8 @@ test.describe('入力ヘルパー', () => {
     expect(countCharacters('😀'.repeat(20))).toBe(20)
     expect(reviewContentError(' \n　'.repeat(10))).toBe('コメントを入力してください')
     expect(reviewContentError('\u0085'.repeat(30))).toBe('コメントを入力してください')
-    expect(reviewContentError('😀'.repeat(29))).toBe('コメントは空白・改行を除いて30文字以上で入力してください')
-    expect(reviewContentError(` ${'あ'.repeat(29)} `)).toBe('コメントは空白・改行を除いて30文字以上で入力してください')
+    expect(reviewContentError('😀'.repeat(29))).toBe('コメントは前後の空白・改行を除いて30文字以上で入力してください')
+    expect(reviewContentError(` ${'あ'.repeat(29)} `)).toBe('コメントは前後の空白・改行を除いて30文字以上で入力してください')
     expect(reviewContentError('😀'.repeat(30))).toBe('')
     expect(reviewContentError('😀'.repeat(1000))).toBe('')
     expect(reviewContentError('😀'.repeat(1001))).toBe('コメントは1000文字以内で入力してください')
@@ -92,7 +92,11 @@ test.describe('入力ヘルパー', () => {
   })
 
   test('表示用の本文は前後の空白と連続する空行をまとめる', () => {
-    expect(formatReviewText(`\n\n\n  本文\r\n\r\n\r\n\n 続き \n\n`)).toBe('本文\n\n 続き')
+    expect(formatReviewText(`\n\n\n  本文\r\n\r\n\r\n\n 続き \n\n`)).toBe('  本文\n\n 続き')
+    // 1行目の全角スペースの字下げは2行目以降と同じく残す
+    expect(formatReviewText('\u3000一段落目\n\u3000二段落目')).toBe('\u3000一段落目\n\u3000二段落目')
+    // 幅ゼロの文字だけの行も空行としてまとめる
+    expect(formatReviewText(`上${'\n\u200B'.repeat(495)}\n下`)).toBe('上\n\n下')
     expect(formatReviewText('1行目\n2行目\n\n3行目')).toBe('1行目\n2行目\n\n3行目')
     expect(formatReviewText(`上${'\n'.repeat(990)}下`)).toBe('上\n\n下')
     expect(formatReviewText(null)).toBe('')
@@ -236,6 +240,30 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
       await expect(comment).toBeAttached()
       expect(await pageWidth(page)).toBeLessThanOrEqual(viewport.width)
       expect(await comment.evaluate(element => getComputedStyle(element).whiteSpace)).toBe('pre-line')
+    })
+
+    test('授業詳細: 閲覧制限中も、バックエンドが返した先頭30文字はぼかさずに表示する', async ({ page }) => {
+      // バックエンドは先頭以外のレビューを先頭30コードポイントで切って返す
+      const previews = [
+        `${'あ'.repeat(29)}\n`,
+        `${'い'.repeat(29)} `,
+        `\u3000${'う'.repeat(29)}`,
+        `\n${'え'.repeat(29)}`,
+        `${'お'.repeat(14)}\r\n${'か'.repeat(14)}`,
+      ]
+      await mockSession(page, { authenticated: false })
+      await mockLectureDetail(page, fixtures.lectureResponse)
+      await mockLectureReviews(page, buildLectureReviewsResponse({
+        restrictionEnabled: true, accessGranted: false,
+        reviews: [fixtures.firstReview, ...previews.map((content, index) => ({ ...fixtures.secondReview, id: 300 + index, content }))],
+      }))
+      await page.goto(`/lectures/${fixtures.lectureId}`)
+      await dismissInstallPromptIfVisible(page)
+      await expect(page.getByText('ログイン&1レビューして閲覧する').first()).toBeVisible()
+      const visibleTexts = await page.evaluate(() => Array.from(document.querySelectorAll('p'))
+        .filter(p => p.textContent?.includes('この授業は非常に興味深く'))
+        .map(p => Array.from(p.querySelectorAll('span')).filter(span => !span.className.includes('blur')).map(span => span.textContent).join('')))
+      expect(visibleTexts).toEqual(['あ'.repeat(29), 'い'.repeat(29), `\u3000${'う'.repeat(29)}`, 'え'.repeat(29), `${'お'.repeat(14)}\n${'か'.repeat(14)}`])
     })
 
     test('ホームの最新レビュー: 先頭の空行で本文が隠れない', async ({ page }) => {
@@ -420,7 +448,9 @@ test.describe('レビュー投稿フォーム', () => {
 
     await textarea.fill('😀'.repeat(20))
     await submit.click()
-    await expect(page.getByText('コメントは空白・改行を除いて30文字以上で入力してください', { exact: true })).toBeVisible()
+    await expect(page.getByText('コメントは前後の空白・改行を除いて30文字以上で入力してください', { exact: true })).toBeVisible()
+    // エラー文は入力欄の説明として読み上げられる
+    await expect(textarea).toHaveAccessibleDescription(/コメントは前後の空白・改行を除いて30文字以上で入力してください/)
 
     await textarea.fill('😀'.repeat(1000))
     await expect(textarea).toHaveValue('😀'.repeat(1000))
@@ -507,7 +537,7 @@ test.describe('レビュー投稿フォーム', () => {
 test.describe('レビュー編集モーダル', () => {
   for (const scenario of [
     { name: '空白だけの本文は送信しない', content: ' '.repeat(40), error: 'コメントを入力してください' },
-    { name: '20文字の絵文字は送信しない', content: '😀'.repeat(20), error: 'コメントは空白・改行を除いて30文字以上で入力してください' },
+    { name: '20文字の絵文字は送信しない', content: '😀'.repeat(20), error: 'コメントは前後の空白・改行を除いて30文字以上で入力してください' },
     { name: '600文字の絵文字は1000文字以内として送信できる', content: '😀'.repeat(600), error: null },
   ]) {
     test(scenario.name, async ({ page }) => {
