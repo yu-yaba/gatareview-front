@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useMemo, useEffect, useState } from 'react'
 import type { CustomUser } from '../_types/next-auth'
+import { handleBackendUnauthorized } from '../_helpers/sessionExpiry'
 
 export interface AuthState {
   user: CustomUser | null
@@ -35,6 +36,8 @@ export const useAuth = (): AuthState => {
           const data = await response.json()
           setUserWithMetadata(data.user)
         } else {
+          // 期限切れ・別端末でのログアウト済みのトークン。ログイン済みの表示を続けない。
+          if (response.status === 401) void handleBackendUnauthorized(session.backendToken)
           console.error('Failed to fetch user info:', response.status)
           setUserWithMetadata(session?.user ? {
             id: session.user.id,

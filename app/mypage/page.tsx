@@ -128,11 +128,8 @@ export default function MyPage() {
       console.error('マイページデータの取得に失敗:', error?.response?.status, error?.message)
 
       if (error.response?.status === 401) {
+        // サインアウトとログイン画面への移動は api.ts の401処理が一度だけ行う。
         setError('セッションの有効期限が切れました。再度ログインしてください。')
-        // 認証エラー時に自動的にログアウトし、サインインページにリダイレクト
-        await signOutWithRevocation({ callbackUrl: '/auth/signin' }).catch(() => {
-          setError('ログアウトに失敗しました。通信状態を確認して再度お試しください。')
-        })
       } else if (error.response?.status === 403) {
         setError('アクセスが拒否されました。権限を確認してください。')
       } else {
