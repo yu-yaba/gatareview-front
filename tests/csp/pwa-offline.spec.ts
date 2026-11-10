@@ -127,6 +127,56 @@ test('オフライン画面は接続が戻ると、本来開こうとした画�
   } finally { if (!restored) await restore() }
 })
 
+// Like a server outage or a captive portal: the device never reports a connectivity change.
+async function withoutOnlineEvents(context: BrowserContext) {
+  await context.addInitScript(() => window.addEventListener('online', event => event.stopImmediatePropagation(), true))
+}
+
+test('onlineイベントが来ない場合も、画面に戻ってきたときに本来の画面を読み込み直す', async ({ page, context }) => {
+  await withoutOnlineEvents(context)
+  await page.goto('/')
+  await waitForAutomaticRegistration(page)
+  const restore = await goOffline(page, context)
+  let restored = false
+  try {
+    await page.goto('/privacy')
+    await expectHydratedOfflinePage(page)
+    await restore()
+    restored = true
+    await page.waitForTimeout(1_000)
+    await expect(offlineHeading(page)).toBeVisible()
+    // Returning from another app or tab fires visibilitychange.
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+    await expect(offlineHeading(page)).toHaveCount(0, { timeout: 15_000 })
+    await expect(page).toHaveURL(/\/privacy$/)
+    await expect(page.locator('main h1')).toHaveText('プライバシーポリシー')
+  } finally { if (!restored) await restore() }
+})
+
+test('オフライン画面から画面内のリンクで移動して「戻る」と、オフライン画面ではなく本来の画面を表示する', async ({ page, context }) => {
+  await withoutOnlineEvents(context)
+  await page.goto('/')
+  await waitForAutomaticRegistration(page)
+  const restore = await goOffline(page, context)
+  let restored = false
+  try {
+    await page.goto('/privacy')
+    await expectHydratedOfflinePage(page)
+    await restore()
+    restored = true
+    await page.evaluate(() => { (window as any).fallbackDocument = true })
+    await page.locator('footer').getByRole('link', { name: 'FAQ', exact: true }).click()
+    await expect(page).toHaveURL(/\/faq$/)
+    await expect(offlineHeading(page)).toHaveCount(0)
+    // Same document: this was a client-side navigation, so "back" is restored by the App Router.
+    expect(await page.evaluate(() => (window as any).fallbackDocument)).toBe(true)
+    await page.goBack()
+    await expect(page).toHaveURL(/\/privacy$/)
+    await expect(page.locator('main h1')).toHaveText('プライバシーポリシー', { timeout: 15_000 })
+    await expect(offlineHeading(page)).toHaveCount(0)
+  } finally { if (!restored) await restore() }
+})
+
 test('ログイン中に閲覧しても、SWのキャッシュには公開HTML(/と/offline)以外と個人情報を保存しない', async ({ page, context }) => {
   const secret = process.env.NEXTAUTH_SECRET
   test.skip(!secret, 'NEXTAUTH_SECRET is required to create a dummy session')

@@ -99,8 +99,9 @@ const withPWA = require('next-pwa')({
     },
     {
       // public直下で管理する公開画像だけを保存する。動的ページは拡張子でも除外する。
-      // next/image の最適化URLも、元画像が同じ許可リストに完全一致するときだけ保存する
-      // （ヘッダーのロゴをオフライン画面でも表示するため）。Googleのアイコン等の外部画像は対象外。
+      // next/image の最適化URLも、元画像が同じ許可リストに完全一致するときだけ保存する。
+      // SWの制御下で一度表示したロゴ（ヘッダー・フッター）を、以後のオフライン画面でも表示するため。
+      // 初回訪問の直後（制御前に読み込んだ画像）は保存されない。Googleのアイコン等の外部画像は対象外。
       urlPattern: ({ url, request }) => request.destination === 'image' && url.origin === self.location.origin && [
         '/apple-touch-icon.png', '/gatareview_ogp.png', '/green-footer-title.png', '/green-title.svg',
         '/icon-120x120.png', '/icon-128x128.png', '/icon-144x144.png', '/icon-152x152.png',

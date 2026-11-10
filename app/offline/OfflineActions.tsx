@@ -2,14 +2,27 @@
 
 import { useEffect, useState } from 'react';
 
+// この文書で一度水和したかどうか。Service Worker が代わりに返したこの画面から別の画面へ
+// クライアント側で移動し、「戻る」で帰ってきた場合は、Next.js が履歴からこの画面を復元する。
+// そのときはオンラインでも本来のページを取得しないため、読み込み直して取得し直す。
+let mountedInThisDocument = false;
+
 export default function OfflineActions() {
   // 水和が終わり、再接続の監視を始めたことを示す（ボタンもこの時点から動作する）。
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    if (mountedInThisDocument && window.location.pathname !== '/offline') {
+      window.location.reload();
+      return;
+    }
+    mountedInThisDocument = true;
+
     // アドレスバーには本来開こうとしたURLが残っているため、再接続時はそのまま読み込み直す。
-    // 実際に接続が戻ったとき（navigator.onLine が true）だけにし、別の画面への移動中に
+    // 端末が接続ありと判断しているとき（navigator.onLine が true）だけにし、別の画面への移動中に
     // 届く一時的なonlineイベントで移動を打ち消さないようにする。
+    // サーバー障害や公衆Wi-Fiのログイン待ちでは online イベントが来ないため、
+    // 画面に戻ってきたとき（他のアプリから戻る、ページキャッシュからの復元）にも試す。
     // 利用者がすでに別の画面へ移動し始めている場合は、その移動を優先する。
     let leaving = false;
     const markLeaving = () => {
@@ -18,12 +31,27 @@ export default function OfflineActions() {
     const reload = () => {
       if (navigator.onLine && !leaving) window.location.reload();
     };
+    const reloadWhenVisible = () => {
+      if (document.visibilityState === 'visible') reload();
+    };
+    const reloadWhenRestored = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        leaving = false;
+        reload();
+      }
+    };
     window.addEventListener('beforeunload', markLeaving);
+    window.addEventListener('pagehide', markLeaving);
+    window.addEventListener('pageshow', reloadWhenRestored);
     window.addEventListener('online', reload);
+    document.addEventListener('visibilitychange', reloadWhenVisible);
     setReady(true);
     return () => {
       window.removeEventListener('beforeunload', markLeaving);
+      window.removeEventListener('pagehide', markLeaving);
+      window.removeEventListener('pageshow', reloadWhenRestored);
       window.removeEventListener('online', reload);
+      document.removeEventListener('visibilitychange', reloadWhenVisible);
     };
   }, []);
 

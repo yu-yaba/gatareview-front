@@ -32,7 +32,7 @@ export default function OfflinePage() {
 
         <p className="text-gray-600 mb-8 leading-relaxed">
           インターネットに接続できないため、このページを表示できません。<br />
-          接続が戻ると自動で読み込み直します。
+          接続が戻ったことを端末が検知したときや、この画面に戻ってきたときに自動で読み込み直します。表示が変わらない場合は「再読み込み」を押してください。
         </p>
 
         <OfflineActions />
