@@ -73,8 +73,12 @@ export default function OfflineActions() {
     document.addEventListener('visibilitychange', reloadWhenVisible);
     setReady(true);
     return () => {
-      // 別の画面への移動が完了して外れた場合は、待ち時間を解除する（「戻る」で帰ったときに読み込み直す）。
-      if (window.location.pathname + window.location.search !== shownAt) navigatingUntil = 0;
+      // 別の画面への移動が完了して外れた場合は、移動と（中止された）読み込み直しの待ち時間を
+      // 解除する。「戻る」で帰ったときに、すぐ読み込み直して本来の画面を取得する。
+      if (window.location.pathname + window.location.search !== shownAt) {
+        navigatingUntil = 0;
+        reloadingUntil = 0;
+      }
       document.removeEventListener('click', markLinkNavigation, true);
       window.removeEventListener('beforeunload', markNavigating);
       window.removeEventListener('pagehide', suspendWhileHidden);
