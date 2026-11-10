@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { FaBookmark, FaRegBookmark, FaSpinner } from 'react-icons/fa'
 import LoginPromptModal from './LoginPromptModal'
+import { handleBackendUnauthorized } from '../_helpers/sessionExpiry'
 
 interface BookmarkButtonProps {
   lectureId: number
@@ -32,6 +33,8 @@ export default function BookmarkButton({
       if (res.ok) {
         const data = await res.json()
         setBookmarked(data.bookmarked)
+      } else if (res.status === 401) {
+        void handleBackendUnauthorized(session?.backendToken)
       }
     } catch (error) {
       console.error('ブックマーク状態の取得に失敗:', error)
@@ -76,6 +79,8 @@ export default function BookmarkButton({
         const newBookmarked = !bookmarked
         setBookmarked(newBookmarked)
         onBookmarkChange?.(newBookmarked)
+      } else if (res.status === 401) {
+        void handleBackendUnauthorized(session.backendToken)
       } else {
         const errorData = await res.json()
         alert(errorData.errors?.[0] || 'エラーが発生しました')

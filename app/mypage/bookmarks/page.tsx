@@ -45,7 +45,7 @@ function MyBookmarksPage() {
   useEffect(() => {
     // 未認証の場合はログインページにリダイレクト
     if (status === 'unauthenticated') {
-      router.push('/auth/signin')
+      router.replace('/auth/signin')
     }
   }, [status, router])
 

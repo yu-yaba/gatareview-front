@@ -14,6 +14,8 @@ export interface CustomUser {
 declare module "next-auth" {
   interface Session {
     backendToken: string | null
+    // サーバー基準のセッション終了までの秒数（取得時点）
+    expiresIn?: number
     user: CustomUser & DefaultSession["user"]
   }
 
@@ -24,6 +26,12 @@ declare module "next-auth/jwt" {
   interface JWT {
     backendToken?: string | null
     user?: CustomUser
+    // 「ログイン状態を記憶する」を選んだか
+    remember?: boolean
+    // サインインした時刻（秒）
+    authTime?: number
+    // バックエンドAPIトークンの有効期限（秒）
+    backendExp?: number
     iat?: number
     exp?: number
   }

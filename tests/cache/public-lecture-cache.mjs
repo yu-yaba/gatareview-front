@@ -7,6 +7,11 @@ import { createRequire } from 'node:module';
 import { createHmac } from 'node:crypto';
 const require = createRequire(import.meta.url);
 const { encode } = require('next-auth/jwt');
+// jwtコールバックが有効なセッションとして扱う寿命情報（app/_helpers/sessionLifetime.ts）。
+const activeSessionFields = () => {
+  const now = Math.floor(Date.now() / 1000);
+  return { remember: true, authTime: now, backendExp: now + 3600 };
+};
 
 // Run after npm run build. Exercise the real Next production Data Cache and
 // React rendering; no mock implementation of fetch, cache(), or Next is used.
@@ -108,10 +113,10 @@ try {
   for (let i = 0; i < 5; i++) assert.equal((await page()).response.status, 200);
   assert.equal(publicCalls().length, coldCalls, 'warm requests must use the Data Cache');
   assert.equal(requests.filter(item => item.path === `/api/v1/lectures/${id}/reviews`).length, 6, 'reviews must reach the API on every request');
-  const token = await encode({ secret, token: { backendToken: 'account-A', user: { id: 'A', name: 'A', email: 'a@example.test' } } });
+  const token = await encode({ secret, token: { backendToken: 'account-A', user: { id: 'A', name: 'A', email: 'a@example.test' }, ...activeSessionFields() } });
   const signedIn = await page(id, token);
   assert.ok(signedIn.html.includes('Bearer account-A'));
-  const otherToken = await encode({ secret, token: { backendToken: 'account-B', user: { id: 'B', name: 'B', email: 'b@example.test' } } });
+  const otherToken = await encode({ secret, token: { backendToken: 'account-B', user: { id: 'B', name: 'B', email: 'b@example.test' }, ...activeSessionFields() } });
   const otherAccount = await page(id, otherToken);
   assert.ok(otherAccount.html.includes('Bearer account-B'));
   assert.ok(!otherAccount.html.includes('Bearer account-A'));

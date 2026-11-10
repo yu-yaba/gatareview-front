@@ -6,6 +6,8 @@ import { FaSearch, FaUsers, FaStar, FaGraduationCap, FaChartLine, FaBookOpen, Fa
 import { FaXTwitter } from 'react-icons/fa6';
 import type { HomeLectureItem, HomePageData } from '../_types/HomePageData';
 import type { ReviewWithLecture } from '../_types/ReviewWithLecture';
+import { isImeComposing } from '../_helpers/keyboard';
+import { formatReviewText } from '../_helpers/reviewContent';
 
 // ========================================
 // Type Definitions
@@ -115,7 +117,7 @@ interface HomePageClientProps extends HomePageData {}
 // Custom Hooks
 // ========================================
 const useReviewCount = (initialTotalReviews: number | null) => {
-  const [displayedCount, setDisplayedCount] = useState(0);
+  const [displayedCount, setDisplayedCount] = useState<number | null>(initialTotalReviews === null ? null : 0);
   const [countingComplete, setCountingComplete] = useState(false);
 
   const animateCounter = useCallback((targetCount: number) => {
@@ -139,8 +141,13 @@ const useReviewCount = (initialTotalReviews: number | null) => {
   }, []);
 
   useEffect(() => {
-    const targetCount = initialTotalReviews ?? 1000;
     setCountingComplete(false);
+    // 件数を取得できなかったときは架空の数字を出さず、未取得の表示にする
+    if (initialTotalReviews === null) {
+      setDisplayedCount(null);
+      return;
+    }
+    const targetCount = initialTotalReviews;
     setDisplayedCount(0);
 
     const timeoutId = setTimeout(() => {
@@ -170,8 +177,10 @@ const useSearch = () => {
     router.push(`/lectures${query ? `?${query}` : ''}`);
   }, [searchWord, selectedFaculty, router]);
 
-  const handleKeyUp = useCallback((e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => {
-    if (e.key === 'Enter') {
+  // keyup だと変換確定の Enter を離した瞬間に検索してしまうため keydown で判定する
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (e.key === 'Enter' && !isImeComposing(e)) {
+      e.preventDefault();
       handleSearch();
     }
   }, [handleSearch]);
@@ -182,7 +191,7 @@ const useSearch = () => {
     selectedFaculty,
     setSelectedFaculty,
     handleSearch,
-    handleKeyUp
+    handleKeyDown
   };
 };
 
@@ -251,7 +260,7 @@ const ProgressBar = memo<ProgressBarProps>(({ isComplete }) => (
 ProgressBar.displayName = 'ProgressBar';
 
 interface ReviewCounterProps {
-  readonly displayedCount: number;
+  readonly displayedCount: number | null;
   readonly countingComplete: boolean;
 }
 
@@ -284,10 +293,19 @@ const ReviewCounter = memo<ReviewCounterProps>(({ displayedCount, countingComple
             現在の総レビュー数
           </p>
           <div className="flex items-baseline">
-            <span className="genius-number text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-linear-to-br from-green-600 via-green-500 to-green-600 bg-clip-text text-transparent">
-              {displayedCount}
-            </span>
-            <span className="ml-2 lg:ml-3 text-lg lg:text-xl xl:text-2xl text-gray-700 font-medium transform group-hover:translate-y-1 transition-transform duration-700">件</span>
+            {displayedCount === null ? (
+              <span className="genius-number text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-400">
+                <span aria-hidden="true">—</span>
+                <span className="sr-only">取得できませんでした</span>
+              </span>
+            ) : (
+              <>
+                <span className="genius-number text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-linear-to-br from-green-600 via-green-500 to-green-600 bg-clip-text text-transparent">
+                  {displayedCount}
+                </span>
+                <span className="ml-2 lg:ml-3 text-lg lg:text-xl xl:text-2xl text-gray-700 font-medium transform group-hover:translate-y-1 transition-transform duration-700">件</span>
+              </>
+            )}
           </div>
           <ProgressBar isComplete={countingComplete} />
         </div>
@@ -311,7 +329,7 @@ interface SearchSectionProps {
   readonly setSearchWord: (value: string) => void;
   readonly selectedFaculty: string;
   readonly setSelectedFaculty: (value: string) => void;
-  readonly handleKeyUp: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  readonly handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => void;
   readonly handleSearch: () => void;
 }
 
@@ -320,7 +338,7 @@ const SearchSection = memo<SearchSectionProps>(({
   setSearchWord,
   selectedFaculty,
   setSelectedFaculty,
-  handleKeyUp,
+  handleKeyDown,
   handleSearch
 }) => (
   <div className="max-w-6xl mx-auto relative">
@@ -342,7 +360,10 @@ const SearchSection = memo<SearchSectionProps>(({
             type="text"
             value={searchWord}
             onChange={(e) => setSearchWord(e.target.value)}
-            onKeyUp={handleKeyUp}
+            onKeyDown={handleKeyDown}
+            maxLength={255}
+            enterKeyHint="search"
+            aria-label="授業名、教授名、学部名で検索"
           />
         </div>
 
@@ -350,7 +371,8 @@ const SearchSection = memo<SearchSectionProps>(({
           <select
             value={selectedFaculty}
             onChange={(e) => setSelectedFaculty(e.target.value)}
-            onKeyUp={handleKeyUp}
+            onKeyDown={handleKeyDown}
+            aria-label="学部"
             className="w-full sm:w-auto lg:w-48 xl:w-52 2xl:w-56 px-4 lg:px-5 xl:px-6 2xl:px-8 py-3 lg:py-3.5 xl:py-4 2xl:py-5 text-sm lg:text-base xl:text-lg 2xl:text-xl border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-hidden transition-all duration-500 bg-white/90 backdrop-blur-xs animate-search-focus"
           >
             {FACULTY_OPTIONS.map(option => (
@@ -442,10 +464,10 @@ interface ReviewCardProps {
 }
 
 const ReviewCard = memo<ReviewCardProps>(({ review, index }) => (
-  <div className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+  <div className="animate-fade-in min-w-0" style={{ animationDelay: `${index * 0.1}s` }}>
     <Link
       href={`/lectures/${review.lecture.id}`}
-      className="block w-full bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+      className="block w-full min-w-0 bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
     >
       <div className="space-y-4 h-full flex flex-col">
         <div className="space-y-2 grow">
@@ -482,8 +504,8 @@ const ReviewCard = memo<ReviewCardProps>(({ review, index }) => (
             </div>
           </div>
 
-          <p className="text-xs text-gray-700 line-clamp-10 leading-relaxed bg-gray-50 p-3 rounded-lg">
-            {review.content || 'コメントなし'}
+          <p className="text-xs text-gray-700 line-clamp-10 leading-relaxed bg-gray-50 p-3 rounded-lg whitespace-pre-line wrap-anywhere">
+            {formatReviewText(review.content) || 'コメントなし'}
           </p>
         </div>
       </div>
@@ -573,11 +595,11 @@ export default function HomePageClient({
     selectedFaculty,
     setSelectedFaculty,
     handleSearch,
-    handleKeyUp
+    handleKeyDown
   } = useSearch();
 
   const stats: readonly StatData[] = useMemo(() => [
-    { number: totalReviews || "1000+", label: "累計レビュー数", icon: <FaChartLine /> },
+    { number: totalReviews ?? "—", label: "累計レビュー数", icon: <FaChartLine /> },
     { number: "5000+", label: "登録授業数", icon: <FaBookOpen /> },
     { number: "9000+", label: "累計アクティブユーザー", icon: <FaUsers /> }
   ], [totalReviews]);
@@ -622,7 +644,7 @@ export default function HomePageClient({
                 setSearchWord={setSearchWord}
                 selectedFaculty={selectedFaculty}
                 setSelectedFaculty={setSelectedFaculty}
-                handleKeyUp={handleKeyUp}
+                handleKeyDown={handleKeyDown}
                 handleSearch={handleSearch}
               />
             </div>

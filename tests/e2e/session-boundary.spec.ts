@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test'
 import { encode } from 'next-auth/jwt'
+import { activeSessionFields } from './session-token'
 
 const mockApiURL = `http://127.0.0.1:${process.env.PLAYWRIGHT_MOCK_API_PORT || '3101'}`
 const tokenFor = (identity: string) => `local-boundary-session-${identity}`
@@ -22,7 +23,7 @@ const reviewBody = (granted: boolean) => ({
 async function installSession(context: BrowserContext, baseURL: string, identity: string | null, id?: string) {
   await context.clearCookies({ name: /^(__Secure-)?next-auth\.session-token(\.\d+)?$/ })
   if (!identity) return
-  const value = await encode({ secret: 'playwright-nextauth-secret', token: { backendToken: tokenFor(identity), user: userFor(identity, id) } })
+  const value = await encode({ secret: 'playwright-nextauth-secret', token: { backendToken: tokenFor(identity), user: userFor(identity, id), ...activeSessionFields() } })
   await context.addCookies([{ name: 'next-auth.session-token', value, url: baseURL }])
 }
 

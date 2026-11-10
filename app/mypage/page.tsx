@@ -8,6 +8,7 @@ import Image from 'next/image'
 import Loading from '../_components/Loading'
 import { mypageApi } from '../_helpers/api'
 import { signOutWithRevocation } from '../_helpers/signOut'
+import { previewReviewText } from '../_helpers/reviewContent'
 import {
   FaUser,
   FaEnvelope,
@@ -109,7 +110,7 @@ export default function MyPage() {
   useEffect(() => {
     // 未認証の場合はログインページにリダイレクト
     if (status === 'unauthenticated') {
-      router.push('/auth/signin')
+      router.replace('/auth/signin')
     }
   }, [status, router])
 
@@ -128,11 +129,8 @@ export default function MyPage() {
       console.error('マイページデータの取得に失敗:', error?.response?.status, error?.message)
 
       if (error.response?.status === 401) {
+        // サインアウトとログイン画面への移動は api.ts の401処理が一度だけ行う。
         setError('セッションの有効期限が切れました。再度ログインしてください。')
-        // 認証エラー時に自動的にログアウトし、サインインページにリダイレクト
-        await signOutWithRevocation({ callbackUrl: '/auth/signin' }).catch(() => {
-          setError('ログアウトに失敗しました。通信状態を確認して再度お試しください。')
-        })
       } else if (error.response?.status === 403) {
         setError('アクセスが拒否されました。権限を確認してください。')
       } else {
@@ -448,10 +446,8 @@ export default function MyPage() {
                             </div>
                           </div>
                           <div className="space-y-3">
-                            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg">
-                              {review.content && review.content.length > 80
-                                ? `${review.content.substring(0, 80)}...`
-                                : review.content || 'コメントなし'}
+                            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg whitespace-pre-line wrap-anywhere">
+                              {previewReviewText(review.content, 80) || 'コメントなし'}
                             </p>
                           </div>
                         </div>
