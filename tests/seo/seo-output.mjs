@@ -23,7 +23,14 @@ const UAS = {
 // 'error' (503), 'html' (200 with a non-JSON body), or 'ok'.
 let sitemapMode = 'error';
 let sitemapCalls = 0;
-const lectureJson = id => ({ id, title: `SEO検証授業${id}`, lecturer: 'テスト教員', faculty: '工学部', avg_rating: 4, review_count: 1 });
+// Timestamps are never published (not in HTML, RSC payload, sitemap or JSON-LD). Every mocked
+// lecture/review carries marker values; no page may contain them.
+const TIMESTAMP_MARKERS = ['LECTURE_CREATED_AT_MARKER', 'LECTURE_UPDATED_AT_MARKER', 'REVIEW_CREATED_AT_MARKER', 'REVIEW_UPDATED_AT_MARKER'];
+const lectureJson = id => ({ id, title: `SEO検証授業${id}`, lecturer: 'テスト教員', faculty: '工学部', avg_rating: 4, review_count: 1,
+  created_at: 'LECTURE_CREATED_AT_MARKER', updated_at: 'LECTURE_UPDATED_AT_MARKER' });
+const reviewJson = lectureId => ({ id: 501, rating: 4, lecture_id: lectureId, thanks_count: 0, period_year: '2026', period_term: '1ターム',
+  content: 'SEO検証のレビュー本文です。三十文字以上になるように少し長めに書いておきます。',
+  created_at: 'REVIEW_CREATED_AT_MARKER', updated_at: 'REVIEW_UPDATED_AT_MARKER' });
 // Next's Data Cache persists in .next/cache across runs. A unique path prefix per
 // run gives the sitemap fetch a fresh cache key, so the cold-cache case is real.
 const runPrefix = `/seo-run-${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
@@ -39,22 +46,13 @@ const backend = createServer((request, response) => {
       response.writeHead(200, { 'Content-Type': 'text/html' });
       response.end('<!doctype html><title>maintenance</title>');
       return;
-    } else body = { lectures: [
-      { id: 3886, lastmod: '2026-11-01' },
-      { id: 12, lastmod: '2026-10-05' },
-      { id: 12, lastmod: '2026-10-05' }, // duplicate: listed once
-      { id: 77, lastmod: '2026-13-45T00:00:00Z' }, // not a plain date: no lastmod
-      { id: 78, lastmod: '2026-02-30' }, // not a real date: no lastmod
-      { id: 79, lastmod: '9999-12-31' }, // in the future: no lastmod (and not used for / or /lectures)
-      { id: 'x', lastmod: '2026-01-01' }, // invalid id: skipped
-      { id: -1, lastmod: '2026-01-01' },
-    ] };
+    } else body = { lecture_ids: [3886, 12, 12 /* duplicate: listed once */, 77, 'x', -1, 0, 1.5 /* invalid: skipped */] };
   } else if (path === `/api/v1/lectures/${MISSING_LECTURE_ID}`) {
     status = 404; body = { error: 'not found' };
   } else if (/^\/api\/v1\/lectures\/\d+$/.test(path)) {
     body = lectureJson(Number(path.split('/').pop()));
   } else if (/^\/api\/v1\/lectures\/\d+\/reviews$/.test(path)) {
-    body = { reviews: [], access: { restriction_enabled: false, access_granted: true } };
+    body = { reviews: [reviewJson(Number(path.split('/')[4]))], access: { restriction_enabled: false, access_granted: true } };
   } else if (path === '/api/v1/lectures') {
     body = { lectures: [lectureJson(3886)], pagination: { current_page: 1, total_pages: 1, total_count: 1, per_page: 20 } };
   } else if (path === '/api/v1/lectures/popular' || path === '/api/v1/lectures/no_reviews') {
@@ -62,7 +60,7 @@ const backend = createServer((request, response) => {
   } else if (path === '/api/v1/reviews/total') {
     body = { count: 1 };
   } else if (path === '/api/v1/reviews/latest') {
-    body = [];
+    body = [{ ...reviewJson(3886), lecture: lectureJson(3886) }];
   } else { status = 404; body = { error: 'test route not found' }; }
   response.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' });
   response.end(JSON.stringify(body));
@@ -115,8 +113,10 @@ function assertInHead(html, label) {
   assert.deepEqual(head.titles, all.titles, `${label}: <title> must be in <head>`);
   assert.deepEqual(head.ogUrl, all.ogUrl, `${label}: og:url must be in <head>`);
 }
-// Visible text only: drop scripts (JSON-LD, RSC payload) before looking for FAQ text.
-const withoutScripts = html => html.replace(/<script\b[\s\S]*?<\/script>/g, '');
+function assertNoTimestamps(html, label) {
+  for (const marker of TIMESTAMP_MARKERS) assert.ok(!html.includes(marker), `${label}: must not publish ${marker}`);
+  assert.ok(!/datePublished|dateModified|dateCreated|uploadDate/.test(html), `${label}: no JSON-LD dates`);
+}
 async function get(path, ua = UAS.googlebot) {
   const response = await fetch(`${base}${path}`, { headers: { 'User-Agent': ua }, redirect: 'manual' });
   return { response, body: await response.text() };
@@ -132,8 +132,6 @@ const INDEXABLE = [
   { path: '/lectures?page=2', canonical: `${SITE}/lectures?page=2`, titleIncludes: '2ページ目', breadcrumb: ['ホーム', '授業一覧'] },
   { path: '/lectures?page=2&sort=newest&utm_source=x', canonical: `${SITE}/lectures?page=2`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: '/lectures?page=1', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
-  { path: '/lectures?page=0', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
-  { path: '/lectures?page=abc', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: `/lectures?faculty=${encodeURIComponent('工学部')}&page=3`, canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
   { path: '/lectures?search=abc', canonical: `${SITE}/lectures`, breadcrumb: ['ホーム', '授業一覧'] },
   // The backend ignores a search of only spaces / zero-width spaces, so this is plain page 2.
@@ -145,6 +143,8 @@ const INDEXABLE = [
   { path: '/terms', canonical: `${SITE}/terms`, breadcrumb: ['ホーム', '利用規約'] },
   { path: '/lectures/3886', canonical: `${SITE}/lectures/3886`, breadcrumb: null },
 ];
+// Invalid page numbers are redirected to the first page instead of being rendered.
+const REDIRECTS = [['/lectures?page=0', '/lectures'], ['/lectures?page=abc', '/lectures'], ['/lectures?page=10001', '/lectures']];
 const NOINDEX = ['/mypage', '/mypage/bookmarks', '/mypage/reviews', '/auth/signin', '/auth/signout',
   '/admin/review-access', '/reviews/new', '/offline', '/lectures/3886/review'];
 const NOT_FOUND = ['/no-such-page', `/lectures/${MISSING_LECTURE_ID}`, '/lectures/abc', '/reviews', '/debug/session',
@@ -207,17 +207,10 @@ try {
   }));
   const locs = entries.map(entry => entry.loc);
   assert.deepEqual(locs, [SITE, `${SITE}/lectures`, `${SITE}/faq`, `${SITE}/privacy`, `${SITE}/terms`,
-    `${SITE}/lectures/3886`, `${SITE}/lectures/12`, `${SITE}/lectures/77`, `${SITE}/lectures/78`, `${SITE}/lectures/79`]);
+    `${SITE}/lectures/3886`, `${SITE}/lectures/12`, `${SITE}/lectures/77`]);
   assert.equal(new Set(locs).size, locs.length, 'sitemap URLs are unique');
-  const lastmod = Object.fromEntries(entries.map(entry => [entry.loc, entry.lastmod]));
-  assert.equal(lastmod[SITE], '2026-11-01', 'home lastmod = newest review date');
-  assert.equal(lastmod[`${SITE}/lectures`], '2026-11-01');
-  assert.equal(lastmod[`${SITE}/faq`], null, 'no fake "now" lastmod for static pages');
-  assert.equal(lastmod[`${SITE}/lectures/3886`], '2026-11-01');
-  assert.equal(lastmod[`${SITE}/lectures/12`], '2026-10-05');
-  assert.equal(lastmod[`${SITE}/lectures/77`], null, 'malformed lastmod is dropped');
-  assert.equal(lastmod[`${SITE}/lectures/78`], null, 'impossible date is dropped');
-  assert.equal(lastmod[`${SITE}/lectures/79`], null, 'future date is dropped');
+  assert.ok(entries.every(entry => entry.lastmod === null), 'no lastmod: dates derived from reviews are never published');
+  assert.ok(!/<lastmod>/.test(sitemap.body), 'no lastmod element at all');
   assert.ok(!sitemap.body.includes('/reviews'), 'the 404 /reviews URL is not listed');
   assert.ok(!/<changefreq>|<priority>/.test(sitemap.body), 'Google ignores changefreq/priority');
   const callsAfterFirst = sitemapCalls;
@@ -231,6 +224,7 @@ try {
     assert.equal(response.status, 200, `${loc} in sitemap must be 200`);
     const result = inspect(body);
     assertInHead(body, loc);
+    assertNoTimestamps(body, loc);
     assert.deepEqual(result.canonicals, [loc], `${loc}: canonical must be itself`);
     assert.ok(!result.robots.some(value => /noindex/.test(value)), `${loc}: must be indexable`);
   }
@@ -243,6 +237,7 @@ try {
       const result = inspect(body);
       assertSiteWide(result, label);
       if (ua === UAS.googlebot) assertInHead(body, label);
+      assertNoTimestamps(body, label);
       assert.deepEqual(result.canonicals, [page.canonical], `${label}: canonical`);
       assert.deepEqual(result.robots, [], `${label}: indexable pages carry no robots meta`);
       assert.deepEqual(result.ogUrl, [page.canonical], `${label}: og:url matches canonical`);
@@ -264,14 +259,21 @@ try {
         assert.equal(faqs.length, 1, `${label}: FAQPage on /faq`);
         const questions = faqs[0].mainEntity.map(item => item.name);
         assert.equal(questions.length, 8, `${label}: every visible question is marked up`);
-        const visible = withoutScripts(body);
+        // ">text<" only matches element text: JSON-LD escapes < and >, and the RSC payload is JSON.
         for (const item of faqs[0].mainEntity) {
-          assert.ok(visible.includes(`>${item.name}<`), `${label}: FAQ question is visible: ${item.name}`);
-          assert.ok(visible.includes(`>${item.acceptedAnswer.text}<`), `${label}: FAQ answer is visible: ${item.name}`);
+          assert.ok(body.includes(`>${item.name}<`), `${label}: FAQ question is visible: ${item.name}`);
+          assert.ok(body.includes(`>${item.acceptedAnswer.text}<`), `${label}: FAQ answer is visible: ${item.name}`);
         }
       } else {
         assert.equal(faqs.length, 0, `${label}: FAQPage only on /faq`);
       }
+    }
+
+    for (const [from, to] of REDIRECTS) {
+      const { response } = await get(from, ua);
+      assert.ok([307, 308].includes(response.status), `${uaName} ${from}: redirect, got ${response.status}`);
+      const location = new URL(response.headers.get('location'), base);
+      assert.equal(location.pathname + location.search, to, `${uaName} ${from}: redirect target`);
     }
 
     for (const path of NOINDEX) {
@@ -281,6 +283,7 @@ try {
       const result = inspect(body);
       assertSiteWide(result, label);
       if (ua === UAS.googlebot) assertInHead(body, label);
+      assertNoTimestamps(body, label);
       assert.deepEqual(result.robots, ['noindex, follow'], `${label}: noindex`);
       assert.deepEqual(result.canonicals, [], `${label}: noindex pages must not declare a canonical`);
       assert.ok(!result.types.includes('FAQPage') && !result.types.includes('BreadcrumbList'), label);
@@ -293,6 +296,7 @@ try {
       const result = inspect(body);
       assertSiteWide(result, label, { notFound: true });
       if (ua === UAS.googlebot) assertInHead(body, label);
+      assertNoTimestamps(body, label);
       assert.deepEqual(result.robots, ['noindex'], `${label}: exactly one noindex robots meta`);
       assert.deepEqual(result.canonicals, [], `${label}: 404 must not declare a canonical`);
       assert.deepEqual(result.ogUrl, [], `${label}: 404 must not declare og:url`);
@@ -304,7 +308,13 @@ try {
     const missingLecture = await get(`/lectures/${MISSING_LECTURE_ID}`, ua);
     assert.ok(missingLecture.body.includes('授業が見つかりません'), `${uaName}: lecture-specific 404 copy`);
   }
-  console.log(`SEO output checks passed (${INDEXABLE.length + NOINDEX.length + NOT_FOUND.length} routes x ${Object.keys(UAS).length} user agents, robots.txt, sitemap.xml)`);
+  // The client-side search JSON is public too.
+  const searchJson = await get('/api/public/lectures?page=1');
+  assert.equal(searchJson.response.status, 200, searchJson.body);
+  assertNoTimestamps(searchJson.body, '/api/public/lectures');
+  // The lecture page renders the mocked review (so the marker check above covered review data too).
+  assert.ok((await get('/lectures/3886')).body.includes('SEO検証のレビュー本文です'), 'lecture page renders its review');
+  console.log(`SEO output checks passed (${INDEXABLE.length + REDIRECTS.length + NOINDEX.length + NOT_FOUND.length} routes x ${Object.keys(UAS).length} user agents, robots.txt, sitemap.xml)`);
 } catch (error) {
   console.error(output.slice(-4000));
   throw error;

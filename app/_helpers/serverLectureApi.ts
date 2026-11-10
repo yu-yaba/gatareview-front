@@ -118,7 +118,27 @@ function assertLecture(body: unknown): LectureSchema {
       !text(lecture.title) || !text(lecture.lecturer) || !text(lecture.faculty)) {
     throw new Error('Invalid lecture response');
   }
-  return lecture as unknown as LectureSchema;
+  return toPublicLecture(lecture);
+}
+
+// クライアントコンポーネントに渡す（= HTML と RSC payload に入る）授業の項目だけを残す。
+// created_at / updated_at などは backend が返しても渡さない（時刻は公開しない方針）。
+function toPublicLecture(lecture: Record<string, unknown>) {
+  return {
+    id: lecture.id,
+    title: lecture.title,
+    lecturer: lecture.lecturer,
+    faculty: lecture.faculty,
+    avg_rating: lecture.avg_rating,
+    review_count: lecture.review_count,
+  } as LectureSchema;
+}
+
+function toHomeLectures(lectures: unknown): HomeLectureItem[] | null {
+  if (!Array.isArray(lectures)) return null;
+  return lectures
+    .filter((lecture): lecture is Record<string, unknown> => Boolean(lecture) && typeof lecture === 'object')
+    .map((lecture) => toPublicLecture(lecture) as HomeLectureItem);
 }
 
 // Lecture IDs are positive integers. Anything else is not found without asking
@@ -216,19 +236,19 @@ async function getTotalReviews() {
 }
 
 async function getPopularLectures() {
-  const response = await orNull(fetchJson<{ lectures: HomeLectureItem[] }>('/api/v1/lectures/popular', {
+  const response = await orNull(fetchJson<{ lectures?: unknown }>('/api/v1/lectures/popular', {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
   }));
 
-  return response?.lectures ?? null;
+  return toHomeLectures(response?.lectures);
 }
 
 async function getNoReviewsLectures() {
-  const response = await orNull(fetchJson<{ lectures: HomeLectureItem[] }>('/api/v1/lectures/no_reviews', {
+  const response = await orNull(fetchJson<{ lectures?: unknown }>('/api/v1/lectures/no_reviews', {
     next: { revalidate: PUBLIC_REVALIDATE_SECONDS },
   }));
 
-  return response?.lectures ?? null;
+  return toHomeLectures(response?.lectures);
 }
 
 async function getLatestReviews(): Promise<ReviewWithLecture[] | null> {

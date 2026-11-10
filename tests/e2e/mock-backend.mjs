@@ -83,7 +83,7 @@ const server = createServer(async (request, response) => {
   } else if (pathname === '/health') {
     body = { ok: true };
   } else if (pathname === '/api/v1/lectures/sitemap') {
-    body = { lectures: [{ id: lectureId, lastmod: '2026-04-01' }] };
+    body = { lecture_ids: [lectureId] };
   } else if (pathname === '/api/v1/lectures') {
     body = { lectures: [lecture], pagination: { current_page: Number(url.searchParams.get('page') || 1),
       total_pages: 1, total_count: 1, per_page: 20 } };

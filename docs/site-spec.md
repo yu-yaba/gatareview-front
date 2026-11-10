@@ -157,7 +157,8 @@ FAQ、利用規約、プライバシーポリシーです。
   - Googlebot には metadata を `<head>` に出すよう、`next.config.js` の `htmlLimitedBots` に Googlebot を加えています（Next.js 15 は metadata を後から `<body>` 側に送ることがあり、Google は `<head>` 以外の canonical を使わないため）。
   - 404 は Next.js が付ける `noindex` だけで、canonical はありません。授業の 404 もサイト共通の 404 デザインを使います。
   - 構造化データ: WebSite・Organization は全ページ、パンくずは各ページ、FAQPage は `/faq` だけ（画面の質問と同じ `app/faq/faqData.ts` から作る）。
-  - `sitemap.xml` は固定ページとレビューのある授業ページを載せます。授業は backend の `GET /api/v1/lectures/sitemap` を1回呼んで取得し、検証に通った結果だけを `unstable_cache` に1時間保存します。
+  - `sitemap.xml` は固定ページとレビューのある授業ページを載せます。授業 ID は backend の `GET /api/v1/lectures/sitemap` を1回呼んで取得し、検証に通った結果だけを `unstable_cache` に1時間保存します。`lastmod` は付けません（レビュー・授業の作成・更新時刻は、日・月単位に丸めても公開しない方針のため）。
+  - 授業の `created_at` / `updated_at` はページの HTML・RSC payload に入れません（`serverLectureApi.ts` で公開する項目だけを渡す）。
   - robots.txt では `/api/` と `/admin/` だけをブロックします（`/_next/` は表示に必要なのでブロックしない）。
   - 出力の確認: `npm run build` のあと `npm run test:seo`。
 
