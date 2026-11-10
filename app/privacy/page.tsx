@@ -1,8 +1,21 @@
+import type { Metadata } from 'next';
+import JsonLd from '../_components/JsonLd';
+import { HOME_BREADCRUMB, breadcrumbJsonLd, indexablePageMetadata } from '../_helpers/seo';
+
+export const metadata: Metadata = indexablePageMetadata({
+  title: 'プライバシーポリシー - ガタレビュ！',
+  description: 'ガタレビュ！（新潟大学の授業レビューサイト）のプライバシーポリシーです。本サービスで取得するユーザー情報の取扱いについて定めています。',
+  path: '/privacy',
+});
+
+const breadcrumb = breadcrumbJsonLd([HOME_BREADCRUMB, { name: 'プライバシーポリシー', path: '/privacy' }]);
+
 const LAST_UPDATED = '2025年12月17日';
 
 export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen bg-gray-50">
+      <JsonLd data={breadcrumb} />
       <div className="max-w-4xl mx-auto px-4 py-12">
         <header className="text-center mb-10">
           <h1 className="font-bold text-3xl">プライバシーポリシー</h1>

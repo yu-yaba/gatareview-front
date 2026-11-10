@@ -8,6 +8,7 @@ import ScriptGa from './_components/ScriptGa'
 import ClientProviders from './_components/ClientProviders'
 import Script from 'next/script';
 import PWAInstall from './_components/PWAInstall';
+import { HOME_DESCRIPTION, HOME_TITLE, SITE_NAME, SITE_URL, serializeJsonLd } from './_helpers/seo';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,8 +27,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === 'production' ? 'https://www.gatareview.com' : 'http://localhost:3000'),
-  title: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
-  description: '新潟大学生のための授業レビューサイトです。シラバスではわからないリアルな授業情報を共有しましょう。履修選択に役立つ学生の生の声をお届けします。',
+  // ここで設定した値は全ページ（404 を含む）に引き継がれる。canonical・robots・og:url はページごとに
+  // 決める値なのでここでは設定しない（_helpers/seo.ts の indexablePageMetadata / noindexPageMetadata を使う）。
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
   keywords: [
     '新潟大学',
     '授業レビュー',
@@ -46,17 +49,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'ガタレビュ運営チーム' }],
   creator: 'ガタレビュ運営チーム',
   publisher: 'ガタレビュ',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
   icons: {
     icon: [
       { url: '/icon-32x32.png', sizes: '32x32', type: 'image/png' },
@@ -71,13 +63,6 @@ export const metadata: Metadata = {
       { url: '/icon-120x120.png', sizes: '120x120', type: 'image/png' }
     ],
     shortcut: '/icon-96x96.png',
-    other: [
-      {
-        rel: 'mask-icon',
-        url: '/icon.svg',
-        color: '#1DBE67',
-      },
-    ],
   },
   manifest: '/manifest.json',
   appleWebApp: {
@@ -99,11 +84,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  verification: {
-    google: 'google-site-verification-code', // 実際のコードに置き換える
-    // yandex: 'yandex-verification-code',
-    // bing: 'bing-verification-code',
-  },
   other: {
     'geo.region': 'JP-15',
     'geo.placename': 'Niigata',
@@ -118,8 +98,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
     description: '新潟大学生のための授業レビューサイト。シラバスではわからないリアルな授業情報を学生同士で共有。履修選択に役立つ詳細な授業評価とレビューを提供します。',
-    url: 'https://www.gatareview.com',
-    siteName: 'ガタレビュ！',
+    siteName: SITE_NAME,
     images: [
       {
         url: '/ogp.png',
@@ -146,16 +125,66 @@ export const metadata: Metadata = {
     creator: '@gatareview',
     site: '@gatareview',
   },
-  alternates: {
-    canonical: 'https://www.gatareview.com',
-    languages: {
-      'ja-JP': 'https://www.gatareview.com',
-    },
-  },
   category: 'education',
   classification: 'education',
   referrer: 'origin-when-cross-origin',
 }
+
+// 全ページ共通の構造化データ（サイトと運営者）。パンくず・FAQ はページごとに出す。
+const siteJsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    name: SITE_NAME,
+    description: '新潟大学生のための授業レビューサイト',
+    url: SITE_URL,
+    inLanguage: 'ja-JP',
+    publisher: {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${SITE_URL}/lectures?search={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: 'ガタレビュ運営チーム',
+    description: '新潟大学生のための授業レビューサイト運営',
+    url: SITE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}/icon.png`,
+      width: 500,
+      height: 500,
+    },
+    sameAs: [
+      'https://twitter.com/gatareview',
+    ],
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'JP',
+      addressRegion: '新潟県',
+      addressLocality: '新潟市',
+    },
+    areaServed: {
+      '@type': 'Place',
+      name: '新潟大学',
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 37.9161,
+        longitude: 139.0364,
+      },
+    },
+    foundingDate: '2024',
+    email: 'contact@gatareview.com',
+  },
+]
 
 export default function RootLayout({
   children,
@@ -197,164 +226,8 @@ export default function RootLayout({
         )}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              // メインのWebサイト情報
-              {
-                '@context': 'https://schema.org',
-                '@type': 'WebSite',
-                '@id': 'https://www.gatareview.com/#website',
-                name: 'ガタレビュ！',
-                description: '新潟大学生のための授業レビューサイト',
-                url: 'https://www.gatareview.com',
-                inLanguage: 'ja-JP',
-                publisher: {
-                  '@type': 'Organization',
-                  '@id': 'https://www.gatareview.com/#organization',
-                },
-                potentialAction: {
-                  '@type': 'SearchAction',
-                  target: 'https://www.gatareview.com/lectures?search={search_term_string}',
-                  'query-input': 'required name=search_term_string',
-                },
-              },
-              // 組織情報
-              {
-                '@context': 'https://schema.org',
-                '@type': 'Organization',
-                '@id': 'https://www.gatareview.com/#organization',
-                name: 'ガタレビュ運営チーム',
-                description: '新潟大学生のための授業レビューサイト運営',
-                url: 'https://www.gatareview.com',
-                logo: {
-                  '@type': 'ImageObject',
-                  url: 'https://www.gatareview.com/icon.png',
-                  width: 180,
-                  height: 180,
-                },
-                sameAs: [
-                  'https://twitter.com/gatareview',
-                ],
-                address: {
-                  '@type': 'PostalAddress',
-                  addressCountry: 'JP',
-                  addressRegion: '新潟県',
-                  addressLocality: '新潟市',
-                },
-                areaServed: {
-                  '@type': 'Place',
-                  name: '新潟大学',
-                  geo: {
-                    '@type': 'GeoCoordinates',
-                    latitude: 37.9161,
-                    longitude: 139.0364,
-                  },
-                },
-                foundingDate: '2024',
-                email: 'contact@gatareview.com',
-              },
-              // 教育組織としての情報
-              {
-                '@context': 'https://schema.org',
-                '@type': 'EducationalOrganization',
-                '@id': 'https://www.gatareview.com/#educationalorg',
-                name: 'ガタレビュ！',
-                description: '新潟大学生のための授業レビューサイト',
-                url: 'https://www.gatareview.com',
-                logo: 'https://www.gatareview.com/icon.png',
-                mainEntityOfPage: {
-                  '@type': 'WebPage',
-                  '@id': 'https://www.gatareview.com',
-                },
-                audience: {
-                  '@type': 'EducationalAudience',
-                  educationalRole: 'student',
-                  audienceType: '新潟大学生',
-                },
-                provider: {
-                  '@type': 'Organization',
-                  '@id': 'https://www.gatareview.com/#organization',
-                },
-                offers: {
-                  '@type': 'Offer',
-                  price: '0',
-                  priceCurrency: 'JPY',
-                  description: '無料で利用可能な授業レビューサービス',
-                  availability: 'https://schema.org/InStock',
-                  validFrom: '2024-01-01',
-                },
-                knowsAbout: [
-                  '新潟大学',
-                  '授業評価',
-                  '履修支援',
-                  '学生レビュー',
-                  '教育情報'
-                ],
-              },
-              // BreadcrumbList
-              {
-                '@context': 'https://schema.org',
-                '@type': 'BreadcrumbList',
-                itemListElement: [
-                  {
-                    '@type': 'ListItem',
-                    position: 1,
-                    name: 'ホーム',
-                    item: 'https://www.gatareview.com',
-                  },
-                  {
-                    '@type': 'ListItem',
-                    position: 2,
-                    name: '授業レビュー',
-                    item: 'https://www.gatareview.com/lectures',
-                  },
-                  {
-                    '@type': 'ListItem',
-                    position: 3,
-                    name: 'よくある質問',
-                    item: 'https://www.gatareview.com/faq',
-                  },
-                ],
-              },
-              // FAQ情報
-              {
-                '@context': 'https://schema.org',
-                '@type': 'FAQPage',
-                mainEntity: [
-                  {
-                    '@type': 'Question',
-                    name: 'ガタレビュ！とは何ですか？',
-                    acceptedAnswer: {
-                      '@type': 'Answer',
-                      text: 'ガタレビュ！は新潟大学の学生のための授業レビューサイトです。シラバスではわからないリアルな授業情報を学生同士で共有しましょう。',
-                    },
-                  },
-                  {
-                    '@type': 'Question',
-                    name: '利用料金はかかりますか？',
-                    acceptedAnswer: {
-                      '@type': 'Answer',
-                      text: 'ガタレビュ！は完全無料でご利用いただけます。新潟大学生の学習環境向上を目的として運営されています。',
-                    },
-                  },
-                  {
-                    '@type': 'Question',
-                    name: '授業の検索はどのように行えますか？',
-                    acceptedAnswer: {
-                      '@type': 'Answer',
-                      text: '授業名、教授名、学部名での検索が可能です。また、学部別でのフィルタリングも可能で、効率的に授業を見つけることができます。',
-                    },
-                  },
-                ],
-              },
-            ])
-          }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(siteJsonLd) }}
         />
-        {/* Facebook OGP Requirements */}
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:type" content="image/png" />
-        
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />

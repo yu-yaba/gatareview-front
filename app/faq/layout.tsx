@@ -1,8 +1,12 @@
 import type { Metadata } from 'next'
+import JsonLd from '../_components/JsonLd'
+import { HOME_BREADCRUMB, breadcrumbJsonLd, indexablePageMetadata } from '../_helpers/seo'
+import { faqData } from './faqData'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = indexablePageMetadata({
   title: 'よくある質問 - ガタレビュ！新潟大学授業レビューサイト',
   description: 'ガタレビュ！についてよくある質問をまとめました。新潟大学の授業レビューサイトの使い方、投稿方法、利用料金などについて詳しく解説しています。',
+  path: '/faq',
   keywords: [
     'ガタレビュ FAQ',
     '新潟大学 授業レビュー FAQ',
@@ -12,45 +16,37 @@ export const metadata: Metadata = {
     '新潟大学',
     '授業レビューサイト'
   ],
-  openGraph: {
-    title: 'よくある質問 - ガタレビュ！',
-    description: 'ガタレビュ！についてよくある質問をまとめました。新潟大学の授業レビューサイトの使い方や機能について詳しく解説。',
-    url: 'https://www.gatareview.com/faq',
-    siteName: 'ガタレビュ！',
-    images: [
-      {
-        url: '/ogp.png',
-        width: 1200,
-        height: 630,
-        alt: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
-        type: 'image/png',
-      }
-    ],
-    locale: 'ja_JP',
-    type: 'article',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'よくある質問 - ガタレビュ！',
-    description: 'ガタレビュ！についてよくある質問をまとめました。',
-    images: {
-      url: '/ogp.png',
-      width: 1200,
-      height: 630,
-      alt: 'ガタレビュ！ - 新潟大学の授業レビューサイト',
+  openGraphType: 'article',
+})
+
+// FAQPage はこのページにだけ置き、画面に表示している質問と回答をそのまま使う。
+const faqPageJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqData.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
     },
-    creator: '@gatareview',
-    site: '@gatareview',
-  },
-  alternates: {
-    canonical: '/faq',
-  },
+  })),
 }
+
+const faqBreadcrumbJsonLd = breadcrumbJsonLd([
+  HOME_BREADCRUMB,
+  { name: 'よくある質問', path: '/faq' },
+])
 
 export default function FAQLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>
+  return (
+    <>
+      <JsonLd data={[faqPageJsonLd, faqBreadcrumbJsonLd]} />
+      {children}
+    </>
+  )
 }
