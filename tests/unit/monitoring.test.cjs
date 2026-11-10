@@ -49,6 +49,46 @@ test('outgoing diagnostics exclude messages, identity, request contents and sour
   await Sentry.close(2000)
 })
 
+test('a forced sampled sentry-trace header cannot make the SDK send spans or transactions', async () => {
+  const marker = 'FORCED_TRACE_QUERY_MARKER'
+  const traceId = '0123456789abcdef0123456789abcdef'
+  const incoming = [
+    { sentryTrace: `${traceId}-0123456789abcdef-1`, baggage: undefined },
+    { sentryTrace: `${traceId}-0123456789abcdef-1`,
+      baggage: `sentry-trace_id=${traceId},sentry-sampled=true,sentry-sample_rate=1,sentry-sample_rand=0.000001` },
+    // No sampled flag in sentry-trace, but the baggage claims the trace was sampled.
+    { sentryTrace: `${traceId}-0123456789abcdef`, baggage: `sentry-trace_id=${traceId},sentry-sampled=true` },
+  ]
+  async function sentItems(options) {
+    const envelopes = []
+    Sentry.init({
+      ...options,
+      transport: () => ({ send: async envelope => { envelopes.push(envelope); return { statusCode: 200 } }, flush: async () => true }),
+    })
+    for (const headers of incoming) {
+      Sentry.continueTrace(headers, () => Sentry.startSpan({
+        name: `GET /lectures?keyword=${marker}`, op: 'http.server', forceTransaction: true,
+        attributes: { 'http.target': `/lectures?keyword=${marker}` },
+      }, () => Sentry.startSpan({ name: `render /lectures?keyword=${marker}` }, () => undefined)))
+    }
+    await Sentry.flush(2000)
+    await Sentry.close(2000)
+    return { items: envelopes.flatMap(envelope => envelope[1]), json: JSON.stringify(envelopes) }
+  }
+  const tracing = item => ['span', 'transaction'].includes(item[0].type)
+  const dsn = 'https://public@o123.ingest.us.sentry.io/456'
+
+  for (const traceLifecycle of [undefined, 'static']) {
+    // Control: without our sampler the SDK inherits the attacker's sampled flag, proving the harness sees spans.
+    const control = await sentItems({ ...sentryOptions(dsn, 'production'), traceLifecycle, tracesSampler: undefined })
+    assert.equal(control.items.some(tracing), true, `control (${traceLifecycle ?? 'stream'}) should send spans`)
+
+    const { items, json } = await sentItems({ ...sentryOptions(dsn, 'production'), traceLifecycle })
+    assert.deepEqual(items.filter(tracing), [], `${traceLifecycle ?? 'stream'} lifecycle sent spans`)
+    assert.equal(json.includes(marker), false)
+  }
+})
+
 test('preview and development do not consume the production error quota', () => {
   for (const environment of ['preview', 'development', 'test', undefined]) {
     assert.equal(sentryOptions('https://public@o123.ingest.us.sentry.io/456', environment).enabled, false)

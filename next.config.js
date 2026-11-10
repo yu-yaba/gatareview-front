@@ -158,7 +158,11 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'gatareview.com', port: '' },
       { protocol: 'https', hostname: 'www.gatareview.com', port: '' },
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com', port: '' },
+      // Googleのプロフィール画像（/a/<id>=s96-c、旧形式は/a-/）だけを最適化する。
+      // ホスト全体を許可すると、同じホストのアバター以外の画像（フォト・ドライブ等）も取得・変換できてしまう。
+      // サイズ指定（=sN）や品質の違いによる変換回数の増加までは防げない。
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', port: '', pathname: '/a/*', search: '' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', port: '', pathname: '/a-/*', search: '' },
       ...(process.env.NODE_ENV !== 'production'
         ? [{ protocol: 'http', hostname: 'localhost' }, { protocol: 'http', hostname: '127.0.0.1' }]
         : []),
