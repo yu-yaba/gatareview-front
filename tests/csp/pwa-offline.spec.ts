@@ -200,6 +200,7 @@ test('リンクで移動を始めた直後に画面へ戻っても、自動の�
 })
 
 test('取り消された移動の後も、待ち時間が過ぎれば画面へ戻ったときに読み込み直す', async ({ page, context }) => {
+  test.setTimeout(150_000)
   await withoutOnlineEvents(context)
   await page.goto('/')
   await waitForAutomaticRegistration(page)
@@ -222,7 +223,8 @@ test('取り消された移動の後も、待ち時間が過ぎれば画面へ�
     await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
     await page.waitForTimeout(1_000)
     await expect(offlineHeading(page)).toBeVisible()
-    await page.waitForTimeout(10_000)
+    // The grace period (NAVIGATION_GRACE_MS in app/offline/OfflineActions.tsx) is 30 seconds.
+    await page.waitForTimeout(30_000)
     await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
     await expect(offlineHeading(page)).toHaveCount(0, { timeout: 15_000 })
     await expect(page).toHaveURL(/\/privacy$/)

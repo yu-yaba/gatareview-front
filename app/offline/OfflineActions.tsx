@@ -1,44 +1,45 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-// この文書で一度水和したかどうか。Service Worker が代わりに返したこの画面から別の画面へ
-// クライアント側で移動し、「戻る」で帰ってきた場合は、Next.js が履歴からこの画面を復元する。
-// そのときはオンラインでも本来のページを取得しないため、読み込み直して取得し直す。
+// 利用者が移動を始めてから、また自動の読み込み直しを始めてから、次の自動の読み込み直しを
+// 控える時間。サーバー側のAPIは8秒で打ち切るため、通常の画面はこの時間内に応答する。
+// 移動や読み込み直しが取り消された（中止ボタン・応答なし）場合も、この時間が過ぎれば
+// 再び自動で読み込み直す。
+const NAVIGATION_GRACE_MS = 30_000;
+
+// 以下はこの文書（Service Worker が返した代替表示）全体で共有する。ログイン状態の変化などで
+// コンポーネントが作り直されても、利用者が始めた移動や進行中の読み込み直しを打ち消さない。
 let mountedInThisDocument = false;
+let navigatingUntil = 0;
+let reloadingUntil = 0;
 
-// 利用者が移動を始めてから、自動の読み込み直しを控える時間。移動が取り消された
-// （中止ボタン・応答なし）場合も、この時間が過ぎれば再び自動で読み込み直す。
-const NAVIGATION_GRACE_MS = 10_000;
+const markNavigating = () => {
+  navigatingUntil = Date.now() + NAVIGATION_GRACE_MS;
+};
+
+// アドレスバーには本来開こうとしたURLが残っているため、読み込み直せば本来の画面を取得できる。
+// 端末が接続ありと判断しているとき（navigator.onLine が true）だけにし、別の画面への移動中に
+// 届く一時的なonlineイベントや、利用者が始めた移動を打ち消さないようにする。
+const reloadIfIdle = () => {
+  const now = Date.now();
+  if (!navigator.onLine || now < navigatingUntil || now < reloadingUntil) return;
+  reloadingUntil = now + NAVIGATION_GRACE_MS;
+  window.location.reload();
+};
 
 export default function OfflineActions() {
   // 水和が終わり、再接続の監視を始めたことを示す（ボタンもこの時点から動作する）。
   const [ready, setReady] = useState(false);
-  // この時刻までは、利用者が始めた移動を優先して自動の読み込み直しをしない。
-  const navigatingUntil = useRef(0);
-  const markNavigating = useCallback(() => {
-    navigatingUntil.current = Date.now() + NAVIGATION_GRACE_MS;
-  }, []);
 
   useEffect(() => {
-    // ログイン状態の変化などで再表示されただけで、オフラインのままなら読み込み直さない。
-    if (mountedInThisDocument && window.location.pathname !== '/offline' && navigator.onLine) {
-      window.location.reload();
-      return;
-    }
+    // この画面から別の画面へクライアント側で移動し、「戻る」で帰ってきた場合は、Next.js が
+    // 履歴からこの画面を復元するだけで本来の画面を取得しない。そのときは読み込み直す。
+    // ログイン状態の変化などで作り直されただけで、オフラインや移動中なら何もしない。
+    if (mountedInThisDocument && window.location.pathname !== '/offline') reloadIfIdle();
     mountedInThisDocument = true;
+    const shownAt = window.location.pathname + window.location.search;
 
-    // アドレスバーには本来開こうとしたURLが残っているため、接続が戻ったら読み込み直す。
-    // 端末が接続ありと判断しているとき（navigator.onLine が true）だけにし、別の画面への移動中に
-    // 届く一時的なonlineイベントで移動を打ち消さないようにする。
-    // サーバー障害や公衆Wi-Fiのログイン待ちでは online イベントが来ないため、
-    // 画面に戻ってきたとき（他のアプリから戻る、ページキャッシュからの復元）にも試す。
-    let reloading = false;
-    const reload = () => {
-      if (reloading || !navigator.onLine || Date.now() < navigatingUntil.current) return;
-      reloading = true;
-      window.location.reload();
-    };
     // App Router のリンク移動は beforeunload を出さず、iOS Safari は beforeunload 自体を出さない。
     // そのため、同じタブで開くリンクのクリックを移動の開始として扱う。
     const markLinkNavigation = (event: MouseEvent) => {
@@ -49,35 +50,39 @@ export default function OfflineActions() {
       if (target && target !== '_self') return;
       markNavigating();
     };
+    // サーバー障害や公衆Wi-Fiのログイン待ちでは online イベントが来ないため、
+    // 画面に戻ってきたとき（他のアプリから戻る、ページキャッシュからの復元）にも試す。
     const reloadWhenVisible = () => {
-      if (document.visibilityState === 'visible') reload();
+      if (document.visibilityState === 'visible') reloadIfIdle();
     };
     // ページキャッシュに入る間は読み込み直さず、復元されたときに1回だけ読み込み直す。
     const suspendWhileHidden = () => {
-      navigatingUntil.current = Number.POSITIVE_INFINITY;
+      navigatingUntil = Number.POSITIVE_INFINITY;
     };
     const reloadWhenRestored = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
-      navigatingUntil.current = 0;
-      reloading = false;
-      reload();
+      navigatingUntil = 0;
+      reloadingUntil = 0;
+      reloadIfIdle();
     };
     document.addEventListener('click', markLinkNavigation, true);
     window.addEventListener('beforeunload', markNavigating);
     window.addEventListener('pagehide', suspendWhileHidden);
     window.addEventListener('pageshow', reloadWhenRestored);
-    window.addEventListener('online', reload);
+    window.addEventListener('online', reloadIfIdle);
     document.addEventListener('visibilitychange', reloadWhenVisible);
     setReady(true);
     return () => {
+      // 別の画面への移動が完了して外れた場合は、待ち時間を解除する（「戻る」で帰ったときに読み込み直す）。
+      if (window.location.pathname + window.location.search !== shownAt) navigatingUntil = 0;
       document.removeEventListener('click', markLinkNavigation, true);
       window.removeEventListener('beforeunload', markNavigating);
       window.removeEventListener('pagehide', suspendWhileHidden);
       window.removeEventListener('pageshow', reloadWhenRestored);
-      window.removeEventListener('online', reload);
+      window.removeEventListener('online', reloadIfIdle);
       document.removeEventListener('visibilitychange', reloadWhenVisible);
     };
-  }, [markNavigating]);
+  }, []);
 
   return (
     <div className="space-y-4" data-ready={ready ? 'true' : undefined}>
