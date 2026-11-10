@@ -1,39 +1,32 @@
 const assert = require('node:assert/strict')
-const fs = require('node:fs')
-const path = require('node:path')
-const Module = require('node:module')
 const { test } = require('node:test')
-const ts = require('typescript')
+const { loadTs } = require('./support/load-ts.cjs')
 
 // Exercise the real callbacks without contacting Google or requiring a Next request.
-const filename = path.resolve(__dirname, '../../app/_helpers/authOptions.ts')
 process.env.NEXTAUTH_SECRET = 'local-auth-callback-test-secret'
 process.env.DOCKER_BACKEND_URL = 'http://127.0.0.1:1'
+let rememberCookie
 // The incoming sign-in callback request as Vercel's edge would deliver it.
 let incomingHeaders = new Headers()
-const nextHeaders = { cookies: async () => ({ get: () => undefined }), headers: async () => incomingHeaders }
-function loadTypeScript(file, mocks) {
-  const compiled = ts.transpileModule(fs.readFileSync(file, 'utf8'), {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      target: ts.ScriptTarget.ES2020,
-      esModuleInterop: true,
-    },
-  }).outputText
-  const loaded = new Module(file, module)
-  loaded.filename = file
-  loaded.paths = Module._nodeModulePaths(path.dirname(file))
-  const originalRequire = loaded.require.bind(loaded)
-  loaded.require = id => Object.hasOwn(mocks, id) ? mocks[id] : originalRequire(id)
-  loaded._compile(compiled, file)
-  return loaded.exports
+const nextHeaders = {
+  cookies: async () => ({ get: name => name === 'remember_me' && rememberCookie !== undefined ? { value: rememberCookie } : undefined }),
+  headers: async () => incomingHeaders,
 }
-const backendRequest = loadTypeScript(path.resolve(__dirname, '../../app/_helpers/backendRequest.ts'), {
-  'server-only': {},
-  'next/headers': nextHeaders,
-  './clientIpSignature': require('../../app/_helpers/clientIpSignature.ts'),
-})
-const { authOptions } = loadTypeScript(filename, { 'next/headers': nextHeaders, './backendRequest': backendRequest })
+// One module cache so the tests and authOptions share backendRequest's state.
+const moduleCache = new Map()
+const replacements = { 'server-only': {}, 'next/headers': nextHeaders }
+const backendRequest = loadTs('app/_helpers/backendRequest.ts', replacements, moduleCache)
+const { authOptions } = loadTs('app/_helpers/authOptions.ts', replacements, moduleCache)
+
+const nowSeconds = () => Math.floor(Date.now() / 1000)
+// Shape of the Rails token; the frontend only reads exp (the backend verifies the signature).
+const backendJwt = exp => ['e30', Buffer.from(JSON.stringify({ user_id: 102, token_version: 0, exp, iat: nowSeconds() })).toString('base64url'), 'local-signature'].join('.')
+const backendSuccess = (token = backendJwt(nowSeconds() + 7 * 24 * 60 * 60)) => async () => new Response(
+  JSON.stringify({ token, user: { id: '102', name: 'テスト利用者', email: 'local@example.invalid' } }),
+  { status: 200 },
+)
+const isBackendAuthFailure = error => error?.name === 'BackendAuthenticationError'
+const isSessionEnded = error => error?.name === 'SessionEndedError'
 
 const signInArguments = () => ({
   // NextAuth creates a new defaultToken for an OAuth callback, including account changes.
@@ -51,7 +44,7 @@ test('backend authentication failure does not log response bodies', async t => {
     { status: 401 },
   ))
 
-  await authOptions.callbacks.jwt(signInArguments())
+  await assert.rejects(authOptions.callbacks.jwt(signInArguments()), isBackendAuthFailure)
 
   assert.equal(logs.length, 1)
   assert.equal(logs[0][1], 401)
@@ -64,26 +57,102 @@ test('backend authentication exception does not log request or error contents', 
   t.mock.method(console, 'error', (...args) => logs.push(args))
   t.mock.method(globalThis, 'fetch', async () => { throw new Error(privateMarker) })
 
-  await authOptions.callbacks.jwt(signInArguments())
+  await assert.rejects(authOptions.callbacks.jwt(signInArguments()), isBackendAuthFailure)
 
   assert.equal(logs.length, 1)
   assert.equal(logs[0].some(value => value instanceof Error), false)
   assert.equal(JSON.stringify(logs).includes(privateMarker), false)
 })
 
-test('failed backend authentication creates no backend identity from a new OAuth token', async t => {
-  t.mock.method(console, 'error', () => {})
-  t.mock.method(globalThis, 'fetch', async () => new Response('{}', { status: 503 }))
+for (const [name, fetchFixture] of [
+  ['an unavailable backend', async () => new Response('{}', { status: 503 })],
+  ['a rate-limited backend', async () => new Response('{}', { status: 429 })],
+  ['a success response without a token', async () => new Response(JSON.stringify({ user: { id: '102' } }), { status: 200 })],
+  ['a token without an expiry', backendSuccess('opaque-token-without-exp')],
+  ['an already expired token', backendSuccess(backendJwt(nowSeconds() - 1))],
+  ['a network failure', async () => { throw new Error('offline') }],
+]) {
+  test(`sign-in fails instead of creating a session without an API token for ${name}`, async t => {
+    t.mock.method(console, 'error', () => {})
+    t.mock.method(globalThis, 'fetch', fetchFixture)
 
-  const token = await authOptions.callbacks.jwt(signInArguments())
+    await assert.rejects(authOptions.callbacks.jwt(signInArguments()), isBackendAuthFailure)
+  })
+}
+
+for (const [cookieValue, remember] of [[undefined, false], ['false', false], ['true', true]]) {
+  test(`sign-in records remember=${remember} for remember_me=${cookieValue} and the API token expiry`, async t => {
+    rememberCookie = cookieValue
+    t.after(() => { rememberCookie = undefined })
+    const exp = nowSeconds() + (remember ? 30 : 7) * 24 * 60 * 60
+    const calls = []
+    t.mock.method(globalThis, 'fetch', async (url, options) => {
+      calls.push(JSON.parse(options.body))
+      return backendSuccess(backendJwt(exp))()
+    })
+
+    const before = nowSeconds()
+    const token = await authOptions.callbacks.jwt(signInArguments())
+
+    assert.deepEqual(calls, [{ token: 'local-callback-test-token', remember }])
+    assert.equal(token.remember, remember)
+    assert.equal(token.backendExp, exp)
+    assert.ok(token.authTime >= before && token.authTime <= nowSeconds())
+  })
+}
+
+const activeToken = (overrides = {}) => ({
+  backendToken: 'local-backend-token', user: { id: '102' }, remember: false,
+  authTime: nowSeconds() - 60, backendExp: nowSeconds() + 3600, ...overrides,
+})
+
+for (const [name, token] of [
+  ['the API token has expired', activeToken({ remember: true, backendExp: nowSeconds() - 1 })],
+  ['a non-remembered session is older than four hours', activeToken({ authTime: nowSeconds() - 4 * 60 * 60 - 1 })],
+  ['a remembered session is older than thirty days', activeToken({ remember: true, authTime: nowSeconds() - 30 * 24 * 60 * 60 - 1, backendExp: nowSeconds() + 3600 })],
+  ['a session from before this change has no lifetime fields', { backendToken: 'local-backend-token', user: { id: '102' } }],
+  ['the session has no API token', activeToken({ backendToken: null })],
+  ['the sign-in time is in the future', activeToken({ authTime: nowSeconds() + 3600 })],
+]) {
+  test(`an existing session ends when ${name}`, async () => {
+    await assert.rejects(authOptions.callbacks.jwt({ token: token }), isSessionEnded)
+  })
+}
+
+test('an active session is kept and reports when it really ends', async () => {
+  const token = activeToken()
+  assert.equal(await authOptions.callbacks.jwt({ token }), token)
   const session = await authOptions.callbacks.session({
     token,
-    session: { user: { name: 'テスト利用者', email: 'local@example.invalid' } },
+    session: { user: { name: 'テスト利用者' }, expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() },
   })
+  assert.equal(session.backendToken, 'local-backend-token')
+  const expiresAt = Math.min(token.backendExp, token.authTime + 4 * 60 * 60)
+  assert.equal(session.expires, new Date(expiresAt * 1000).toISOString())
+  // Remaining seconds by the server clock, so a wrong browser clock cannot shift the re-check.
+  assert.ok(Math.abs(session.expiresIn - (expiresAt - nowSeconds())) <= 1, String(session.expiresIn))
+})
 
-  assert.equal(token.backendToken, undefined)
-  assert.equal(token.user, undefined)
-  assert.equal(session.backendToken, null)
+test('expected session ends are not logged as errors, and other errors omit details', async t => {
+  const logs = []
+  t.mock.method(console, 'error', (...args) => logs.push(args))
+  const ended = new Error('Session ended')
+  ended.name = 'SessionEndedError'
+  authOptions.logger.error('JWT_SESSION_ERROR', ended)
+  assert.equal(logs.length, 0)
+
+  const privateMarker = 'PRIVATE_LOGGER_DETAIL'
+  const failure = new Error('JWT invalid')
+  failure.stack = privateMarker
+  authOptions.logger.error('JWT_SESSION_ERROR', failure)
+  authOptions.logger.error('OAUTH_CALLBACK_ERROR', { error: failure, providerId: privateMarker })
+  assert.equal(logs.length, 2)
+  assert.deepEqual(logs[0], ['[next-auth][error][JWT_SESSION_ERROR]', 'Error', 'JWT invalid'])
+  assert.equal(JSON.stringify(logs).includes(privateMarker), false)
+})
+
+test('NextAuth errors are shown on the sign-in page instead of a missing error page', () => {
+  assert.equal(authOptions.pages.error, '/auth/signin')
 })
 
 test('backend authentication has a deadline, bypasses caches, and rejects redirects', async t => {
@@ -96,7 +165,7 @@ test('backend authentication has a deadline, bypasses caches, and rejects redire
   })
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     calls.push({ url, options })
-    return new Response(JSON.stringify({ token: 'local-backend-token', user: { id: '102' } }), { status: 200 })
+    return backendSuccess()()
   })
 
   const token = await authOptions.callbacks.jwt(signInArguments())
@@ -108,7 +177,7 @@ test('backend authentication has a deadline, bypasses caches, and rejects redire
   assert.equal(calls[0].options.cache, 'no-store')
   assert.equal(calls[0].options.redirect, 'error')
   assert.equal(calls[0].options.signal, controller.signal)
-  assert.equal(token.backendToken, 'local-backend-token')
+  assert.equal(token.backendToken.split('.').length, 3)
 })
 
 const forwardingEnv = { VERCEL: '1', VERCEL_ENV: 'production', RATE_LIMIT_FORWARDING_SECRET: 'test-only-forwarding-secret-0123456789abcdef' }
@@ -131,7 +200,8 @@ test('Google sign-in forwards the Vercel-observed visitor IP with a valid signat
   const calls = []
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     calls.push({ url, options })
-    return new Response(JSON.stringify({ token: 'local-backend-token', user: { id: '102' } }), { status: 200 })
+    // A sign-in only succeeds with an API token that carries an expiry.
+    return backendSuccess()()
   })
 
   await authOptions.callbacks.jwt(signInArguments())
@@ -152,7 +222,8 @@ test('Google sign-in sends no forwarding headers without a secret or outside Ver
   const calls = []
   t.mock.method(globalThis, 'fetch', async (url, options) => {
     calls.push(options.headers)
-    return new Response(JSON.stringify({ token: 'local-backend-token', user: { id: '102' } }), { status: 200 })
+    // A sign-in only succeeds with an API token that carries an expiry.
+    return backendSuccess()()
   })
 
   withEnv(t, forwardingEnv)

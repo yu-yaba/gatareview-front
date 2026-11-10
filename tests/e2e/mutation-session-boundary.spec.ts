@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Page, type Request } from '@playwright/test'
 import { encode } from 'next-auth/jwt'
+import { activeSessionFields } from './session-token'
 import { dismissInstallPromptIfVisible } from './review-access.helpers'
 
 const mockApiURL = `http://127.0.0.1:${process.env.PLAYWRIGHT_MOCK_API_PORT || '3101'}`
@@ -16,7 +17,7 @@ type PostedReview = { authorization: string | undefined; body: { review: { conte
 async function installSession(context: BrowserContext, baseURL: string, identity: string | null) {
   await context.clearCookies({ name: /^(__Secure-)?next-auth\.session-token(\.\d+)?$/ })
   if (!identity) return
-  const value = await encode({ secret: 'playwright-nextauth-secret', token: { backendToken: tokenFor(identity), user: userFor(identity) } })
+  const value = await encode({ secret: 'playwright-nextauth-secret', token: { backendToken: tokenFor(identity), user: userFor(identity), ...activeSessionFields() } })
   await context.addCookies([{ name: 'next-auth.session-token', value, url: baseURL }])
 }
 

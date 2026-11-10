@@ -76,7 +76,9 @@ export function sentryOptions(dsn: string | undefined, environment: string | und
       graphQL: { document: false, variables: false }, genAI: { inputs: false, outputs: false },
       mcp: { inputs: false, outputs: false },
     },
-    tracesSampleRate: 0, tracePropagationTargets: [], maxBreadcrumbs: 0,
+    // tracesSampleRate alone lets an incoming sampled `sentry-trace` header force spans (with raw URLs) to be sent.
+    // The sampler takes precedence over the parent decision, so no request can opt itself into tracing.
+    tracesSampleRate: 0, tracesSampler: () => 0, tracePropagationTargets: [], maxBreadcrumbs: 0,
     integrations: (defaults: { name: string }[]) => defaults.filter(integration =>
       !['BrowserSession', 'BrowserTracing', 'Breadcrumbs', 'Console', 'HttpContext'].includes(integration.name)),
     replaysSessionSampleRate: 0, replaysOnErrorSampleRate: 0,

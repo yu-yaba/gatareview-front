@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { FaHeart, FaRegHeart, FaSpinner } from 'react-icons/fa'
 import LoginPromptModal from './LoginPromptModal'
+import { handleBackendUnauthorized } from '../_helpers/sessionExpiry'
 
 interface ThanksButtonProps {
   reviewId: number
@@ -38,6 +39,8 @@ export default function ThanksButton({
         const data = await res.json()
         setThanked(data.thanked)
         setThanksCount(data.thanks_count)
+      } else if (res.status === 401) {
+        void handleBackendUnauthorized(session?.backendToken)
       }
     } catch (error) {
       console.error('ありがとう状態の取得に失敗:', error)
@@ -79,6 +82,8 @@ export default function ThanksButton({
         setThanksCount(newThanksCount)
         
         onThanksChange?.(newThanked, newThanksCount)
+      } else if (res.status === 401) {
+        void handleBackendUnauthorized(session.backendToken)
       } else {
         const errorData = await res.json()
         alert(errorData.errors?.[0] || 'エラーが発生しました')

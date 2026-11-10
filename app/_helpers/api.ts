@@ -6,6 +6,8 @@ import { CreateReviewResponse } from '../_types/ReviewSchema'
 // API ベースURL
 const API_BASE_URL = process.env.NEXT_PUBLIC_ENV ? `${process.env.NEXT_PUBLIC_ENV}/api/v1` : 'http://localhost:3001/api/v1'
 
+const LOGOUT_PATH = '/auth/logout'
+
 // Axios インスタンスを作成
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -78,15 +80,16 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // 401エラー（認証エラー）の場合
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-      
-      // ここでログアウト処理やトークンリフレッシュを行うことができる
-      console.error('Authentication failed. Please log in again.')
-      
-      // 必要に応じてログアウト処理を実行
-      // signOut({ callbackUrl: '/login' })
+    // 401: 送ったAPIトークンが期限切れ・別端末でのログアウト等で無効になった。
+    // ログイン済みに見えるまま全操作が失敗しないよう、セッションを終えてログイン画面へ案内する。
+    // ログアウトAPI自体の401は signOutWithRevocation が成功として扱うため対象外。
+    if (error.response?.status === 401 && originalRequest?.url !== LOGOUT_PATH) {
+      const authorization = originalRequest?.headers?.get?.('Authorization') ?? originalRequest?.headers?.Authorization
+      if (authorization) {
+        void import('./sessionExpiry')
+          .then(({ bearerToken, handleBackendUnauthorized }) => handleBackendUnauthorized(bearerToken(authorization)))
+          .catch(() => {})
+      }
     }
 
     // 403エラー（認可エラー）の場合
@@ -145,7 +148,7 @@ export const authApi = {
   getCurrentUser: () => apiRequest.get('/auth/me'),
 
   // ログアウト
-  logout: () => apiRequest.post('/auth/logout'),
+  logout: () => apiRequest.post(LOGOUT_PATH),
 }
 
 // レビュー関連のAPI関数

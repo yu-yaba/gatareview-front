@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 import { encode } from 'next-auth/jwt';
+import { activeSessionFields } from './session-token';
 
 const mockApiURL = `http://127.0.0.1:${process.env.PLAYWRIGHT_MOCK_API_PORT || '3101'}`;
 
@@ -234,7 +235,7 @@ export async function mockSession(page: Page, sessionState: SessionState) {
   if (sessionState.authenticated) {
     const value = await encode({
       secret: 'playwright-nextauth-secret',
-      token: { backendToken: sessionState.backendToken, user: sessionState.user },
+      token: { backendToken: sessionState.backendToken, user: sessionState.user, ...activeSessionFields() },
     });
     await page.context().addCookies([{
       name: 'next-auth.session-token', value, url: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:8080',
