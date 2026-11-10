@@ -1,19 +1,11 @@
 User-agent: *
 Allow: /
 
-# 優先的にクロールしてほしいページ
-Allow: /lectures
-Allow: /reviews
-Allow: /faq
-
-# クロールを制限するページ
+# HTML を返さない API と管理画面はクロールしない。
+# /_next/（CSS・JS・画像最適化）はページの表示に必要なのでブロックしない。
+# マイページ・ログイン・投稿フォームはヘッダーなどからリンクされるため、ここでは止めずに
+# 各ページの <meta name="robots" content="noindex"> で検索結果から外す。
 Disallow: /api/
-Disallow: /_next/
 Disallow: /admin/
-Disallow: *.json$
 
-# サイトマップの場所を指定
 Sitemap: https://www.gatareview.com/sitemap.xml
-
-# クロール頻度の調整
-Crawl-delay: 1 

@@ -6,8 +6,6 @@ export type LectureSchema = {
   title: string;
   lecturer: string;
   faculty: string;
-  created_at: Date;
-  updated_at: Date;
   reviews?: ReviewSchema[];
   review_count: number;
 }

@@ -1,13 +1,9 @@
-import type { Metadata } from 'next';
 import Image from 'next/image';
 import OfflineActions from './OfflineActions';
 
 // Service Worker が事前保存し、通信できない画面遷移の代わりに表示する公開ページ。
 // 個人用の情報を含めないよう、静的に生成される内容だけで構成する。
-export const metadata: Metadata = {
-  title: 'オフラインです | ガタレビュ！',
-  robots: { index: false, follow: false },
-};
+// 検索エンジン向けの noindex 等は layout.tsx（サイト共通の noindexPageMetadata）で指定する。
 
 export default function OfflinePage() {
   return (

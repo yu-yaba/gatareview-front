@@ -155,6 +155,12 @@ const nextConfig = {
   // React strictMode
   reactStrictMode: true,
 
+  // Next.js 15 は metadata（title・canonical・robots）を後から送るため、Googlebot には
+  // <body> 側に出ることがある。Google は <head> 以外の canonical を使わないので、
+  // Googlebot にも <head> に出す（ブロッキング描画）。残りは Next.js の既定の一覧
+  // （next/dist/shared/lib/router/utils/html-bots.js の HTML_LIMITED_BOT_UA_RE）と同じ。
+  htmlLimitedBots: /Googlebot|[\w-]+-Google|Google-[\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight/i,
+
   // OGP生成はNode.js実行環境からロゴを読むため、公開配信とは別に同梱する。
   outputFileTracingIncludes: {
     '/lectures/*/opengraph-image': ['./public/green-footer-title.png'],

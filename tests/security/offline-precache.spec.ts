@@ -30,7 +30,7 @@ test('オフライン画面とホームのHTMLが読み込むスクリプト・C
 
 test('オフライン画面は検索エンジンに登録せず、個人用の表示を静的HTMLに含めない', () => {
   const html = readFileSync('.next/server/app/offline.html', 'utf8')
-  expect(html).toMatch(/<meta name="robots" content="noindex, nofollow"/)
+  expect(html).toMatch(/<meta name="robots" content="noindex\b/)
   expect(html).toContain('オフラインです')
   expect(html).not.toMatch(/backendToken|session-token|@example/)
 })

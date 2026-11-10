@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getLectureForMetadata } from '@/app/_helpers/serverLectureApi';
+import { INDEXABLE_ROBOTS, absoluteUrl } from '@/app/_helpers/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -15,11 +16,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const title = `${lecture.title} - ${lecture.lecturer} | ガタレビュ！`;
   const description = `${lecture.faculty}の「${lecture.title}」(${lecture.lecturer} 先生)の授業レビュー。平均評価${lecture.avg_rating?.toFixed(1) || '0.0'}点、${lecture.review_count || 0}件のレビューを確認できます。`;
 
-  const baseUrl = process.env.NODE_ENV === 'production' ? 'https://www.gatareview.com' : 'http://localhost:8080';
+  // canonical・og:url は環境によらず本番ドメインにする（_helpers/seo.ts と同じ）。
+  const baseUrl = absoluteUrl('');
 
   return {
     title,
     description,
+    robots: INDEXABLE_ROBOTS,
     keywords: [
       lecture.title,
       lecture.lecturer,
