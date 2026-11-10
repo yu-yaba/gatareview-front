@@ -36,7 +36,7 @@ export function truncateCharacters(value: string, max: number): string {
   return characters.length > max ? `${characters.slice(0, max).join('')}...` : value;
 }
 
-// 表示用: 先頭の空行と末尾の空白を除き、3行以上続く空行を1行にまとめる。
+// 表示用: 先頭の空行と末尾の空白を除き、2行以上続く空行を1行にまとめる。
 // 1行目の全角スペースの字下げは残す（本文は文字として表示し、HTMLにはしない）。
 export function formatReviewText(value: string | null | undefined): string {
   return (value || '')
@@ -44,6 +44,12 @@ export function formatReviewText(value: string | null | undefined): string {
     .replace(LEADING_BLANK_LINES, '')
     .replace(TRAILING_BLANKS, '')
     .replace(REPEATED_BLANK_LINES, '\n\n');
+}
+
+// 一覧の短いプレビュー用: 1行目の字下げも含めて前後の空白を除いてから省略する
+// （先頭の空白だけで上限の文字数を使い切り、「...」しか残らないのを防ぐ）
+export function previewReviewText(value: string | null | undefined, max: number): string {
+  return truncateCharacters(formatReviewText(value).replace(EDGE_BLANKS, ''), max);
 }
 
 export function reviewContentError(value: string | null | undefined): string {

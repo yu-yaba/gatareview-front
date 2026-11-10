@@ -139,6 +139,12 @@ const ReviewPage = () => {
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     updateReview(name, value);
+    // 直し始めたら古いエラー（表示・aria-invalid・読み上げ）を消す
+    setFormErrors(current => {
+      if (!current[name]) return current;
+      const { [name]: _removed, ...rest } = current;
+      return rest;
+    });
   }, [updateReview]);
 
   // カスタムドロップダウン用のstate管理（同時に開くのは1つだけ）
@@ -241,6 +247,7 @@ const ReviewPage = () => {
     if (!isEmptyObject(errors)) {
       setFormErrors(errors);
     } else {
+      setFormErrors({});
       if (!window.grecaptcha) {
         setFormErrors({ recaptcha: 'reCAPTCHAが読み込まれていません。ページをリロードしてください。' });
         return;

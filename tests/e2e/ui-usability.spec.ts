@@ -4,7 +4,7 @@ import {
   mockLectureDetail, mockLectureReviews, mockMypage, mockSession,
 } from './review-access.helpers'
 import {
-  countCharacters, formatReviewText, reviewContentError, truncateCharacters,
+  countCharacters, formatReviewText, previewReviewText, reviewContentError, truncateCharacters,
 } from '../../app/_helpers/reviewContent'
 import { isValidPageNumber, readPageNumber } from '../../app/_helpers/pagination'
 
@@ -100,6 +100,13 @@ test.describe('入力ヘルパー', () => {
     expect(formatReviewText('1行目\n2行目\n\n3行目')).toBe('1行目\n2行目\n\n3行目')
     expect(formatReviewText(`上${'\n'.repeat(990)}下`)).toBe('上\n\n下')
     expect(formatReviewText(null)).toBe('')
+    // 改行3つ（空行2行）から1行にまとめる
+    expect(formatReviewText('A\n\n\nB')).toBe('A\n\nB')
+    // 一覧の80文字プレビューは、先頭の空白で文字数を使い切らない
+    const leading = `${' '.repeat(100)}先頭に空白が多い本文です。${'い'.repeat(30)}`
+    expect(previewReviewText(leading, 80)).toBe(`先頭に空白が多い本文です。${'い'.repeat(30)}`)
+    expect(previewReviewText(`\u200B${'\uFEFF'.repeat(90)}本文${'う'.repeat(80)}`, 80)).toBe(`本文${'う'.repeat(78)}...`)
+    expect(previewReviewText(null, 80)).toBe('')
   })
 
   test('不正なページ番号は1ページ目として扱う', () => {
@@ -306,6 +313,20 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1280, height: 900 
   })
 }
 
+test('マイページの投稿レビュー一覧: 先頭に空白が多い本文でもプレビューに本文が出る', async ({ page }) => {
+  await mockSession(page, loggedIn)
+  const content = `${' '.repeat(100)}先頭に空白が多い本文です。${'い'.repeat(30)}`
+  await page.route('**/api/v1/mypage/reviews**', route => route.fulfill({ json: {
+    reviews: [{ ...fixtures.mypageResponse.user_reviews[0], content,
+      lecture: { id: 3886, title: 'テスト授業', lecturer: 'テスト教員', faculty: '工学部' } }],
+    pagination: { current_page: 1, total_pages: 1, total_count: 1, per_page: 10 },
+    statistics: { total_reviews: 1, average_rating: 4 },
+  } }))
+  await page.goto('/mypage/reviews')
+  await dismissInstallPromptIfVisible(page)
+  await expect(page.getByText('先頭に空白が多い本文です。', { exact: false })).toBeVisible()
+})
+
 for (const path of ['/mypage', '/mypage/reviews', '/mypage/bookmarks']) {
   test(`未ログインで ${path} を開いてもブラウザの戻るで元の画面へ戻れる`, async ({ page }) => {
     await mockSession(page, { authenticated: false })
@@ -455,6 +476,10 @@ test.describe('レビュー投稿フォーム', () => {
     await textarea.fill('😀'.repeat(1000))
     await expect(textarea).toHaveValue('😀'.repeat(1000))
     await expect(page.getByText('1000 / 1000文字', { exact: true })).toBeVisible()
+    // 直し始めたら古いエラーは消え、説明は文字数だけに戻る
+    await expect(page.getByText(/^コメントは/)).toHaveCount(0)
+    await expect(textarea).not.toHaveAttribute('aria-invalid', /.*/)
+    await expect(textarea).toHaveAccessibleDescription('1000 / 1000文字')
     await submit.click()
     await expect(page.getByText(/^コメントは/)).toHaveCount(0)
 

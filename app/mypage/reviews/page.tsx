@@ -8,7 +8,7 @@ import Loading from '../../_components/Loading'
 import StarRating from '@/app/_components/StarRating'
 import { mypageApi } from '../../_helpers/api'
 import { useUrlPage } from '../../_hooks/useUrlPage'
-import { formatReviewText, truncateCharacters } from '../../_helpers/reviewContent'
+import { previewReviewText } from '../../_helpers/reviewContent'
 import { useCancelOnNavigation } from '../../_hooks/useCancelOnNavigation'
 import {
   FaArrowLeft,
@@ -381,9 +381,7 @@ function MyReviewsPage() {
                       <FaComments className="text-green-500 mt-1 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <span className="text-sm text-gray-500 block mb-2">コメント</span>
-                        <p className="text-gray-800 leading-relaxed whitespace-pre-line wrap-anywhere">{formatReviewText(review.content)
-                          ? truncateCharacters(formatReviewText(review.content), 80)
-                          : 'コメントなし'}</p>
+                        <p className="text-gray-800 leading-relaxed whitespace-pre-line wrap-anywhere">{previewReviewText(review.content, 80) || 'コメントなし'}</p>
                       </div>
                     </div>
                   </div>
