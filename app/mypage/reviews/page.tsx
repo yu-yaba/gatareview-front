@@ -8,6 +8,7 @@ import Loading from '../../_components/Loading'
 import StarRating from '@/app/_components/StarRating'
 import { mypageApi } from '../../_helpers/api'
 import { useUrlPage } from '../../_hooks/useUrlPage'
+import { previewReviewText } from '../../_helpers/reviewContent'
 import { useCancelOnNavigation } from '../../_hooks/useCancelOnNavigation'
 import {
   FaArrowLeft,
@@ -53,7 +54,7 @@ function MyReviewsPage() {
   useEffect(() => {
     // 未認証の場合はログインページにリダイレクト
     if (status === 'unauthenticated') {
-      router.push('/auth/signin')
+      router.replace('/auth/signin')
     }
   }, [status, router])
 
@@ -275,12 +276,12 @@ function MyReviewsPage() {
               >
                 {/* レビューヘッダー */}
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 pb-4 border-b border-gray-100">
-                  <div className="mb-4 lg:mb-0">
+                  <div className="mb-4 lg:mb-0 min-w-0">
                     <Link
                       href={`/lectures/${review.lecture.id}`}
                       className="block hover:text-green-600 transition-colors duration-300"
                     >
-                      <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 hover:text-green-600 transition-colors duration-300">
+                      <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 wrap-anywhere hover:text-green-600 transition-colors duration-300">
                         {review.lecture.title}
                       </h2>
                     </Link>
@@ -378,11 +379,9 @@ function MyReviewsPage() {
                   <div className="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 mb-4">
                     <div className="flex items-start gap-3">
                       <FaComments className="text-green-500 mt-1 shrink-0" />
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <span className="text-sm text-gray-500 block mb-2">コメント</span>
-                        <p className="text-gray-800 leading-relaxed wrap-break-word">{review.content && review.content.length > 80
-                          ? `${review.content.substring(0, 80)}...`
-                          : review.content || 'コメントなし'}</p>
+                        <p className="text-gray-800 leading-relaxed whitespace-pre-line wrap-anywhere">{previewReviewText(review.content, 80) || 'コメントなし'}</p>
                       </div>
                     </div>
                   </div>

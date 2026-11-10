@@ -8,6 +8,7 @@ import Image from 'next/image'
 import Loading from '../_components/Loading'
 import { mypageApi } from '../_helpers/api'
 import { signOutWithRevocation } from '../_helpers/signOut'
+import { previewReviewText } from '../_helpers/reviewContent'
 import {
   FaUser,
   FaEnvelope,
@@ -109,7 +110,7 @@ export default function MyPage() {
   useEffect(() => {
     // 未認証の場合はログインページにリダイレクト
     if (status === 'unauthenticated') {
-      router.push('/auth/signin')
+      router.replace('/auth/signin')
     }
   }, [status, router])
 
@@ -445,10 +446,8 @@ export default function MyPage() {
                             </div>
                           </div>
                           <div className="space-y-3">
-                            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg">
-                              {review.content && review.content.length > 80
-                                ? `${review.content.substring(0, 80)}...`
-                                : review.content || 'コメントなし'}
+                            <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed bg-gray-50 p-3 rounded-lg whitespace-pre-line wrap-anywhere">
+                              {previewReviewText(review.content, 80) || 'コメントなし'}
                             </p>
                           </div>
                         </div>

@@ -454,6 +454,7 @@ const NewReviewPage = () => {
           ref={searchInput}
           value={searchWord}
           onChange={handleSearchInputChange}
+          maxLength={255}
           placeholder="授業名、講師名で検索..."
           className="w-full p-3 border rounded-md shadow-sm focus:border-green-500 outline-hidden"
         />
