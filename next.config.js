@@ -1,13 +1,32 @@
 /** @type {import('next').NextConfig} */
 const { createContentSecurityPolicy } = require('./config/content-security-policy.cjs');
-const { excludeUnusedRouteJavaScript } = require('./config/pwa-precache.cjs');
+const { excludeUnusedRouteJavaScript, addOfflinePageToPrecache } = require('./config/pwa-precache.cjs');
+
+// 通信できない画面遷移にだけ、事前保存した公開の /offline を返す（SW内に文字列として埋め込まれる）。
+// 個人用の画面はどこにも保存しないため、オフライン時に表示できるのはホームとこの画面だけ。
+const offlineDocumentFallback = async () => (await caches.match('/offline', {
+  cacheName: `workbox-precache-v2-${self.registration.scope}`,
+  ignoreSearch: true,
+})) || undefined;
+
 const withPWA = require('next-pwa')({
   dest: 'public',
-  register: true,
+  // next-pwa 5.6 の自動登録は Pages Router の main.js にしか入らず、App Router では動かない。
+  // 登録は app/_components/ServiceWorkerRegistration.tsx から本番だけ明示的に行う。
+  register: false,
+  reloadOnOnline: false,
   skipWaiting: true,
+  // next-pwa標準のstart-urlは '/' の応答を状態コードや保存可否に関係なく保存するため使わず、
+  // 下の start-url-v2 ルールで公開HTMLだけを保存する。'/' を事前保存（古いHTMLの固定）もしない。
+  dynamicStartUrl: false,
+  cacheStartUrl: false,
+  // SWの起動を待たずに画面のHTML取得を始め、SW導入による表示の遅れを抑える。
+  navigationPreload: true,
   // App Router's build manifest is internal and returns 404 on Vercel.
   // Precaching it would abort installation of the entire service worker.
   buildExcludes: [/app-build-manifest\.json$/, excludeUnusedRouteJavaScript],
+  // オフライン時の代替画面。静的に生成される公開ページで、ビルドごとに更新する。
+  manifestTransforms: [addOfflinePageToPrecache],
   // Social-preview assets remain publicly served; they are not needed offline.
   publicExcludes: ['!noprecache/**/*', '!gatareview_ogp.png', '!ogp.png', '!green-title.svg', '!white-title.svg'],
   disable: process.env.NODE_ENV === 'development',
@@ -24,6 +43,37 @@ const withPWA = require('next-pwa')({
       // 特に1x1の計測ピクセルがキャッシュされると成果計測が壊れるため、画像ルールより先に置く。
       urlPattern: ({ url }) => url.hostname === 'a8.net' || url.hostname.endsWith('.a8.net'),
       handler: 'NetworkOnly',
+    },
+    {
+      // ホーム('/')への画面遷移だけは、前回表示した公開HTMLをオフライン時に再表示する。
+      // クエリ付き（'/?' を含む）・リダイレクト・エラー・private/no-store の応答は保存しない。
+      // 古いビルドのHTMLが新しい事前保存と食い違わないよう、新しいSWの有効化時に削除する（sw-cache-cleanup.js）。
+      urlPattern: ({ url, request }) => request.mode === 'navigate' && url.href === `${self.location.origin}/`,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'start-url-v2',
+        plugins: [{
+          cacheWillUpdate: async ({ response }) => {
+            if (!response || response.status !== 200 || response.type !== 'basic' || response.redirected) return null;
+            if (!/^text\/html(;|$)/i.test(response.headers.get('Content-Type') || '')) return null;
+            if (/private|no-store/i.test(response.headers.get('Cache-Control') || '')) return null;
+            return response;
+          },
+          handlerDidError: offlineDocumentFallback,
+        }],
+        expiration: {
+          maxEntries: 1,
+        },
+      },
+    },
+    {
+      // その他の画面遷移（授業・マイページ・認証画面など）は保存も再利用もしない。
+      // 通信できないときだけ /offline を返す。
+      urlPattern: ({ url, request }) => request.mode === 'navigate' && url.origin === self.location.origin,
+      handler: 'NetworkOnly',
+      options: {
+        plugins: [{ handlerDidError: offlineDocumentFallback }],
+      },
     },
     {
       urlPattern: ({ url, request }) => url.protocol === 'https:' && url.hostname === 'fonts.googleapis.com' && request.destination === 'style',
@@ -49,13 +99,18 @@ const withPWA = require('next-pwa')({
     },
     {
       // public直下で管理する公開画像だけを保存する。動的ページは拡張子でも除外する。
+      // next/image の最適化URLも、元画像が同じ許可リストに完全一致するときだけ保存する。
+      // SWの制御下で一度表示したロゴ（ヘッダー・フッター）を、以後のオフライン画面でも表示するため。
+      // 初回訪問の直後（制御前に読み込んだ画像）は保存されない。Googleのアイコン等の外部画像は対象外。
       urlPattern: ({ url, request }) => request.destination === 'image' && url.origin === self.location.origin && [
         '/apple-touch-icon.png', '/gatareview_ogp.png', '/green-footer-title.png', '/green-title.svg',
         '/icon-120x120.png', '/icon-128x128.png', '/icon-144x144.png', '/icon-152x152.png',
         '/icon-16x16.png', '/icon-192x192.png', '/icon-32x32.png', '/icon-384x384.png',
         '/icon-512x512.png', '/icon-72x72.png', '/icon-96x96.png', '/icon.png', '/ogp.png',
         '/white-header-title.png', '/white-title.svg',
-      ].includes(url.pathname),
+      ].includes(url.pathname === '/_next/image' && url.searchParams.getAll('url').length === 1
+        ? url.searchParams.get('url')
+        : url.pathname),
       handler: 'CacheFirst',
       options: {
         cacheName: 'images-v2',

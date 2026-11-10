@@ -15,6 +15,13 @@ self.addEventListener('activate', (event) => {
     // 新しいSWは別名のv2キャッシュを使用するため、新規データは削除しない。
     'images',
     'static-resources',
+    // 状態コードや保存可否を確認せずに '/' を保存していた next-pwa 標準のホーム用キャッシュ。
+    // 公開HTMLだけを保存する start-url-v2 に置き換えた。
+    'start-url',
+    // 新しいSW（＝新しいビルド）の有効化ごとに空にする。前のビルドのホームHTMLが参照する
+    // JS・CSSは事前保存から外れるため、残すとオフライン時に崩れたエラー画面になる。
+    // 次にオンラインでホームを開いたときに、新しいビルドのHTMLを保存し直す。
+    'start-url-v2',
   ]
 
   event.waitUntil(

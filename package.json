@@ -24,7 +24,7 @@
     "test:public-review": "node --test tests/unit/public-review.test.cjs",
     "test:search-cache": "node tests/cache/lecture-search-cache.mjs",
     "test:monitoring": "node --test tests/unit/monitoring.test.cjs",
-    "test:pwa-domains": "node --test tests/unit/pwa-advertising-hosts.test.cjs",
+    "test:pwa-domains": "node --test tests/unit/pwa-advertising-hosts.test.cjs tests/unit/pwa-runtime-caching.test.cjs",
     "test:seo": "node tests/seo/seo-output.mjs"
   },
   "dependencies": {

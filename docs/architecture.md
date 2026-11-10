@@ -50,7 +50,8 @@ GataReview のフロントエンドは、講義検索、講義詳細閲覧、レ
 - Docker Compose ではフロントはホスト `8080`、バックエンドはホスト `3001` に公開される。
 
 ## PWA
-- `next-pwa` を利用し、オフライン時のページとして `app/offline/page.tsx` を持つ。
+- `next-pwa` でService Worker（`public/sw.js`）を生成し、本番では `app/_components/ServiceWorkerRegistration.tsx` が登録する。next-pwa 5.6の自動登録はPages Router用で、App Routerの画面では実行されない。
+- オフライン時は、保存済みのホームか、事前保存した `app/offline/page.tsx` だけを表示する。個人用・ログイン状態で変わる画面は保存しない。
 - PWA インストール導線は `PWAInstall.tsx` が担当する。
 - PWA の挙動確認では、通常の画面表示だけでなく Service Worker、キャッシュ、オフライン遷移も見る。
 

@@ -18,7 +18,7 @@ Next.js 15のストリーミングは動的なインラインscriptを使う。�
 
 nonce生成用のMiddlewareは追加しない。公開情報の300秒キャッシュと、レビューを待たずに授業概要を表示する処理を維持する。外部の有料CSP収集サービスは使わない。許可先を追加するときは用途と配信元を確認し、広いhttps:や*を追加しない。
 
-本番確認でSWのインストールを妨げていた `/_next/app-build-manifest.json` の404も確認した。これは配信されない内部ファイルなので、next-pwaのbuildExcludesで事前保存から除外する。CSPの許可範囲は広げず、実際の本番用Next.jsサーバーでSWがactivatedになるまで確認する。
+本番確認でSWのインストールを妨げていた `/_next/app-build-manifest.json` の404も確認した。これは配信されない内部ファイルなので、next-pwaのbuildExcludesで事前保存から除外する。CSPの許可範囲は広げず、実際の本番用Next.jsサーバーでSWがactivatedになるまで確認する。SWの登録はバンドル済みのクライアントコンポーネントから `/sw.js` を指定して行うため、インラインscript・`unsafe-eval`・外部ホストの追加は不要で、`worker-src 'self'` の範囲に収まる。
 
 ## 検証
 

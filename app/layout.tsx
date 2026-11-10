@@ -8,6 +8,7 @@ import ScriptGa from './_components/ScriptGa'
 import ClientProviders from './_components/ClientProviders'
 import Script from 'next/script';
 import PWAInstall from './_components/PWAInstall';
+import ServiceWorkerRegistration from './_components/ServiceWorkerRegistration';
 import { HOME_DESCRIPTION, HOME_TITLE, SITE_NAME, SITE_URL, serializeJsonLd } from './_helpers/seo';
 
 const inter = Inter({ subsets: ['latin'] })
@@ -246,6 +247,7 @@ export default function RootLayout({
             <PWAInstall />
           </div>
         </ClientProviders>
+        <ServiceWorkerRegistration />
         <Script
           src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
           strategy="lazyOnload"

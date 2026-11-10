@@ -44,17 +44,16 @@ test('本番ページを操作でき、CSP適用中も検索・詳細・認証�
 })
 
 test('本番のNext.js初期化とSWを維持し、許可していないスクリプトを読み込まない', async ({ page }) => {
+  // The worker is registered after the page load event and then precaches the app shell.
+  test.slow()
   await page.goto('/')
   await expect(page.getByPlaceholder('授業名、教授名、学部名で検索...')).toBeEditable()
-  const scope = await page.evaluate(async () => {
-    await navigator.serviceWorker.register('/sw.js')
-    const ready = await navigator.serviceWorker.ready
-    return ready.scope
-  })
-  expect(scope).toBe(new URL('/', page.url()).href)
+  // The application registers the worker itself; the test only observes it.
   await expect.poll(() => page.evaluate(async () =>
     (await navigator.serviceWorker.getRegistration())?.active?.state
-  )).toBe('activated')
+  ), { timeout: 30_000 }).toBe('activated')
+  const scope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope)
+  expect(scope).toBe(new URL('/', page.url()).href)
   const result = await page.evaluate(async () => {
     const script = document.createElement('script')
     script.src = 'https://untrusted.example/csp-test.js'
@@ -66,6 +65,8 @@ test('本番のNext.js初期化とSWを維持し、許可していないスク�
 })
 
 test('事前保存を絞っても、有効化後に表示したホームをオフラインで再表示できる', async ({ page, context }) => {
+  // The worker is registered after the page load event and then precaches the app shell.
+  test.slow()
   const failedScripts: string[] = []
   let requiredScripts = new Set<string>()
   page.on('requestfailed', request => {
@@ -73,16 +74,12 @@ test('事前保存を絞っても、有効化後に表示したホームをオ�
     if (url.origin === new URL(page.url()).origin && requiredScripts.has(url.pathname)) failedScripts.push(url.pathname)
   })
   await page.goto('/')
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.register('/sw.js')
-    await navigator.serviceWorker.ready
-  })
-  await expect.poll(() => page.evaluate(async () => (await navigator.serviceWorker.getRegistration())?.active?.state)).toBe('activated')
-  // The existing start-url policy caches HTML on a controlled online visit.
+  await expect.poll(() => page.evaluate(async () => (await navigator.serviceWorker.getRegistration())?.active?.state), { timeout: 30_000 }).toBe('activated')
+  // The start-url policy caches public HTML on a controlled online visit.
   // Keep its NetworkFirst freshness policy instead of precaching stale HTML.
   await page.reload()
   await expect.poll(() => page.evaluate(async () =>
-    Boolean(await (await caches.open('start-url')).match('/'))
+    Boolean(await (await caches.open('start-url-v2')).match('/'))
   )).toBe(true)
   // Link prefetch can also append scripts for unvisited routes. Only the scripts
   // in the actual home HTML are required for this offline page.
