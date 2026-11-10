@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import { redirect } from 'next/navigation';
 import LectureSearchClient from './LectureSearchClient';
 import LectureSearchLoading from './LectureSearchLoading';
@@ -7,7 +7,7 @@ import type { LectureSearchResponse } from '../_helpers/lectureSearch';
 import { isValidPageNumber } from '../_helpers/pagination';
 import type { Metadata } from 'next';
 import JsonLd from '../_components/JsonLd';
-import { HOME_BREADCRUMB, breadcrumbJsonLd, indexablePageMetadata, lectureListCanonicalPath } from '../_helpers/seo';
+import { HOME_BREADCRUMB, breadcrumbJsonLd, indexablePageMetadata, lectureListCanonicalPath, noindexPageMetadata } from '../_helpers/seo';
 
 type LecturesSearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -23,14 +23,23 @@ const LECTURE_LIST_TITLE = '授業一覧・検索 - ガタレビュ！新潟大�
 const LECTURE_LIST_DESCRIPTION = '新潟大学の授業を授業名・教員名・学部で検索できます。評価やレビュー数で並び替え、テストの有無や出席確認などのレビュー内容でも絞り込めます。';
 const lectureListBreadcrumb = breadcrumbJsonLd([HOME_BREADCRUMB, { name: '授業一覧', path: '/lectures' }]);
 
+// metadata と本文で同じ一覧を使う（1回のリクエストの中では1回だけ取得する）。
+const getInitialList = cache(async (query: string): Promise<LectureSearchResponse | null> => {
+  try { return await getPublicLectureList(new URLSearchParams(query)); } catch { return null; /* Client retry remains available. */ }
+});
+
 export async function generateMetadata({ searchParams }: { searchParams: LecturesSearchParams }): Promise<Metadata> {
-  const path = lectureListCanonicalPath(await toURLSearchParams(searchParams));
+  const params = await toURLSearchParams(searchParams);
+  const path = lectureListCanonicalPath(params);
   const page = new URLSearchParams(path.split('?')[1] || '').get('page');
-  return indexablePageMetadata({
-    title: page ? `授業一覧（${page}ページ目） - ガタレビュ！新潟大学の授業レビュー` : LECTURE_LIST_TITLE,
-    description: LECTURE_LIST_DESCRIPTION,
-    path,
-  });
+  const title = page ? `授業一覧（${page}ページ目） - ガタレビュ！新潟大学の授業レビュー` : LECTURE_LIST_TITLE;
+  // 最後のページより後ろ（?page=9999 など）は授業のない空のページなので、検索結果に出さない。
+  // 一覧を取得できなかったときは判断できないので、通常どおりにする。
+  if (page) {
+    const list = await getInitialList(params.toString());
+    if (list && Number(page) > list.pagination.total_pages) return noindexPageMetadata(title);
+  }
+  return indexablePageMetadata({ title, description: LECTURE_LIST_DESCRIPTION, path });
 }
 
 const MAX_SEARCH_LENGTH = 255;
@@ -43,8 +52,7 @@ function truncateUtf16(value: string, max: number): string {
 }
 
 async function InitialResults({ query }: { query: string }) {
-  let initialData: LectureSearchResponse | null = null;
-  try { initialData = await getPublicLectureList(new URLSearchParams(query)); } catch { /* Client retry remains available. */ }
+  const initialData = await getInitialList(query);
   return <LectureSearchClient key={query} initialQuery={query} initialData={initialData} generatedAt={Date.now()} />;
 }
 

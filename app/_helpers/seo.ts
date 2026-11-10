@@ -20,6 +20,14 @@ const TWITTER_ACCOUNT = '@gatareview';
 // 親（授業詳細など）の canonical を引き継がないよう、canonical も明示的に消す。
 export const NOINDEX_ROBOTS = { index: false, follow: true } as const;
 
+// 検索結果に出すページ用。index / follow は既定値なので書かず、プレビューの大きさの上限だけをなくす
+// （Discover などで大きな画像を使えるようにする）。404 などには付けない。
+export const INDEXABLE_ROBOTS = {
+  'max-image-preview': 'large',
+  'max-snippet': -1,
+  'max-video-preview': -1,
+} as const;
+
 export function absoluteUrl(path: string): string {
   if (path === '/' || path === '') return SITE_URL;
   return `${SITE_URL}${path.startsWith('/') ? path : `/${path}`}`;
@@ -48,6 +56,7 @@ export function indexablePageMetadata({
     title,
     description,
     ...(keywords ? { keywords } : {}),
+    robots: INDEXABLE_ROBOTS,
     alternates: { canonical: url },
     openGraph: {
       title,

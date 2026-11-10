@@ -20,8 +20,10 @@ const UAS = {
   browser: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
 };
 
-// 'error' (503), 'html' (200 with a non-JSON body), or 'ok'.
+// 'error' (503), 'html' (200 with a non-JSON body), 'strings' (200 with invalid ids),
+// 'missing' (404 from a backend without the endpoint), or 'ok'.
 let sitemapMode = 'error';
+const LIST_TOTAL_PAGES = 5;
 let sitemapCalls = 0;
 // Timestamps are never published (not in HTML, RSC payload, sitemap or JSON-LD). Every mocked
 // lecture/review carries marker values; no page may contain them.
@@ -42,11 +44,13 @@ const backend = createServer((request, response) => {
   if (path === '/api/v1/lectures/sitemap') {
     sitemapCalls += 1;
     if (sitemapMode === 'error') { status = 503; body = { error: 'temporary test failure' }; }
+    else if (sitemapMode === 'missing') { status = 404; body = { error: '指定された講義は存在しません。' }; }
+    else if (sitemapMode === 'strings') body = { lecture_ids: ['1', '2'] };
     else if (sitemapMode === 'html') {
       response.writeHead(200, { 'Content-Type': 'text/html' });
       response.end('<!doctype html><title>maintenance</title>');
       return;
-    } else body = { lecture_ids: [3886, 12, 12 /* duplicate: listed once */, 77, 'x', -1, 0, 1.5 /* invalid: skipped */] };
+    } else body = { lecture_ids: [3886, 12, 12 /* duplicate: listed once */, 77] };
   } else if (path === `/api/v1/lectures/${MISSING_LECTURE_ID}`) {
     status = 404; body = { error: 'not found' };
   } else if (/^\/api\/v1\/lectures\/\d+$/.test(path)) {
@@ -54,7 +58,9 @@ const backend = createServer((request, response) => {
   } else if (/^\/api\/v1\/lectures\/\d+\/reviews$/.test(path)) {
     body = { reviews: [reviewJson(Number(path.split('/')[4]))], access: { restriction_enabled: false, access_granted: true } };
   } else if (path === '/api/v1/lectures') {
-    body = { lectures: [lectureJson(3886)], pagination: { current_page: 1, total_pages: 1, total_count: 1, per_page: 20 } };
+    const page = Number(new URL(request.url, 'http://localhost').searchParams.get('page') || 1);
+    body = { lectures: page <= LIST_TOTAL_PAGES ? [lectureJson(3886)] : [],
+      pagination: { current_page: page, total_pages: LIST_TOTAL_PAGES, total_count: LIST_TOTAL_PAGES * 20, per_page: 20 } };
   } else if (path === '/api/v1/lectures/popular' || path === '/api/v1/lectures/no_reviews') {
     body = { lectures: [lectureJson(3886)] };
   } else if (path === '/api/v1/reviews/total') {
@@ -196,6 +202,15 @@ try {
   sitemapMode = 'html';
   const broken = await get('/sitemap.xml');
   assert.ok(broken.response.status >= 500, `cold sitemap with a non-JSON 200 must be 5xx, got ${broken.response.status}`);
+  sitemapMode = 'strings';
+  const invalidIds = await get('/sitemap.xml');
+  assert.ok(invalidIds.response.status >= 500, `a response with invalid ids is rejected whole, got ${invalidIds.response.status}`);
+  // A backend without the endpoint (front deployed first): static pages only, 200, not cached.
+  sitemapMode = 'missing';
+  const staticOnly = await get('/sitemap.xml');
+  assert.equal(staticOnly.response.status, 200, 'missing endpoint must not break sitemap.xml');
+  assert.deepEqual(Array.from(staticOnly.body.matchAll(/<loc>([^<]*)<\/loc>/g), match => match[1]),
+    [SITE, `${SITE}/lectures`, `${SITE}/faq`, `${SITE}/privacy`, `${SITE}/terms`]);
   sitemapMode = 'ok';
   const callsBefore = sitemapCalls;
   const sitemap = await get('/sitemap.xml');
@@ -239,7 +254,9 @@ try {
       if (ua === UAS.googlebot) assertInHead(body, label);
       assertNoTimestamps(body, label);
       assert.deepEqual(result.canonicals, [page.canonical], `${label}: canonical`);
-      assert.deepEqual(result.robots, [], `${label}: indexable pages carry no robots meta`);
+      assert.equal(result.robots.length, 1, `${label}: one robots meta`);
+      assert.ok(!/noindex|nofollow/.test(result.robots[0]), `${label}: indexable (${result.robots[0]})`);
+      assert.ok(result.robots[0].includes('max-image-preview:large'), `${label}: large previews allowed (${result.robots[0]})`);
       assert.deepEqual(result.ogUrl, [page.canonical], `${label}: og:url matches canonical`);
       if (page.title) assert.equal(result.titles[0], page.title, label);
       else assert.notEqual(result.titles[0], HOME_TITLE, `${label}: must not reuse the home title`);
@@ -268,6 +285,16 @@ try {
         assert.equal(faqs.length, 0, `${label}: FAQPage only on /faq`);
       }
     }
+
+    // Past the last page: an empty list, so noindex without a canonical.
+    const pastEnd = await get(`/lectures?page=${LIST_TOTAL_PAGES + 1}`, ua);
+    assert.equal(pastEnd.response.status, 200);
+    const pastEndResult = inspect(pastEnd.body);
+    if (ua === UAS.googlebot) assertInHead(pastEnd.body, `${uaName} past-end page`);
+    assert.deepEqual(pastEndResult.robots, ['noindex, follow'], `${uaName} past-end page: noindex`);
+    assert.deepEqual(pastEndResult.canonicals, [], `${uaName} past-end page: no canonical`);
+    const lastPage = inspect((await get(`/lectures?page=${LIST_TOTAL_PAGES}`, ua)).body);
+    assert.deepEqual(lastPage.canonicals, [`${SITE}/lectures?page=${LIST_TOTAL_PAGES}`], `${uaName} last page stays indexable`);
 
     for (const [from, to] of REDIRECTS) {
       const { response } = await get(from, ua);

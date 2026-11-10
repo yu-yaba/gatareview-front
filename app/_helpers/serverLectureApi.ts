@@ -161,7 +161,8 @@ async function fetchPublicLecture(id: string, signClientIp: ClientIpSigner): Pro
         cache: 'no-store',
         headers: { 'User-Agent': 'GataReview-NextJS-Metadata/1.0' },
       }, signClientIp)),
-      ['public-lecture-v2', ...getBackendBaseUrls(), path],
+      // v3: v2 の項目には created_at / updated_at が残っているので読まない（公開する項目だけにした版）。
+      ['public-lecture-v3', ...getBackendBaseUrls(), path],
       { revalidate: PUBLIC_REVALIDATE_SECONDS },
     )();
   } catch (error) {
