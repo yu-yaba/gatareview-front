@@ -131,9 +131,14 @@ test('ログイン中に閲覧しても、SWのキャッシュには公開HTML(/
   const secret = process.env.NEXTAUTH_SECRET
   test.skip(!secret, 'NEXTAUTH_SECRET is required to create a dummy session')
   const marker = `pwa-test-user-${Date.now()}`
+  // Lifetime fields the jwt callback requires for an active session (app/_helpers/sessionLifetime.ts).
+  const now = Math.floor(Date.now() / 1000)
   const value = await encode({
     secret: secret!,
-    token: { backendToken: `${marker}-token`, user: { id: `${marker}-id`, name: marker, email: `${marker}@example.test`, avatar_url: null } },
+    token: {
+      backendToken: `${marker}-token`, user: { id: `${marker}-id`, name: marker, email: `${marker}@example.test`, avatar_url: null },
+      remember: true, authTime: now, backendExp: now + 3600,
+    },
   })
   await context.addCookies([{ name: 'next-auth.session-token', value, url: new URL('/', test.info().project.use.baseURL!).href }])
   await page.goto('/')
