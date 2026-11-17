@@ -155,6 +155,9 @@ const nextConfig = {
   // React strictMode
   reactStrictMode: true,
 
+  // X-Powered-By: Next.js を返さない（使用フレームワークを外部に知らせる必要がないため）
+  poweredByHeader: false,
+
   // Next.js 15 は metadata（title・canonical・robots）を後から送るため、Googlebot には
   // <body> 側に出ることがある。Google は <head> 以外の canonical を使わないので、
   // Googlebot にも <head> に出す（ブロッキング描画）。残りは Next.js の既定の一覧

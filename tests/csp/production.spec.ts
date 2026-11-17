@@ -29,6 +29,7 @@ test('本番ページを操作でき、CSP適用中も検索・詳細・認証�
   const policy = response?.headers()['content-security-policy'] || ''
   expect(policy).toContain("script-src-attr 'none'")
   expect(policy).not.toContain("'unsafe-eval'")
+  expect(response?.headers()['x-powered-by']).toBeUndefined()
   await page.getByPlaceholder('授業名、教授名、学部名で検索...').fill('CSP検索確認')
   await page.getByPlaceholder('授業名、教授名、学部名で検索...').press('Enter')
   await expect(page).toHaveURL(/\/lectures\?.*CSP/)
